@@ -28,6 +28,14 @@ services:
     depends_on:
       db:
         condition: service_healthy
+  python-ai:
+    build: ./python-ai
+    container_name: interview-python-ai
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      PYTHONUNBUFFERED: "1"
 
 volumes:
   interview_pgdata:
