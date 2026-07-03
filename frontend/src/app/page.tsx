@@ -4,6 +4,7 @@ import AppHeader from "@/components/AppHeader"
 import ApplicationsKanban from "@/components/ApplicationsKanban"
 import AuthForm from "@/components/AuthForm"
 import { useAuth } from "@/context/AuthContext"
+import JobSearchPanel from "@/components/JobSearchPanel"
 
 export default function Home() {
   const { user, loading } = useAuth()
@@ -21,6 +22,9 @@ export default function Home() {
         <>
           <AppHeader />
           <ApplicationsKanban />
+          {process.env.NEXT_PUBLIC_USE_JAVA_SEARCH === "true" && (
+            <JobSearchPanel />
+          )}
         </>
       )}
     </main>
