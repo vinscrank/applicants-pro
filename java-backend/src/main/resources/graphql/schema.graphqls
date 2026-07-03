@@ -1,0 +1,21 @@
+type User {
+    id: ID!
+    email: String!
+    active: Boolean!
+}
+
+type Application {
+    id: ID!
+    companyName: String!
+    jobTitle: String!
+    status: String!
+    priority: String
+    location: String
+    jobUrl: String
+    createdAt: String
+}
+
+type Query {
+    me: User
+    applications: [Application!]!
+}
