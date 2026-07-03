@@ -1,0 +1,45 @@
+.today-view {
+  max-width: 1200px;
+}
+
+.today-skeleton {
+  height: 320px;
+  border-radius: 0.5rem;
+  background: var(--surface-muted);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.today-action-row,
+.today-recent-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  transition: background 0.15s;
+}
+
+.today-action-row:hover,
+.today-recent-row:hover {
+  background: var(--surface-muted);
+}
+
+.today-action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.375rem;
+  background: var(--surface-muted);
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

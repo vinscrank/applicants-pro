@@ -1,0 +1,85 @@
+.search-pref-panel {
+  padding: 0.25rem 0;
+}
+
+.search-pref-embedded h2 {
+  display: none;
+}
+
+.search-pref-intro {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.45;
+}
+
+.search-pref-field {
+  margin-bottom: 0.85rem;
+}
+
+.search-pref-label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: 0.35rem;
+}
+
+.search-pref-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.875rem;
+}
+
+.search-pref-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  margin-bottom: 0.55rem;
+  cursor: pointer;
+}
+
+.search-pref-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-pref-save {
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  border: none;
+}
+
+.search-pref-save:disabled {
+  opacity: 0.6;
+}
+
+.search-pref-reset {
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.search-pref-saved {
+  margin-top: 0.65rem;
+  font-size: 0.8125rem;
+  color: #248a3d;
+  font-weight: 600;
+}

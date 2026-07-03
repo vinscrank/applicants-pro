@@ -1,0 +1,313 @@
+.companies-panel {
+  background: var(--glass-bg-strong);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.35rem 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.companies-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.companies-header h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.auto-discover-btn {
+  padding: 0.55rem 1rem;
+  background: var(--success-soft);
+  color: #248a3d;
+  border: 1px solid rgba(52, 199, 89, 0.2);
+  border-radius: var(--radius-pill);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.auto-discover-btn:hover:not(:disabled) {
+  background: rgba(52, 199, 89, 0.18);
+}
+
+.auto-discover-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.discover-forms {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.discover-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.discover-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.65rem 0.85rem;
+  background: var(--surface-hover);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.875rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.discover-input::placeholder {
+  color: var(--text-muted);
+}
+
+.discover-input.small {
+  flex: 0 0 140px;
+  min-width: 120px;
+}
+
+.discover-input:focus {
+  outline: none;
+  background: var(--surface);
+  border-color: rgba(0, 113, 227, 0.35);
+  box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12);
+}
+
+.discover-btn {
+  padding: 0.65rem 1rem;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.discover-btn:hover:not(:disabled) {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.discover-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.companies-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.companies-scan-window {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.companies-scan-window select {
+  padding: 0.45rem 0.65rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-hover);
+  color: var(--text);
+  font-size: 0.8125rem;
+  font-family: inherit;
+}
+
+.companies-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.companies-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.companies-table th,
+.companies-table td {
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+}
+
+.companies-table th {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  background: var(--surface-hover);
+}
+
+.companies-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.companies-cell-name {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.companies-cell-meta {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+  word-break: break-word;
+}
+
+.companies-careers-link {
+  color: var(--accent);
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.companies-careers-link:hover {
+  text-decoration: underline;
+}
+
+.companies-scan-btn {
+  padding: 0.45rem 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid rgba(0, 113, 227, 0.2);
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.companies-scan-btn:hover:not(:disabled) {
+  background: rgba(0, 113, 227, 0.14);
+}
+
+.companies-scan-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.companies-scan-result {
+  margin-top: 0.45rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  max-width: 220px;
+}
+
+.companies-scan-result ul {
+  margin: 0.2rem 0 0;
+  padding-left: 1rem;
+}
+
+.companies-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.company-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  min-width: 110px;
+  transition: background 0.15s;
+}
+
+.company-chip:hover {
+  background: var(--surface);
+}
+
+.company-chip-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.company-chip-meta {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.companies-more {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  padding: 0.65rem;
+  align-self: center;
+}
+
+@media (max-width: 500px) {
+  .companies-panel {
+    padding: 1rem;
+  }
+}
+
+.companies-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.companies-status-loading {
+  background: var(--accent-soft);
+  border-color: rgba(0, 113, 227, 0.15);
+  color: var(--accent);
+}
+
+.companies-status-spinner {
+  width: 14px;
+  height: 14px;
+  margin-top: 0.15rem;
+  border: 2px solid rgba(0, 113, 227, 0.2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: companies-spin 0.7s linear infinite;
+}
+
+@keyframes companies-spin {
+  to { transform: rotate(360deg); }
+}
+
+.companies-empty {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  padding: 0.5rem 0;
+}

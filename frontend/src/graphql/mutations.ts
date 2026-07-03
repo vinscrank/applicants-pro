@@ -59,3 +59,97 @@ export const RUN_JOB_SEARCH: TypedDocumentNode<
     }
   }
 `;
+
+export type CreateApplicationMutation = {
+  createApplication: {
+    id: string;
+    companyName: string;
+    jobTitle: string;
+    status: string;
+    priority: string | null;
+    location: string | null;
+    jobUrl: string | null;
+    createdAt: string | null;
+  };
+};
+
+export type CreateApplicationInput = {
+  companyName: string;
+  jobTitle: string;
+  jobUrl?: string | null;
+  location?: string | null;
+  status?: string | null;
+  priority?: string | null;
+};
+
+export const CREATE_APPLICATION: TypedDocumentNode<
+  CreateApplicationMutation,
+  { input: CreateApplicationInput }
+> = gql`
+  mutation CreateApplication($input: CreateApplicationInput!) {
+    createApplication(input: $input) {
+      id
+      companyName
+      jobTitle
+      status
+      priority
+      location
+      jobUrl
+      createdAt
+    }
+  }
+`;
+
+export type UpdateApplicationMutation = {
+  updateApplication: {
+    id: string;
+    companyName: string;
+    jobTitle: string;
+    status: string;
+    priority: string | null;
+    location: string | null;
+    jobUrl: string | null;
+    createdAt: string | null;
+  };
+};
+
+export type UpdateApplicationInput = {
+  id: string;
+  companyName?: string | null;
+  jobTitle?: string | null;
+  jobUrl?: string | null;
+  location?: string | null;
+  status?: string | null;
+  priority?: string | null;
+};
+
+export const UPDATE_APPLICATION: TypedDocumentNode<
+  UpdateApplicationMutation,
+  { input: UpdateApplicationInput }
+> = gql`
+  mutation UpdateApplication($input: UpdateApplicationInput!) {
+    updateApplication(input: $input) {
+      id
+      companyName
+      jobTitle
+      status
+      priority
+      location
+      jobUrl
+      createdAt
+    }
+  }
+`;
+
+export type DeleteApplicationMutation = {
+  deleteApplication: boolean;
+};
+
+export const DELETE_APPLICATION: TypedDocumentNode<
+  DeleteApplicationMutation,
+  { id: string }
+> = gql`
+  mutation DeleteApplication($id: ID!) {
+    deleteApplication(id: $id)
+  }
+`;

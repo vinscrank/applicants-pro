@@ -1,0 +1,41 @@
+.duplicate-application-modal {
+  max-width: 32rem;
+}
+
+.duplicate-application-lead {
+  margin: 0 0 1rem;
+  color: var(--text-secondary, #5c5c5c);
+  line-height: 1.5;
+}
+
+.duplicate-application-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  background: rgba(36, 138, 61, 0.08);
+  border: 1px solid rgba(36, 138, 61, 0.18);
+}
+
+.duplicate-application-card strong {
+  font-size: 1rem;
+}
+
+.duplicate-application-meta {
+  font-size: 0.875rem;
+  color: var(--text-secondary, #5c5c5c);
+}
+
+.duplicate-application-note {
+  margin: 1rem 0 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #5c5c5c);
+  line-height: 1.45;
+}
+
+.duplicate-application-footer {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

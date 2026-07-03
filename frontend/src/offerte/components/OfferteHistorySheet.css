@@ -1,0 +1,76 @@
+.offerte-history-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  background: rgba(26, 31, 54, 0.42);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.offerte-history-sheet {
+  width: min(520px, 100vw);
+  height: 100%;
+  background: var(--surface);
+  border-left: 1px solid var(--border-strong);
+  box-shadow: -12px 0 40px rgba(26, 31, 54, 0.18);
+  display: flex;
+  flex-direction: column;
+  animation: offerte-history-in 0.22s ease;
+}
+
+@keyframes offerte-history-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.offerte-history-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.offerte-history-header h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.offerte-history-subtitle {
+  margin-top: 0.2rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.offerte-history-close {
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.offerte-history-close:hover {
+  background: var(--surface-muted);
+  border-color: var(--border-strong);
+}
+
+.offerte-history-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  background: var(--bg);
+}

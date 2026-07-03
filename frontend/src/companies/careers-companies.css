@@ -1,0 +1,239 @@
+.careers-companies-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.35rem;
+  box-shadow: var(--shadow);
+}
+
+.careers-companies-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.careers-companies-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.careers-companies-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.careers-companies-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.careers-companies-controls-actions {
+  justify-content: space-between;
+}
+
+.careers-companies-action-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.careers-companies-controls-divider {
+  width: 1px;
+  height: 1.5rem;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.careers-companies-search {
+  position: relative;
+  flex: 1;
+  min-width: min(100%, 14rem);
+}
+
+.careers-companies-search-icon {
+  position: absolute;
+  left: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.careers-companies-search-input {
+  padding-left: 2.15rem;
+  height: 2.25rem;
+  background: var(--surface);
+}
+
+.careers-companies-inactive-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+.careers-selection-badge {
+  font-weight: 600;
+}
+
+.careers-auto-discover-off {
+  opacity: 0.55;
+}
+
+.careers-companies-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.careers-companies-status.is-loading {
+  background: var(--accent-soft);
+  border-color: rgba(45, 90, 123, 0.15);
+  color: var(--accent);
+}
+
+.careers-companies-table-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.careers-offers-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(64rem, 95vw);
+  max-width: min(64rem, 95vw);
+  max-height: 90vh;
+  gap: 0.75rem;
+}
+
+.careers-offers-modal-filters {
+  flex-shrink: 0;
+}
+
+.careers-offers-modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.careers-companies-empty {
+  padding: 1.25rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.careers-scan-summary {
+  margin-top: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.68rem;
+}
+
+.careers-detail-grid {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 0.35rem 0.75rem;
+}
+
+.careers-picker-list {
+  max-height: 20rem;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.careers-picker-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.careers-picker-item:last-child {
+  border-bottom: none;
+}
+
+.careers-row-scanning {
+  background: var(--accent-soft);
+}
+
+.careers-row-priority {
+  background: color-mix(in srgb, var(--color-accent) 6%, var(--surface));
+}
+
+.careers-priority-btn {
+  color: var(--text-muted);
+}
+
+.careers-priority-btn.is-active {
+  color: var(--accent);
+}
+
+.careers-priority-badge {
+  font-size: 0.625rem;
+  padding: 0 0.4rem;
+  line-height: 1.25rem;
+}
+
+.careers-detail-grid dt {
+  color: var(--text-muted);
+}
+
+.careers-detail-grid dd {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .careers-companies-panel {
+    padding: 1rem;
+  }
+
+  .careers-companies-inactive-toggle {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .careers-companies-controls-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .careers-companies-action-group {
+    width: 100%;
+  }
+
+  .careers-companies-controls-divider {
+    display: none;
+  }
+}

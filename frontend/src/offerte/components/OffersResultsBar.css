@@ -1,0 +1,83 @@
+.offers-results-bar {
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.65rem;
+}
+
+.offers-results-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.offers-results-title {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.offers-results-terms {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.offers-results-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.offers-results-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface-hover);
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.offers-results-pill:hover {
+  background: var(--surface);
+  border-color: var(--border-strong);
+}
+
+.offers-results-pill.active {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.offers-results-count {
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.offers-results-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.offers-results-candidabili .offers-results-count { color: #248a3d; }
+.offers-results-applied .offers-results-count { color: #1d6f32; }
+.offers-results-maybe .offers-results-count { color: #b86a00; }
+.offers-results-prompt-excluded .offers-results-count { color: #64748b; }
+.offers-results-dismissed .offers-results-count { color: #d97706; }
+
+.offers-results-candidabili.active { border-color: rgba(36, 138, 61, 0.35); }
+.offers-results-applied.active { border-color: rgba(29, 111, 50, 0.35); }
+.offers-results-maybe.active { border-color: rgba(184, 106, 0, 0.35); }
+.offers-results-prompt-excluded.active { border-color: rgba(100, 116, 139, 0.35); }
+.offers-results-dismissed.active {
+  border-color: rgba(217, 119, 6, 0.4);
+  background: rgba(245, 158, 11, 0.12);
+}

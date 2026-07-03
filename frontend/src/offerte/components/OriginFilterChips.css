@@ -1,0 +1,58 @@
+.origin-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.origin-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.origin-filter-chip svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.origin-filter-chip.is-active.offer-origin-linkedin {
+  color: #0a66c2;
+  background: rgba(10, 102, 194, 0.12);
+  border-color: rgba(10, 102, 194, 0.28);
+  box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.12);
+}
+
+.origin-filter-chip.is-active.offer-origin-indeed {
+  color: #2164f3;
+  background: rgba(33, 100, 243, 0.12);
+  border-color: rgba(33, 100, 243, 0.28);
+  box-shadow: 0 0 0 2px rgba(33, 100, 243, 0.12);
+}
+
+.origin-filter-chip.is-active.offer-origin-upwork {
+  color: #14a800;
+  background: rgba(20, 168, 0, 0.12);
+  border-color: rgba(20, 168, 0, 0.28);
+  box-shadow: 0 0 0 2px rgba(20, 168, 0, 0.12);
+}
+
+.origin-filter-chip.is-active.offer-origin-ats {
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.06);
+  border-color: var(--border);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.04);
+}
+
+.origin-filter-chip:hover {
+  background: var(--surface-hover);
+}

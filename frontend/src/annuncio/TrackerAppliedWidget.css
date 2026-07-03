@@ -1,0 +1,192 @@
+.tracker-applied-widget {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.tracker-applied-widget-left {
+  left: 0.65rem;
+  flex-direction: row;
+}
+
+.tracker-applied-widget-right {
+  right: 0.65rem;
+  flex-direction: row-reverse;
+}
+
+.tracker-applied-widget-trigger,
+.tracker-applied-widget-popover {
+  pointer-events: auto;
+}
+
+.tracker-applied-widget-trigger {
+  width: 3rem;
+  height: 3rem;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: var(--success);
+  box-shadow: 0 4px 12px rgba(45, 125, 95, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.tracker-applied-widget-trigger:hover,
+.tracker-applied-widget.is-open .tracker-applied-widget-trigger {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(45, 125, 95, 0.45);
+}
+
+.tracker-applied-widget-icon {
+  width: 1.15rem;
+  height: 0.65rem;
+  border-left: 3px solid #fff;
+  border-bottom: 3px solid #fff;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+
+.tracker-applied-widget-popover {
+  position: absolute;
+  top: 50%;
+  width: min(17rem, calc(100vw - 5rem));
+  padding: var(--space-4);
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid rgba(45, 125, 95, 0.3);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-50%) translateX(-6px);
+  transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+}
+
+.tracker-applied-widget-left .tracker-applied-widget-popover {
+  left: calc(100% + 0.55rem);
+}
+
+.tracker-applied-widget-right .tracker-applied-widget-popover {
+  right: calc(100% + 0.55rem);
+  transform: translateY(-50%) translateX(6px);
+}
+
+.tracker-applied-widget.is-visible .tracker-applied-widget-popover {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) translateX(0);
+}
+
+.tracker-applied-widget-popover-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.tracker-applied-widget-popover-head strong {
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--success-text);
+}
+
+.tracker-applied-widget-close {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.15rem;
+}
+
+.tracker-applied-widget-company {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.tracker-applied-widget-role {
+  margin: 0.15rem 0 0.55rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+.tracker-applied-widget-meta {
+  margin: 0 0 0.65rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.tracker-applied-widget-meta div {
+  display: flex;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+}
+
+.tracker-applied-widget-meta dt {
+  color: var(--text-muted);
+  min-width: 4.5rem;
+}
+
+.tracker-applied-widget-meta dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.tracker-applied-widget-action {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius);
+  background: var(--success);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.tracker-applied-widget-action:hover {
+  background: var(--success-text);
+}
+
+@media (max-width: 900px) {
+  .tracker-applied-widget {
+    top: auto;
+    bottom: 5.5rem;
+    transform: none;
+  }
+
+  .tracker-applied-widget-left {
+    left: 0.5rem;
+  }
+
+  .tracker-applied-widget-right {
+    right: 0.5rem;
+  }
+
+  .tracker-applied-widget-popover {
+    top: auto;
+    bottom: calc(100% + 0.55rem);
+    transform: translateY(6px);
+  }
+
+  .tracker-applied-widget-left .tracker-applied-widget-popover,
+  .tracker-applied-widget-right .tracker-applied-widget-popover {
+    left: 0;
+    right: auto;
+  }
+
+  .tracker-applied-widget.is-visible .tracker-applied-widget-popover {
+    transform: translateY(0);
+  }
+}

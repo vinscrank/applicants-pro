@@ -1,0 +1,93 @@
+.recent-careers-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.recent-careers-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.recent-careers-scan-btn {
+  gap: 0.5rem;
+}
+
+.recent-careers-scanning-hint {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.recent-careers-filters {
+  display: flex;
+  flex: 1 1 100%;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.recent-careers-search {
+  display: flex;
+  flex: 1;
+  min-width: min(100%, 220px);
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.recent-careers-search-primary {
+  flex: 2;
+  min-width: min(100%, 280px);
+}
+
+.recent-careers-search input {
+  flex: 1;
+}
+
+.recent-careers-summary {
+  margin: 0;
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.recent-careers-error {
+  margin: 0;
+  font-size: 0.875rem;
+  color: hsl(var(--destructive));
+}
+
+.recent-careers-table-wrap {
+  overflow: auto;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  background: hsl(var(--card));
+}
+
+.recent-careers-link {
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: hsl(var(--primary));
+}
+
+.recent-careers-link:hover {
+  opacity: 0.85;
+}
+
+.recent-careers-actions-col {
+  width: 148px;
+}
+
+.recent-careers-row-actions {
+  display: flex;
+  align-items: center;
+}
+
+.recent-careers-track-btn {
+  gap: 0.35rem;
+  white-space: nowrap;
+}

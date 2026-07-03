@@ -1,0 +1,92 @@
+.pref-multiselect {
+  margin-bottom: 0.85rem;
+}
+
+.pref-multiselect-label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: 0.45rem;
+}
+
+.pref-multiselect-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.pref-multiselect-chip {
+  padding: 0.4rem 0.7rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.pref-multiselect-chip:hover {
+  border-color: rgba(0, 113, 227, 0.35);
+  color: var(--text);
+}
+
+.pref-multiselect-chip.active {
+  background: var(--accent-soft);
+  border-color: rgba(0, 113, 227, 0.35);
+  color: var(--accent);
+}
+
+.pref-multiselect-custom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.45rem;
+}
+
+.pref-multiselect-custom-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-hover);
+  font-size: 0.75rem;
+  color: var(--text);
+}
+
+.pref-multiselect-custom-chip button {
+  color: var(--text-secondary);
+  font-size: 0.6875rem;
+}
+
+.pref-multiselect-add {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+}
+
+.pref-multiselect-add-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 0.8125rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.pref-multiselect-add-btn {
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface-hover);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text);
+}

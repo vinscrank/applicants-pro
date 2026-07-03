@@ -1,0 +1,49 @@
+.lang-switcher-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.72;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.lang-switcher-trigger:hover {
+  opacity: 1;
+  background: var(--surface-hover);
+}
+
+.lang-switcher-trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.lang-switcher-flag {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.lang-switcher-menu {
+  min-width: 7.5rem;
+}
+
+.lang-switcher-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.lang-switcher-item-active {
+  font-weight: 600;
+}
+
+.app-shell-footer .lang-switcher-trigger {
+  align-self: flex-end;
+  margin-bottom: 0.35rem;
+}

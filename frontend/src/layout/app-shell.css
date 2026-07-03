@@ -1,0 +1,184 @@
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+  padding: 0;
+  max-width: none;
+  margin: 0;
+}
+
+.app-shell-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 40;
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  padding: 1rem 0.75rem;
+}
+
+.app-shell-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.5rem 1rem;
+}
+
+.app-shell-logo {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.app-shell-plan {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  background: var(--surface-muted);
+  color: var(--text-muted);
+}
+
+.app-shell-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.app-shell-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.app-shell-nav-item:hover {
+  background: var(--surface-muted);
+  color: var(--text);
+}
+
+.app-shell-nav-item.active {
+  background: var(--surface-muted);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.app-shell-badge {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.app-shell-footer {
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.app-shell-user {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0 0.25rem;
+}
+
+.app-shell-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  background: var(--surface-muted);
+  flex-shrink: 0;
+}
+
+.app-shell-email {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.app-shell-role {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.app-shell-main {
+  flex: 1;
+  margin-left: 240px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 95%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.app-shell-content {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  .app-shell-sidebar {
+    width: 64px;
+    padding: 0.75rem 0.375rem;
+  }
+
+  .app-shell-logo,
+  .app-shell-plan,
+  .app-shell-nav-item span,
+  .app-shell-badge,
+  .app-shell-user,
+  .app-shell-footer button {
+    display: none;
+  }
+
+  .app-shell-nav-item {
+    justify-content: center;
+    padding: 0.625rem;
+  }
+
+  .app-shell-main {
+    margin-left: 64px;
+  }
+
+  .app-shell-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    padding: 0;
+  }
+}

@@ -1,0 +1,201 @@
+.pipeline-view {
+  height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+}
+
+.pipeline-hero {
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  margin-bottom: var(--space-4);
+  position: relative;
+  overflow: hidden;
+}
+
+.pipeline-hero::before {
+  content: '';
+  position: absolute;
+  top: -60%;
+  right: -15%;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+
+.pipeline-hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.pipeline-hero-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.pipeline-hero-subtitle {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: var(--space-1);
+}
+
+.pipeline-hero .btn {
+  background: #fff;
+  color: var(--color-primary);
+  border-radius: var(--radius-pill);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.pipeline-hero .btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+}
+
+.pipeline-view .ui-ai-card {
+  margin-bottom: var(--space-4);
+  animation: pipeline-ai-slide 0.3s ease-out;
+}
+
+@keyframes pipeline-ai-slide {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pipeline-board {
+  display: flex;
+  gap: var(--space-4);
+  flex: 1;
+  overflow-x: auto;
+  padding-bottom: var(--space-4);
+}
+
+.pipeline-column {
+  flex: 0 0 var(--kanban-column-width);
+  min-width: var(--kanban-column-width);
+  background: var(--surface-muted);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  transition: background 0.2s;
+}
+
+.pipeline-column:hover {
+  background: var(--surface-hover);
+}
+
+.pipeline-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.pipeline-column-title {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.pipeline-column-count {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--surface);
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.pipeline-column-cards {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.pipeline-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  cursor: grab;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.pipeline-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow);
+}
+
+.pipeline-card:active {
+  cursor: grabbing;
+  transform: scale(0.98);
+}
+
+.pipeline-card--draft { border-left: 3px solid var(--color-draft); }
+.pipeline-card--applied { border-left: 3px solid var(--color-applied); }
+.pipeline-card--interview { border-left: 3px solid var(--color-interview); }
+.pipeline-card--offer { border-left: 3px solid var(--color-offer); }
+.pipeline-card--closed { border-left: 3px solid var(--color-closed); }
+
+.pipeline-card-company {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.pipeline-card-title {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pipeline-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-2);
+}
+
+.pipeline-card-date {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .pipeline-hero {
+    padding: var(--space-4);
+  }
+
+  .pipeline-hero-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pipeline-board {
+    padding: var(--space-4);
+  }
+
+  .pipeline-column {
+    flex: 0 0 260px;
+    min-width: 260px;
+  }
+}
