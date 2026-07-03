@@ -1,20 +1,28 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import DevLogin from "@/components/DevLogin"
+import AppHeader from "@/components/AppHeader"
 import ApplicationsKanban from "@/components/ApplicationsKanban"
+import AuthForm from "@/components/AuthForm"
+import { useAuth } from "@/context/AuthContext"
 
 export default function Home() {
-  const [hasToken, setHasToken] = useState(false)
+  const { user, loading } = useAuth()
 
-  useEffect(() => {
-    setHasToken(!!localStorage.getItem("accessToken"))
-  }, [])
+  if (loading) return <main className="p-8">Loading...</main>
 
   return (
     <main className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Applications</h1>
-      {!hasToken ? <DevLogin /> : <ApplicationsKanban />}
+      {!user ? (
+        <>
+          <h1 className="text-2xl font-bold mb-4">Applications</h1>
+          <AuthForm />
+        </>
+      ) : (
+        <>
+          <AppHeader />
+          <ApplicationsKanban />
+        </>
+      )}
     </main>
   )
 }
