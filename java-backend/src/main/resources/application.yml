@@ -26,3 +26,9 @@ app:
     base-url: http://localhost:8001
     connect-timeout-ms: 5000
     read-timeout-ms: 120000
+  stripe:
+    secret-key: ${STRIPE_SECRET_KEY:}
+    webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
+    price-id: ${STRIPE_PRICE_ID:}
+    success-url: http://localhost:3000/billing/success
+    cancel-url: http://localhost:3000/billing/cancel

@@ -4,6 +4,7 @@ import com.interview.auth.AuthService;
 import com.interview.auth.dto.UserResponse;
 import com.interview.domain.Application;
 import com.interview.service.ApplicationService;
+import com.interview.service.dto.ApplicationStatsResponse;
 import java.util.List;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,12 @@ public class QueryController {
   public List<Application> applications() {
     Integer userId = authService.getUserByEmail(currentUserEmail()).getId();
     return applicationService.listForUser(userId);
+  }
+
+  @QueryMapping
+  public ApplicationStatsResponse applicationStats() {
+    Integer userId = authService.getUserByEmail(currentUserEmail()).getId();
+    return applicationService.statsForUser(userId);
   }
 
   private String currentUserEmail() {

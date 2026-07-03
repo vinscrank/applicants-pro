@@ -3,6 +3,7 @@ package com.interview.service;
 import com.interview.domain.Application;
 import com.interview.graphql.dto.CreateApplicationInput;
 import com.interview.graphql.dto.UpdateApplicationInput;
+import com.interview.service.dto.ApplicationStatsResponse;
 import com.interview.repository.ApplicationRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -66,5 +67,20 @@ public class ApplicationService {
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
     applicationRepository.delete(app);
     return true;
+  }
+
+
+  public ApplicationStatsResponse statsForUser(Integer userId) {
+    List<Application> apps = applicationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    int applied = 0, interview = 0, offer = 0, rejected = 0;
+    for (Application app : apps) {
+      switch (app.getStatus()) {
+        case "interview" -> interview++;
+        case "offer" -> offer++;
+        case "rejected" -> rejected++;
+        default -> applied++;
+      }
+    }
+    return new ApplicationStatsResponse(apps.size(), applied, interview, offer, rejected);
   }
 }

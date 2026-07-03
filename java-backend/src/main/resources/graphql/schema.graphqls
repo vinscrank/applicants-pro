@@ -18,6 +18,8 @@ type Application {
 type Query {
   me: User
   applications: [Application!]!
+  applicationStats: ApplicationStats!
+
 }
 
 input CreateApplicationInput {
@@ -71,4 +73,12 @@ input JobSearchInput {
   jobTitle: String
   location: String
   remote: Boolean
+}
+
+type ApplicationStats {
+  total: Int!
+  applied: Int!
+  interview: Int!
+  offer: Int!
+  rejected: Int!
 }
