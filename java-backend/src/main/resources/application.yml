@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: interview-backend
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: false
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

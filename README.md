@@ -1,4 +1,4 @@
-# Candidature — refactor Java (progetto pulito)
+# Interview — Java refactor (greenfield)
 
 Progetto **greenfield**: si costruisce fase per fase seguendo il piano in `docs/`.
 Nessun codice ereditato da altri repo — ogni fase aggiunge solo ciò che serve.
