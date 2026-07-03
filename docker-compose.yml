@@ -17,5 +17,17 @@ services:
       timeout: 5s
       retries: 5
 
+  java-backend:
+    build: ./java-backend
+    container_name: interview-java
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   interview_pgdata:

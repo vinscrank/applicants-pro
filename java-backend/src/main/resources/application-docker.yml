@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://db:5432/interview
+    username: interview
+    password: interview
+    driver-class-name: org.postgresql.Driver
+
+server:
+  port: 8080
+
+management:
+  endpoint:
+    health:
+      show-details: always
