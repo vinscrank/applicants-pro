@@ -12,3 +12,7 @@ management:
   endpoint:
     health:
       show-details: always
+
+app:
+  python-ai:
+    base-url: http://python-ai:8001

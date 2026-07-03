@@ -43,4 +43,32 @@ type Mutation {
   createApplication(input: CreateApplicationInput!): Application!
   updateApplication(input: UpdateApplicationInput!): Application!
   deleteApplication(id: ID!): Boolean!
+  parseSearchPrompt(prompt: String!): SearchParseResult!
+  runJobSearch(input: JobSearchInput!): JobSearchResult!
+}
+
+type SearchParseResult {
+  jobTitle: String
+  location: String
+  remote: Boolean
+  rawPrompt: String
+}
+
+type JobOffer {
+  id: ID!
+  title: String!
+  company: String!
+  location: String
+  url: String!
+}
+
+type JobSearchResult {
+  searchId: ID!
+  offers: [JobOffer!]!
+}
+
+input JobSearchInput {
+  jobTitle: String
+  location: String
+  remote: Boolean
 }

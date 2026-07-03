@@ -28,6 +28,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      python-ai:
+        condition: service_started
   python-ai:
     build: ./python-ai
     container_name: interview-python-ai

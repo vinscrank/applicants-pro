@@ -22,3 +22,7 @@ app:
   jwt:
     secret: change-me-in-production-use-at-least-32-characters-long
     expiration-ms: 86400000
+  python-ai:
+    base-url: http://localhost:8001
+    connect-timeout-ms: 5000
+    read-timeout-ms: 120000
