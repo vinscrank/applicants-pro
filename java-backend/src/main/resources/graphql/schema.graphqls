@@ -1,21 +1,46 @@
 type User {
-    id: ID!
-    email: String!
-    active: Boolean!
+  id: ID!
+  email: String!
+  active: Boolean!
 }
 
 type Application {
-    id: ID!
-    companyName: String!
-    jobTitle: String!
-    status: String!
-    priority: String
-    location: String
-    jobUrl: String
-    createdAt: String
+  id: ID!
+  companyName: String!
+  jobTitle: String!
+  status: String!
+  priority: String
+  location: String
+  jobUrl: String
+  createdAt: String
 }
 
 type Query {
-    me: User
-    applications: [Application!]!
+  me: User
+  applications: [Application!]!
+}
+
+input CreateApplicationInput {
+  companyName: String!
+  jobTitle: String!
+  jobUrl: String
+  location: String
+  status: String
+  priority: String
+}
+
+input UpdateApplicationInput {
+  id: ID!
+  companyName: String
+  jobTitle: String
+  jobUrl: String
+  location: String
+  status: String
+  priority: String
+}
+
+type Mutation {
+  createApplication(input: CreateApplicationInput!): Application!
+  updateApplication(input: UpdateApplicationInput!): Application!
+  deleteApplication(id: ID!): Boolean!
 }
