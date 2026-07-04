@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Filter, LayoutGrid, CalendarDays, List, Plus, Search, X } from 'lucide-react'
 import type { Application, ApplicationFormData, StatusType } from './types'
-import { api, applicationToForm } from './api'
+import { applicationToForm } from './api'
 import { applicationSchema } from '@/lib/schemas/application'
 import { EMPTY_FORM } from './constants'
 import ApplicationForm from './components/ApplicationForm'
@@ -10,6 +10,7 @@ import { navigate, parseRoute } from './router'
 import { navigateToOfferteLive } from './pipeline/pipelineBridge'
 import { useQuickAdd } from './contexts/QuickAddContext'
 import { useApplicationsQuery } from './hooks/useApplicationsQuery'
+import { useApplicationMutations } from './hooks/useApplicationMutations'
 import {
   filterApplications,
   countByQuickFilter,
@@ -45,6 +46,7 @@ type ViewMode = 'table' | 'pipeline' | 'calendar'
 export default function CandidatureView() {
   const { t } = useTranslation()
   const { openQuickAdd, bumpRefresh } = useQuickAdd()
+  const { updateApplication, deleteApplication } = useApplicationMutations()
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [quickFilter, setQuickFilter] = useState<QuickFilter>('all')
@@ -56,7 +58,6 @@ export default function CandidatureView() {
   const [saving, setSaving] = useState(false)
   const [updatingStatusId, setUpdatingStatusId] = useState<number | null>(null)
   const [hideRejected, setHideRejected] = useState(readHideRejectedPreference)
-  const [companyNames, setCompanyNames] = useState<string[]>([])
   const [highlightApplicationId, setHighlightApplicationId] = useState<number | null>(null)
   const [showFilters, setShowFilters] = useState(false)
 
@@ -66,8 +67,6 @@ export default function CandidatureView() {
     stats,
     loading,
     error: fetchError,
-    setApplications,
-    setStats,
   } = useApplicationsQuery({
     excludeRejected: !includeRejected,
     includeDrafts: true,
@@ -78,9 +77,10 @@ export default function CandidatureView() {
     if (fetchError) setError(fetchError)
   }, [fetchError])
 
-  useEffect(() => {
-    api.getCompanyNames().then(setCompanyNames).catch(() => setCompanyNames([]))
-  }, [])
+  const companyNameOptions = useMemo(
+    () => [...new Set(applications.map((a) => a.company_name))].sort(),
+    [applications],
+  )
 
   useEffect(() => {
     const applyRouteParams = () => {
@@ -133,14 +133,6 @@ export default function CandidatureView() {
       localStorage.setItem(HIDE_REJECTED_KEY, 'false')
     }
   }, [highlightApplicationId, loading, applications, sourceFilter, quickFilter, search, hideRejected])
-
-  const loadStats = useCallback(async () => {
-    try {
-      const st = await api.getStats()
-      setStats(st)
-    } catch {
-    }
-  }, [setStats])
 
   const filteredApplications = useMemo(
     () =>
@@ -218,10 +210,9 @@ export default function CandidatureView() {
     setError(null)
     try {
       if (editingId) {
-        await api.updateApplication(editingId, formData)
+        await updateApplication(editingId, formData)
       }
       closeModal()
-      await loadStats()
       bumpRefresh()
     } catch (e) {
       setError(e instanceof Error ? e.message : t('errors.genericSave'))
@@ -233,7 +224,7 @@ export default function CandidatureView() {
   const handleDelete = async (id: number) => {
     if (!confirm(t('errors.deleteConfirm'))) return
     try {
-      await api.deleteApplication(id)
+      await deleteApplication(id)
       bumpRefresh()
     } catch (e) {
       setError(e instanceof Error ? e.message : t('errors.genericDelete'))
@@ -245,7 +236,6 @@ export default function CandidatureView() {
     if (!previous || previous.status === status) return
 
     setUpdatingStatusId(id)
-    setApplications((apps) => apps.map((a) => (a.id === id ? { ...a, status } : a)))
     setError(null)
 
     try {
@@ -253,14 +243,9 @@ export default function CandidatureView() {
       if (status === 'applied' && previous.status !== 'applied') {
         payload.last_applied_at = new Date().toISOString()
       }
-      await api.updateApplication(id, payload)
-      if (hideRejected && status === 'rejected') {
-        setApplications((apps) => apps.filter((a) => a.id !== id))
-      }
-      await loadStats()
+      await updateApplication(id, payload)
       bumpRefresh()
     } catch (e) {
-      setApplications((apps) => apps.map((a) => (a.id === id ? previous : a)))
       setError(e instanceof Error ? e.message : t('errors.statusUpdateFailed'))
     } finally {
       setUpdatingStatusId(null)
@@ -474,7 +459,7 @@ export default function CandidatureView() {
           <ApplicationForm
             data={formData}
             onChange={setFormData}
-            companyNames={companyNames}
+            companyNames={companyNameOptions}
             isNew={false}
           />
           <DialogFooter>

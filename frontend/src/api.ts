@@ -1,9 +1,6 @@
-import type { Application, ApplicationFormData, Stats, StatusType } from "./types";
+import type { Application, ApplicationFormData, StatusType } from "./types";
 import type { ColorTagId } from "./constants";
 import { normalizeApplicationMethod } from "./constants";
-import { authFetch } from "./auth/http";
-import { applicationsGraphql } from "@/lib/applications-graphql";
-import { useJavaApplications } from "@/lib/env";
 
 export type ApplicationTask = {
   id: string
@@ -16,92 +13,10 @@ export type ApplicationTask = {
 
 export type TaskScope = 'today' | 'week' | 'overdue'
 
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  return authFetch<T>(path, options);
-}
-
-function toPayload(data: Partial<ApplicationFormData>) {
-  const payload: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(data)) {
-    if (value === "" || value === undefined) {
-      payload[key] = null;
-    } else {
-      payload[key] = value;
-    }
-  }
-  return payload;
-}
-
-const restApi = {
-  getStats: () => request<Stats>("/api/stats"),
-  getCompanyNames: () => request<string[]>("/api/applications/company-names"),
-  getTasks: (scope: TaskScope = 'today') =>
-    request<ApplicationTask[]>(`/api/tasks?scope=${encodeURIComponent(scope)}`),
-  getApplications: (params?: {
-    status?: string;
-    search?: string;
-    exclude_rejected?: boolean;
-    include_drafts?: boolean;
-  }) => {
-    const query = new URLSearchParams();
-    if (params?.status) query.set("status", params.status);
-    if (params?.search) query.set("search", params.search);
-    if (params?.exclude_rejected === false) query.set("exclude_rejected", "false");
-    if (params?.include_drafts) query.set("include_drafts", "true");
-    const qs = query.toString();
-    return request<Application[]>(`/api/applications${qs ? `?${qs}` : ""}`);
-  },
-  getApplication: (id: number) => request<Application>(`/api/applications/${id}`),
-  createApplication: (data: ApplicationFormData) =>
-    request<Application>("/api/applications", {
-      method: "POST",
-      body: JSON.stringify(toPayload(data)),
-    }),
-  updateApplication: (id: number, data: Partial<ApplicationFormData>) =>
-    request<Application>(`/api/applications/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(toPayload(data)),
-    }),
-  deleteApplication: (id: number) =>
-    request<void>(`/api/applications/${id}`, { method: "DELETE" }),
-};
-
 export const api = {
-  getStats: () =>
-    useJavaApplications() ? applicationsGraphql.getStats() : restApi.getStats(),
-  getCompanyNames: () =>
-    useJavaApplications()
-      ? applicationsGraphql.getCompanyNames()
-      : restApi.getCompanyNames(),
   getTasks: async (_scope: TaskScope = 'today'): Promise<ApplicationTask[]> => {
-    if (useJavaApplications()) return [];
-    return restApi.getTasks(_scope);
+    return [];
   },
-  getApplications: (params?: {
-    status?: string;
-    search?: string;
-    exclude_rejected?: boolean;
-    include_drafts?: boolean;
-  }) =>
-    useJavaApplications()
-      ? applicationsGraphql.getApplications(params)
-      : restApi.getApplications(params),
-  getApplication: (id: number) =>
-    useJavaApplications()
-      ? applicationsGraphql.getApplication(id)
-      : restApi.getApplication(id),
-  createApplication: (data: ApplicationFormData) =>
-    useJavaApplications()
-      ? applicationsGraphql.createApplication(data)
-      : restApi.createApplication(data),
-  updateApplication: (id: number, data: Partial<ApplicationFormData>) =>
-    useJavaApplications()
-      ? applicationsGraphql.updateApplication(id, data)
-      : restApi.updateApplication(id, data),
-  deleteApplication: (id: number) =>
-    useJavaApplications()
-      ? applicationsGraphql.deleteApplication(id)
-      : restApi.deleteApplication(id),
 };
 
 export function applicationToForm(app: Application): ApplicationFormData {

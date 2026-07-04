@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useQuery } from '@apollo/client/react'
 import { useAuth } from '@/auth/AuthContext'
 import { RoutePageLoading } from '@/components/shell/RoutePageLoading'
 import { AppShell } from '@/layout/AppShell'
@@ -8,7 +9,7 @@ import { appReplace } from '@/lib/navigation'
 import { OfferteSearchBanner } from '@/offerte/components/OfferteSearchBanner'
 import { V2MigrationBanner } from '@/layout/V2MigrationBanner'
 import { billingApi, type BillingStatus } from '@/billing/api'
-import { api } from '@/api'
+import { GET_APPLICATIONS } from '@/graphql/queries'
 import {
   defaultAuthedRoute,
   isAuthRoute,
@@ -28,24 +29,19 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
   const route = useAppRoute()
   useLegacyRouteRedirect()
   const [billing, setBilling] = useState<BillingStatus | null>(null)
-  const [trackerCounts, setTrackerCounts] = useState({ total: 0 })
+  const { data: applicationsData } = useQuery(GET_APPLICATIONS, {
+    skip: !user,
+    fetchPolicy: 'cache-first',
+  })
+  const trackerTotal = applicationsData?.applications?.length ?? 0
 
   useEffect(() => {
     if (!user) {
       setBilling(null)
-      setTrackerCounts({ total: 0 })
       return
     }
     billingApi.status().then(setBilling).catch(() => setBilling(null))
   }, [user])
-
-  useEffect(() => {
-    if (!user) return
-    api
-      .getApplications({ exclude_rejected: true })
-      .then((apps) => setTrackerCounts({ total: apps.length }))
-      .catch(() => setTrackerCounts({ total: 0 }))
-  }, [user, route.page])
 
   useEffect(() => {
     if (loading) return
@@ -89,7 +85,7 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
       route={route}
       email={user.email}
       planLabel={planLabel}
-      trackerTotal={trackerCounts.total}
+      trackerTotal={trackerTotal}
       onLogout={handleLogout}
     >
       <V2MigrationBanner />

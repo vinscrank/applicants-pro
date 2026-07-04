@@ -5,7 +5,7 @@ import { profileToAutofillPayload } from '../auth/types'
 import { offerteFetch } from '../offerte/api'
 import { markOfferteListRestore, markOfferteDismissRestore } from '../offerte/offerteListSession'
 import { publishOfferApplied } from '../offerte/offerteSyncChannel'
-import { api } from '../api'
+import { getApplications, updateApplication } from '@/lib/applications-apollo'
 
 const EXTENSION_ID_KEY = 'candidature_extension_id'
 const COMPANION_OFFER_KEY = 'companion_offer'
@@ -253,10 +253,10 @@ export async function finalizeCompanionApplication(): Promise<void> {
   }
 
   if (ctx.applyUrl) {
-    const apps = await api.getApplications({ exclude_rejected: false })
+    const apps = await getApplications({ exclude_rejected: false })
     const match = apps.find((a) => (a.job_url || '').trim() === ctx.applyUrl!.trim())
     if (match) {
-      await api.updateApplication(match.id, {
+      await updateApplication(match.id, {
         status: 'applied',
         last_applied_at: new Date().toISOString(),
       })

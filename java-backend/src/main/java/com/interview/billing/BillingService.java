@@ -3,6 +3,8 @@ package com.interview.billing;
 import com.interview.billing.dto.BillingFeaturesResponse;
 import com.interview.billing.dto.BillingStatusResponse;
 import com.interview.billing.dto.CheckoutSessionResponse;
+import com.interview.billing.dto.PlanPublicResponse;
+import com.interview.billing.dto.PlansListResponse;
 import com.interview.config.BillingProperties;
 import com.interview.config.StripeProperties;
 import com.interview.domain.User;
@@ -15,6 +17,8 @@ import com.stripe.net.Webhook;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -35,6 +39,64 @@ public class BillingService {
         this.stripeProperties = stripeProperties;
         this.billingProperties = billingProperties;
         this.userRepository = userRepository;
+    }
+
+    public PlansListResponse listPlans() {
+        List<PlanPublicResponse> plans = new ArrayList<>();
+        plans.add(toPlanPublic(BillingPlans.getPlan("free")));
+        plans.add(toPlanPublic(BillingPlans.getPlan("pro")));
+        plans.add(toPlanPublic(BillingPlans.getPlan("business")));
+        return new PlansListResponse(plans, stripeProperties.isConfigured());
+    }
+
+    private PlanPublicResponse toPlanPublic(BillingPlans.PlanDefinition plan) {
+        return new PlanPublicResponse(
+                plan.id(),
+                plan.name(),
+                planPriceEurMonth(plan.id()),
+                planPriceEurYear(plan.id()),
+                plan.offerteLive(),
+                plan.aiCallsMonth(),
+                plan.autoDiscover(),
+                plan.companionAutofill(),
+                plan.applicationsMax(),
+                planHighlights(plan));
+    }
+
+    private static double planPriceEurMonth(String planId) {
+        return switch (planId) {
+            case "pro" -> 14.99;
+            case "business" -> 29.99;
+            default -> 0;
+        };
+    }
+
+    private static double planPriceEurYear(String planId) {
+        return switch (planId) {
+            case "pro" -> 149;
+            case "business" -> 299;
+            default -> 0;
+        };
+    }
+
+    private static List<String> planHighlights(BillingPlans.PlanDefinition plan) {
+        return switch (plan.id()) {
+            case "free" -> List.of(
+                    "Application tracker",
+                    "Up to " + plan.applicationsMax() + " applications",
+                    "JSON export");
+            case "pro" -> List.of(
+                    "Live offers + AI",
+                    plan.aiCallsMonth() + " AI analyses/month",
+                    "Companion + autofill",
+                    "Tracker sync");
+            case "business" -> List.of(
+                    "Everything in Pro",
+                    plan.aiCallsMonth() + " AI analyses/month",
+                    "Company auto-discover",
+                    "Priority support");
+            default -> List.of();
+        };
     }
 
     public BillingStatusResponse getStatus(User user) {

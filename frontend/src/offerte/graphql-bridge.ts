@@ -2,7 +2,34 @@ import { apolloClient } from '@/lib/apollo-client'
 import { PARSE_SEARCH_PROMPT, RUN_JOB_SEARCH } from '@/graphql/mutations'
 import { EMPTY_COMMAND, DEFAULT_SEARCH_PREFERENCES } from './types'
 import type { DefaultCommand, SearchCommand, SearchResult } from './types'
+import type { LlmStats } from './types/llm'
+import { PROMPT_MATCH_SCORE_YES } from './promptMatch'
 import { useJavaSearch } from '@/lib/env'
+
+const JAVA_LLM_STATS_STUB: LlmStats = {
+  configured: true,
+  ready: true,
+  reason: '',
+  access_message: '',
+  provider: 'java',
+  model: 'mock',
+  monthly_budget_usd: 100,
+  month_spend_usd: 0,
+  month_remaining_usd: 100,
+  today_spend_usd: 0,
+  today_remaining_usd: 10,
+  month_calls: 0,
+  today_calls: 0,
+  budget_exceeded: false,
+  budget_ceiling_usd: 100,
+  daily_budget_usd: 10,
+  max_daily_calls: 50,
+  parse_prompt_enabled: true,
+  discover_company_enabled: true,
+  auto_discover_enabled: true,
+  by_operation: [],
+  recent: [],
+}
 
 function buildCommandFromParse(
   prompt: string,
@@ -51,6 +78,7 @@ function buildSearchResult(
     location: o.location,
     verified_at: new Date().toISOString(),
     applied: false,
+    web_dev_fit: PROMPT_MATCH_SCORE_YES,
   }))
   return {
     id: Number(searchId) || undefined,
@@ -131,6 +159,10 @@ export async function offerteGraphqlFetch<T>(
     if (method === 'PUT') return { ...DEFAULT_SEARCH_PREFERENCES, ...body } as T
   }
 
+  if (path.startsWith('/api/offerte/llm/')) {
+    return JAVA_LLM_STATS_STUB as T
+  }
+
   throw new Error(`Endpoint not available: ${path}`)
 }
 
@@ -143,6 +175,7 @@ export function shouldUseOfferteGraphql(path: string, method?: string): boolean 
   if (path === '/api/offerte/searches/latest' && m === 'GET') return true
   if (path === '/api/offerte/searches' && m === 'GET') return true
   if (path === '/api/offerte/preferences') return true
+  if (path.startsWith('/api/offerte/llm/')) return true
   return false
 }
 

@@ -1,4 +1,5 @@
 import { gql, TypedDocumentNode } from "@apollo/client";
+import { APPLICATION_FIELDS, type GqlApplication } from "@/graphql/queries";
 
 export type ParseSearchPromptMutation = {
   parseSearchPrompt: {
@@ -60,26 +61,42 @@ export const RUN_JOB_SEARCH: TypedDocumentNode<
   }
 `;
 
-export type CreateApplicationMutation = {
-  createApplication: {
-    id: string;
-    companyName: string;
-    jobTitle: string;
-    status: string;
-    priority: string | null;
-    location: string | null;
-    jobUrl: string | null;
-    createdAt: string | null;
-  };
-};
-
 export type CreateApplicationInput = {
   companyName: string;
   jobTitle: string;
   jobUrl?: string | null;
+  companyWebsite?: string | null;
+  companyLinkedinUrl?: string | null;
   location?: string | null;
   status?: string | null;
   priority?: string | null;
+  remoteType?: string | null;
+  applicationMethod?: string | null;
+  applicationMethodOther?: string | null;
+  salaryMin?: number | null;
+  salaryMax?: number | null;
+  salaryCurrency?: string | null;
+  visaSponsorship?: boolean | null;
+  taName?: string | null;
+  taEmail?: string | null;
+  taLinkedinUrl?: string | null;
+  taPhone?: string | null;
+  hiringManagerName?: string | null;
+  hiringManagerLinkedinUrl?: string | null;
+  linkedinConnectionSent?: boolean | null;
+  linkedinMessageSent?: boolean | null;
+  followUpDate?: string | null;
+  lastContactDate?: string | null;
+  responseReceivedAt?: string | null;
+  interviewDate?: string | null;
+  lastAppliedAt?: string | null;
+  applicationSource?: string | null;
+  linkedOfferId?: string | null;
+  notes?: string | null;
+};
+
+export type CreateApplicationMutation = {
+  createApplication: GqlApplication;
 };
 
 export const CREATE_APPLICATION: TypedDocumentNode<
@@ -88,39 +105,49 @@ export const CREATE_APPLICATION: TypedDocumentNode<
 > = gql`
   mutation CreateApplication($input: CreateApplicationInput!) {
     createApplication(input: $input) {
-      id
-      companyName
-      jobTitle
-      status
-      priority
-      location
-      jobUrl
-      createdAt
+      ...ApplicationFields
     }
   }
+  ${APPLICATION_FIELDS}
 `;
-
-export type UpdateApplicationMutation = {
-  updateApplication: {
-    id: string;
-    companyName: string;
-    jobTitle: string;
-    status: string;
-    priority: string | null;
-    location: string | null;
-    jobUrl: string | null;
-    createdAt: string | null;
-  };
-};
 
 export type UpdateApplicationInput = {
   id: string;
   companyName?: string | null;
   jobTitle?: string | null;
   jobUrl?: string | null;
+  companyWebsite?: string | null;
+  companyLinkedinUrl?: string | null;
   location?: string | null;
   status?: string | null;
   priority?: string | null;
+  remoteType?: string | null;
+  applicationMethod?: string | null;
+  applicationMethodOther?: string | null;
+  salaryMin?: number | null;
+  salaryMax?: number | null;
+  salaryCurrency?: string | null;
+  visaSponsorship?: boolean | null;
+  taName?: string | null;
+  taEmail?: string | null;
+  taLinkedinUrl?: string | null;
+  taPhone?: string | null;
+  hiringManagerName?: string | null;
+  hiringManagerLinkedinUrl?: string | null;
+  linkedinConnectionSent?: boolean | null;
+  linkedinMessageSent?: boolean | null;
+  followUpDate?: string | null;
+  lastContactDate?: string | null;
+  responseReceivedAt?: string | null;
+  interviewDate?: string | null;
+  lastAppliedAt?: string | null;
+  applicationSource?: string | null;
+  linkedOfferId?: string | null;
+  notes?: string | null;
+};
+
+export type UpdateApplicationMutation = {
+  updateApplication: GqlApplication;
 };
 
 export const UPDATE_APPLICATION: TypedDocumentNode<
@@ -129,16 +156,10 @@ export const UPDATE_APPLICATION: TypedDocumentNode<
 > = gql`
   mutation UpdateApplication($input: UpdateApplicationInput!) {
     updateApplication(input: $input) {
-      id
-      companyName
-      jobTitle
-      status
-      priority
-      location
-      jobUrl
-      createdAt
+      ...ApplicationFields
     }
   }
+  ${APPLICATION_FIELDS}
 `;
 
 export type DeleteApplicationMutation = {

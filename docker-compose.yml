@@ -29,11 +29,11 @@ services:
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
       STRIPE_PRICE_ID: ${STRIPE_PRICE_ID:-}
       OWNER_EMAILS: ${OWNER_EMAILS:-vinci.loca1@gmail.com,m@m.com}
+    volumes:
+      - interview_cv_uploads:/app/uploads/cv
     depends_on:
       db:
         condition: service_healthy
-      python-ai:
-        condition: service_started
   python-ai:
     build: ./python-ai
     container_name: interview-python-ai
@@ -42,6 +42,15 @@ services:
       - "8001:8001"
     environment:
       PYTHONUNBUFFERED: "1"
+      DATABASE_URL: postgresql://interview:interview@db:5432/interview
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OWNER_EMAILS: ${OWNER_EMAILS:-vinci.loca1@gmail.com,m@m.com}
+    depends_on:
+      db:
+        condition: service_healthy
+      java-backend:
+        condition: service_started
 
 volumes:
   interview_pgdata:
+  interview_cv_uploads:

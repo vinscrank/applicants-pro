@@ -36,6 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v2/auth/**").authenticated()
                         .requestMatchers("/api/v2/billing/webhook").permitAll()
                         .requestMatchers("/api/v2/billing/**").authenticated()
+                        .requestMatchers("/api/offerte/**").authenticated()
                         .requestMatchers("/graphql").authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

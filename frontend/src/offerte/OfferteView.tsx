@@ -22,7 +22,8 @@ import { promptInterpretationItems } from './offerPromptRelevance'
 import { matchesOfferListSearch } from './offerListSearch'
 import { PlatformPageHeader } from '../layout/PlatformPageHeader'
 import { navigateToTracker, openAnnuncioAnalyzeInNewTab } from '../pipeline/pipelineBridge'
-import { api } from '../api'
+import type { Application } from '../types'
+import { getApplication, getApplications } from '@/lib/applications-apollo'
 import { subscribeOfferDismissed, subscribeOfferApplied, offerMatchesDismissSync, offerMatchesAppliedSync, publishOfferApplied, publishOfferDismissed, type OfferDismissSyncPayload, type OfferAppliedSyncPayload } from './offerteSyncChannel'
 import { DuplicateApplicationModal } from '../components/DuplicateApplicationModal'
 import type { ApplicationTrackerMatch } from '../applications/trackerMatch'
@@ -498,7 +499,7 @@ export default function OfferteView({ embedded = false }: { embedded?: boolean }
       if (!cancelled) setArchivedResolveDone(true)
     }
 
-    const resolveFromApplication = (app: Awaited<ReturnType<typeof api.getApplication>>) => {
+    const resolveFromApplication = (app: Application) => {
       if (cancelled) return
       setMissingLiveOfferId(null)
       finishResolve()
@@ -506,7 +507,7 @@ export default function OfferteView({ embedded = false }: { embedded?: boolean }
     }
 
     if (route.trackerApplicationId) {
-      api.getApplication(route.trackerApplicationId)
+      getApplication(route.trackerApplicationId)
         .then(resolveFromApplication)
         .catch(() => {
           if (!cancelled) setArchivedLiveOffer(null)
@@ -517,7 +518,7 @@ export default function OfferteView({ embedded = false }: { embedded?: boolean }
       }
     }
 
-    api.getApplications({ exclude_rejected: false })
+    getApplications({ exclude_rejected: false })
       .then((apps) => {
         const app = apps.find((a) => a.offerte_offer_id === offerId)
         if (app) resolveFromApplication(app)

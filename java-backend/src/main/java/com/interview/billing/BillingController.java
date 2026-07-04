@@ -3,6 +3,7 @@ package com.interview.billing;
 import com.interview.auth.AuthService;
 import com.interview.billing.dto.BillingStatusResponse;
 import com.interview.billing.dto.CheckoutSessionResponse;
+import com.interview.billing.dto.PlansListResponse;
 import com.interview.domain.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -25,6 +26,11 @@ public class BillingController {
     public BillingController(AuthService authService, BillingService billingService) {
         this.authService = authService;
         this.billingService = billingService;
+    }
+
+    @GetMapping("/plans")
+    public PlansListResponse plans() {
+        return billingService.listPlans();
     }
 
     @GetMapping("/status")

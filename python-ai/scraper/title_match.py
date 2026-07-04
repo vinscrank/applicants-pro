@@ -1,0 +1,92 @@
+import re
+
+from .schemas import SearchCommand
+
+_TITLE_HINTS = (
+    "nel titolo",
+    "in the title",
+    "title mentions",
+    "title contains",
+    "titolo contiene",
+    "titolo con",
+    "con \"",
+    "with \"",
+)
+
+_LANGUAGE_TERMS = (
+    "italian speaker",
+    "italian speaking",
+    "speak italian",
+    "speaks italian",
+    "parlare italiano",
+    "parla italiano",
+    "lingua italiana",
+    "italian language",
+    "native italian",
+    "fluent italian",
+)
+
+
+def _dedupe_keywords(values: list[str]) -> list[str]:
+    out: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        cleaned = " ".join((value or "").strip().split())
+        if len(cleaned) < 2:
+            continue
+        key = cleaned.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(cleaned)
+    return out
+
+
+def dedupe_title_keywords(values: list[str]) -> list[str]:
+    return _dedupe_keywords(values)
+
+
+def infer_title_keywords(prompt: str) -> list[str]:
+    text = (prompt or "").strip()
+    if not text:
+        return []
+    lowered = text.lower()
+    keywords: list[str] = []
+
+    for match in re.finditer(r'["\']([^"\']{2,})["\']', text):
+        keywords.append(match.group(1).strip())
+
+    mentions_title = any(hint in lowered for hint in _TITLE_HINTS) or bool(keywords)
+    if mentions_title or any(term in lowered for term in _LANGUAGE_TERMS):
+        for term in _LANGUAGE_TERMS:
+            if term in lowered:
+                keywords.append(term)
+        if "italian" in lowered and "italian" not in [k.lower() for k in keywords]:
+            keywords.append("Italian")
+
+    return _dedupe_keywords(keywords)
+
+
+def title_keywords_for_command(command: SearchCommand) -> list[str]:
+    explicit = _dedupe_keywords(getattr(command, "title_keywords", []) or [])
+    if explicit:
+        return explicit
+    return infer_title_keywords(command.prompt_text or "")
+
+
+def offer_title_matches_keywords(role: str, keywords: list[str]) -> bool:
+    if not keywords:
+        return True
+    hay = (role or "").lower()
+    if not hay:
+        return False
+    for keyword in keywords:
+        needle = keyword.lower().strip()
+        if not needle:
+            continue
+        if needle in hay:
+            return True
+        tokens = [token for token in re.split(r"\s+", needle) if len(token) >= 3]
+        if tokens and all(token in hay for token in tokens):
+            return True
+    return False

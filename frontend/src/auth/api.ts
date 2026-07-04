@@ -42,7 +42,7 @@ function emptyProfile(user: JavaUserResponse): UserProfile {
     has_cv: false,
     cv_filename: null,
     full_name: user.email,
-    profile_complete: true,
+    profile_complete: false,
     updated_at: null,
   }
 }
@@ -69,13 +69,16 @@ export const authApi = {
   logout: () => clearAccessToken(),
   me: async (): Promise<AuthMeResponse> => {
     const user = await authFetch<JavaUserResponse>(`${AUTH_PREFIX}/me`)
+    const profile = await authFetch<UserProfile>(`${AUTH_PREFIX}/profile`).catch(() =>
+      emptyProfile(user),
+    )
     return {
       user: {
         id: user.id,
         email: user.email,
         created_at: user.createdAt ?? new Date().toISOString(),
       },
-      profile: emptyProfile(user),
+      profile,
     }
   },
   updateProfile: (payload: Partial<ProfileFormData>) => {

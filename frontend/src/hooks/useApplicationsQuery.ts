@@ -1,61 +1,86 @@
-import { useCallback, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { api } from '@/api'
-import type { Application, Stats } from '@/types'
-import { useQuickAddOptional } from '@/contexts/QuickAddContext'
+"use client";
+
+import { useQuery } from "@apollo/client/react";
+import { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { GET_APPLICATIONS, GET_APPLICATION_STATS } from "@/graphql/queries";
+import {
+  filterApplicationsList,
+  gqlStatsToStats,
+  gqlToApplication,
+} from "@/lib/application-mapper";
+import type { Application, Stats } from "@/types";
+import { useQuickAddOptional } from "@/contexts/QuickAddContext";
 
 export interface UseApplicationsQueryOptions {
-  excludeRejected?: boolean
-  includeDrafts?: boolean
-  includeStats?: boolean
-  enabled?: boolean
+  excludeRejected?: boolean;
+  includeDrafts?: boolean;
+  includeStats?: boolean;
+  enabled?: boolean;
 }
 
-export function useApplicationsQuery(options: UseApplicationsQueryOptions = {}) {
-  const { excludeRejected = false, includeDrafts = false, includeStats = false, enabled = true } = options
-  const { t } = useTranslation()
-  const quickAdd = useQuickAddOptional()
-  const [applications, setApplications] = useState<Application[]>([])
-  const [stats, setStats] = useState<Stats | null>(null)
-  const [loading, setLoading] = useState(enabled)
-  const [error, setError] = useState<string | null>(null)
+export function useApplicationsQuery(
+  options: UseApplicationsQueryOptions = {},
+) {
+  const {
+    excludeRejected = false,
+    includeDrafts = false,
+    includeStats = false,
+    enabled = true,
+  } = options;
+  const { t } = useTranslation();
+  const quickAdd = useQuickAddOptional();
 
-  const refetch = useCallback(async () => {
-    if (!enabled) return
-    setLoading(true)
-    setError(null)
-    try {
-      const appsPromise = api.getApplications({
-        exclude_rejected: excludeRejected,
-        include_drafts: includeDrafts,
-      })
-      if (includeStats) {
-        const [apps, st] = await Promise.all([appsPromise, api.getStats()])
-        setApplications(apps)
-        setStats(st)
-      } else {
-        setApplications(await appsPromise)
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : t('errors.genericLoad'))
-      setApplications([])
-      if (includeStats) setStats(null)
-    } finally {
-      setLoading(false)
-    }
-  }, [enabled, excludeRejected, includeDrafts, includeStats, t])
+  const {
+    data: appsData,
+    loading: appsLoading,
+    error: appsError,
+    refetch: refetchApps,
+  } = useQuery(GET_APPLICATIONS, {
+    skip: !enabled,
+    fetchPolicy: "cache-and-network",
+  });
+
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useQuery(GET_APPLICATION_STATS, {
+    skip: !enabled || !includeStats,
+    fetchPolicy: "cache-and-network",
+  });
 
   useEffect(() => {
-    void refetch()
-  }, [refetch, quickAdd?.refreshKey])
+    if (!enabled || !quickAdd?.refreshKey) return
+    void refetchApps()
+    if (includeStats) void refetchStats()
+  }, [enabled, includeStats, quickAdd?.refreshKey, refetchApps, refetchStats])
+
+  const applications = useMemo((): Application[] => {
+    const rows = (appsData?.applications ?? []).map(gqlToApplication);
+    return filterApplicationsList(rows, {
+      exclude_rejected: !excludeRejected,
+      include_drafts: includeDrafts,
+    });
+  }, [appsData, excludeRejected, includeDrafts]);
+
+  const stats = useMemo((): Stats | null => {
+    if (!includeStats || !statsData?.applicationStats) return null;
+    return gqlStatsToStats(statsData.applicationStats);
+  }, [includeStats, statsData]);
+
+  const error = appsError
+    ? appsError.message || t("errors.genericLoad")
+    : null;
 
   return {
     applications,
     stats,
-    loading,
+    loading: appsLoading || (includeStats && statsLoading),
     error,
-    setApplications,
-    setStats,
-    refetch,
-  }
+    refetch: async () => {
+      await refetchApps();
+      if (includeStats) await refetchStats();
+    },
+  };
 }

@@ -1,0 +1,2 @@
+class LlmPolicyError(Exception):
+    pass

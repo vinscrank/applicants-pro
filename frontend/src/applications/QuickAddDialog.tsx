@@ -1,7 +1,9 @@
+'use client'
+
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ExternalLink, Sparkles } from 'lucide-react'
-import { api } from '@/api'
+import { useApplicationMutations } from '@/hooks/useApplicationMutations'
 import { EMPTY_FORM, normalizeApplicationMethod } from '@/constants'
 import type { ApplicationMethodType } from '@/types'
 import type { JobUrlAnalysis } from '@/annuncio/types'
@@ -52,6 +54,7 @@ interface QuickAddDialogProps {
 
 export function QuickAddDialog({ open, onOpenChange, onSaved }: QuickAddDialogProps) {
   const { t } = useTranslation()
+  const { createApplication } = useApplicationMutations()
   const [step, setStep] = useState<Step>('url')
   const [jobUrl, setJobUrl] = useState('')
   const [analysis, setAnalysis] = useState<JobUrlAnalysis | null>(null)
@@ -141,7 +144,7 @@ export function QuickAddDialog({ open, onOpenChange, onSaved }: QuickAddDialogPr
         analysis.application_method as ApplicationMethodType | null,
         null,
       )
-      await api.createApplication({
+      await createApplication({
         ...EMPTY_FORM,
         company_name: analysis.company.trim(),
         job_title: analysis.role.trim(),
@@ -220,7 +223,7 @@ export function QuickAddDialog({ open, onOpenChange, onSaved }: QuickAddDialogPr
     setError(null)
     try {
       const today = new Date().toISOString().slice(0, 10)
-      await api.createApplication({
+      await createApplication({
         ...EMPTY_FORM,
         company_name: companyName.trim(),
         job_title: jobTitle.trim(),

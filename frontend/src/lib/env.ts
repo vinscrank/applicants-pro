@@ -17,10 +17,6 @@ export function publicGraphqlUrl(): string {
   )
 }
 
-export function useJavaApplications(): boolean {
-  return process.env.NEXT_PUBLIC_USE_JAVA_APPLICATIONS !== 'false'
-}
-
 export function useJavaSearch(): boolean {
   return process.env.NEXT_PUBLIC_USE_JAVA_SEARCH !== 'false'
 }

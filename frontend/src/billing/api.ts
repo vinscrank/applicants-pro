@@ -30,31 +30,45 @@ export interface BillingStatus {
   }
 }
 
+type JavaBillingFeatures = {
+  offerteLive?: boolean
+  aiCallsMonth?: number
+  aiCallsUsed?: number
+  autoDiscover?: boolean
+  companionAutofill?: boolean
+  applicationsMax?: number
+}
+
 type JavaBillingStatus = {
+  planId?: string
+  planName?: string
   planTier?: string
+  isOwner?: boolean
   subscriptionStatus?: string
   subscriptionPeriodEnd?: string | null
   stripeConfigured?: boolean
+  features?: JavaBillingFeatures
 }
 
 const BILLING_PREFIX = '/api/v2/billing'
 
 function mapBillingStatus(raw: JavaBillingStatus): BillingStatus {
-  const planId = raw.planTier ?? 'free'
+  const planId = raw.planId ?? raw.planTier ?? 'free'
+  const features = raw.features
   return {
     billing_enabled: Boolean(raw.stripeConfigured),
-    is_owner: true,
+    is_owner: Boolean(raw.isOwner),
     plan_id: planId,
-    plan_name: planId,
+    plan_name: raw.planName ?? planId,
     subscription_status: raw.subscriptionStatus ?? 'none',
     subscription_period_end: raw.subscriptionPeriodEnd ?? null,
     features: {
-      offerte_live: planId !== 'free',
-      ai_calls_month: planId !== 'free' ? 100 : 0,
-      ai_calls_used: 0,
-      auto_discover: planId !== 'free',
-      companion_autofill: false,
-      applications_max: planId === 'free' ? 50 : 9999,
+      offerte_live: features?.offerteLive ?? planId !== 'free',
+      ai_calls_month: features?.aiCallsMonth ?? (planId !== 'free' ? 200 : 0),
+      ai_calls_used: features?.aiCallsUsed ?? 0,
+      auto_discover: features?.autoDiscover ?? (planId === 'owner' || planId === 'business'),
+      companion_autofill: features?.companionAutofill ?? planId !== 'free',
+      applications_max: features?.applicationsMax ?? (planId === 'free' ? 40 : 500),
     },
   }
 }
