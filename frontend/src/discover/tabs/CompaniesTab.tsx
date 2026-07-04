@@ -1,5 +1,9 @@
 import { CompaniesView } from '@/companies/CompaniesView'
 
 export function CompaniesTab() {
-  return <CompaniesView embedded />
+  return (
+    <div className="discover-tab-inner discover-tab-companies">
+      <CompaniesView embedded />
+    </div>
+  )
 }

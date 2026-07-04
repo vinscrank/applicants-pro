@@ -30,7 +30,6 @@ import { Input } from './components/ui/input'
 import { Checkbox } from './components/ui/checkbox'
 import { Label } from './components/ui/label'
 import { Badge } from './components/ui/badge'
-import { Tabs, TabsList, TabsTrigger } from './components/ui/tabs'
 import {
   Dialog,
   DialogContent,
@@ -39,7 +38,8 @@ import {
   DialogTitle,
 } from './components/ui/dialog'
 import { cn } from './lib/utils'
-import { PageLayout, PageLoading } from './layout/PageLayout'
+import { PageLoading } from './layout/PageLayout'
+import './applications/applications-page.css'
 
 type ViewMode = 'table' | 'pipeline' | 'calendar'
 
@@ -264,17 +264,28 @@ export default function CandidatureView() {
 
   const activeFiltersCount = hideRejected ? 1 : 0
 
-  const description = stats
+  const heroDescription = stats
     ? t('candidature.statsTotal', { total: stats.total }) +
       (stats.applied_today > 0 ? t('candidature.statsToday', { count: stats.applied_today }) : '')
     : t('common.loading')
 
+  const viewModes: { id: ViewMode; icon: typeof List; labelKey: string }[] = [
+    { id: 'table', icon: List, labelKey: 'candidature.views.list' },
+    { id: 'pipeline', icon: LayoutGrid, labelKey: 'candidature.views.pipeline' },
+    { id: 'calendar', icon: CalendarDays, labelKey: 'candidature.views.calendar' },
+  ]
+
   return (
-    <PageLayout
-      title={t('candidature.title')}
-      description={description}
-      actions={
-        <>
+    <div className="apps-page">
+      <header className="apps-hero">
+        <div className="apps-hero-copy">
+          <h1 className="apps-hero-title">{t('candidature.title')}</h1>
+          <p className="apps-hero-description">{t('candidature.pageLead')}</p>
+          {!loading && stats ? (
+            <p className="apps-hero-description">{heroDescription}</p>
+          ) : null}
+        </div>
+        <div className="apps-hero-actions">
           <Button variant="outline" onClick={() => navigateToJobs()}>
             <Search className="h-4 w-4" />
             {t('nav.searchOffers')}
@@ -283,177 +294,205 @@ export default function CandidatureView() {
             <Plus className="h-4 w-4" />
             {t('common.new')}
           </Button>
-        </>
-      }
-    >
-      <div className="platform-filter-row">
-        {QUICK_FILTER_IDS.map((filterId) => {
-          const count = quickFilterCounts[filterId]
-          const active = quickFilter === filterId
-          return (
-            <button
-              key={filterId}
-              type="button"
-              onClick={() => handleQuickFilterChange(filterId)}
-              className={cn('platform-filter-pill', active && 'active')}
-            >
-              {quickFilterLabel(filterId)}
-              <span className="platform-filter-pill-count">{count}</span>
-            </button>
-          )
-        })}
+        </div>
+      </header>
+
+      <div className="apps-kpi-grid">
+        <div className="apps-kpi-card">
+          <p className="apps-kpi-label">{t('candidature.kpiTotal')}</p>
+          <p className="apps-kpi-value">{stats?.total ?? applications.length}</p>
+        </div>
+        <div className="apps-kpi-card">
+          <p className="apps-kpi-label">{t('candidature.kpiActive')}</p>
+          <p className="apps-kpi-value">{quickFilterCounts.active}</p>
+          <p className="apps-kpi-hint">{t('candidature.kpiActiveHint')}</p>
+        </div>
+        <div className="apps-kpi-card">
+          <p className="apps-kpi-label">{t('candidature.kpiInterviews')}</p>
+          <p className="apps-kpi-value">{quickFilterCounts.interview}</p>
+          <p className="apps-kpi-hint">{t('candidature.kpiInterviewsHint')}</p>
+        </div>
+        <div className="apps-kpi-card">
+          <p className="apps-kpi-label">{t('candidature.kpiAppliedToday')}</p>
+          <p className="apps-kpi-value">{stats?.applied_today ?? 0}</p>
+          <p className="apps-kpi-hint">{t('candidature.kpiAppliedTodayHint')}</p>
+        </div>
       </div>
 
-      <div className="platform-toolbar">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-          <Input
-            className="pl-9 pr-9 bg-background"
-            placeholder={t('candidature.searchPlaceholder')}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          {search && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2"
-              onClick={() => setSearch('')}
-              aria-label={t('common.clearSearch')}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-
-        <div className="platform-toolbar-actions">
-          <div className="platform-source-tabs">
-            {(
-              [
-                { id: 'all' as const, count: undefined },
-                { id: 'live_jobs' as const, count: sourceCounts.live_jobs },
-                { id: 'manual' as const, count: sourceCounts.manual },
-              ] as const
-            ).map((tab) => (
+      <div className="apps-control-panel">
+        <div className="apps-quick-filters" role="tablist" aria-label={t('common.filters')}>
+          {QUICK_FILTER_IDS.map((filterId) => {
+            const count = quickFilterCounts[filterId]
+            const active = quickFilter === filterId
+            return (
               <button
-                key={tab.id}
+                key={filterId}
                 type="button"
-                className={cn('platform-source-tab', sourceFilter === tab.id && 'active')}
-                onClick={() => {
-                  setSourceFilter(tab.id)
-                  navigate({ page: 'candidature', sourceFilter: tab.id === 'live_jobs' ? 'live_jobs' : undefined })
-                }}
+                role="tab"
+                aria-selected={active}
+                onClick={() => handleQuickFilterChange(filterId)}
+                className={cn('apps-filter-chip', active && 'active')}
               >
-                {sourceFilterLabel(tab.id)}
-                {tab.count != null && tab.count > 0 && (
-                  <span className="ml-1 opacity-70">{tab.count}</span>
-                )}
+                {quickFilterLabel(filterId)}
+                <span className="apps-filter-chip-count">{count}</span>
               </button>
-            ))}
+            )
+          })}
+        </div>
+
+        <div className="apps-toolbar">
+          <div className="apps-search-wrap">
+            <Search className="apps-search-icon" strokeWidth={1.75} />
+            <Input
+              className="apps-search-input"
+              placeholder={t('candidature.searchPlaceholder')}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {search ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="apps-search-clear h-7 w-7"
+                onClick={() => setSearch('')}
+                aria-label={t('common.clearSearch')}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            ) : null}
           </div>
 
-          <Button
-            variant={showFilters ? 'secondary' : 'outline'}
-            size="sm"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <Filter className="h-4 w-4" />
-            {t('common.filters')}
-            {activeFiltersCount > 0 && (
-              <Badge variant="secondary" className="ml-1 h-5 min-w-5 px-1">
-                {activeFiltersCount}
-              </Badge>
-            )}
-          </Button>
+          <div className="apps-toolbar-actions">
+            <div className="apps-source-tabs" role="tablist" aria-label={t('candidature.trackerSource.ariaLabel')}>
+              {(
+                [
+                  { id: 'all' as const, count: undefined },
+                  { id: 'live_jobs' as const, count: sourceCounts.live_jobs },
+                  { id: 'manual' as const, count: sourceCounts.manual },
+                ] as const
+              ).map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={sourceFilter === tab.id}
+                  className={cn('apps-source-tab', sourceFilter === tab.id && 'active')}
+                  onClick={() => {
+                    setSourceFilter(tab.id)
+                    navigate({ page: 'candidature', sourceFilter: tab.id === 'live_jobs' ? 'live_jobs' : undefined })
+                  }}
+                >
+                  {sourceFilterLabel(tab.id)}
+                  {tab.count != null && tab.count > 0 ? (
+                    <span className="ml-1 opacity-70">{tab.count}</span>
+                  ) : null}
+                </button>
+              ))}
+            </div>
 
-          <Tabs
-            value={viewMode}
-            onValueChange={(v) => {
-              const mode = v as ViewMode
-              setViewMode(mode)
-              navigate({
-                page: 'candidature',
-                view: mode === 'table' ? undefined : mode,
-                quickFilter: quickFilter === 'all' ? undefined : quickFilter,
-              })
-            }}
-          >
-            <TabsList className="h-9">
-              <TabsTrigger value="table" className="gap-1.5 px-2.5">
-                <List className="h-4 w-4" />
-                <span className="hidden sm:inline">{t('candidature.views.list')}</span>
-              </TabsTrigger>
-              <TabsTrigger value="pipeline" className="gap-1.5 px-2.5">
-                <LayoutGrid className="h-4 w-4" />
-                <span className="hidden sm:inline">{t('candidature.views.pipeline')}</span>
-              </TabsTrigger>
-              <TabsTrigger value="calendar" className="gap-1.5 px-2.5">
-                <CalendarDays className="h-4 w-4" />
-                <span className="hidden sm:inline">{t('candidature.views.calendar')}</span>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+            <Button
+              variant={showFilters ? 'secondary' : 'outline'}
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Filter className="h-4 w-4" />
+              {t('common.filters')}
+              {activeFiltersCount > 0 ? (
+                <Badge variant="secondary" className="ml-1 h-5 min-w-5 px-1">
+                  {activeFiltersCount}
+                </Badge>
+              ) : null}
+            </Button>
+
+            <div className="apps-view-switch" role="tablist" aria-label={t('candidature.title')}>
+              {viewModes.map(({ id, icon: Icon, labelKey }) => {
+                const active = viewMode === id
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    className={cn('apps-view-btn', active && 'active')}
+                    onClick={() => {
+                      setViewMode(id)
+                      navigate({
+                        page: 'candidature',
+                        view: id === 'table' ? undefined : id,
+                        quickFilter: quickFilter === 'all' ? undefined : quickFilter,
+                      })
+                    }}
+                  >
+                    <Icon className="h-4 w-4" strokeWidth={1.75} />
+                    <span className="hidden sm:inline">{t(labelKey)}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
         </div>
+
+        {showFilters ? (
+          <div className="apps-filters-panel">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="hide-rejected"
+                checked={hideRejected}
+                onCheckedChange={(checked) => handleHideRejectedChange(checked === true)}
+              />
+              <Label htmlFor="hide-rejected" className="text-sm font-normal cursor-pointer">
+                {t('candidature.hideRejected')}
+              </Label>
+            </div>
+          </div>
+        ) : null}
       </div>
 
-      {showFilters && (
-        <div className="platform-filters-panel space-y-4">
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="hide-rejected"
-              checked={hideRejected}
-              onCheckedChange={(checked) => handleHideRejectedChange(checked === true)}
-            />
-            <Label htmlFor="hide-rejected" className="text-sm font-normal cursor-pointer">
-              {t('candidature.hideRejected')}
-            </Label>
+      <section className="apps-content-panel">
+        {error ? <div className="apps-alert" role="alert">{error}</div> : null}
+
+        {loading ? (
+          <PageLoading />
+        ) : applications.length === 0 ? (
+          <ApplicationsEmptyState onAdd={openQuickAdd} />
+        ) : filteredApplications.length === 0 ? (
+          <div className="apps-empty">
+            <div className="apps-empty-icon">
+              <Search className="h-7 w-7" strokeWidth={1.75} />
+            </div>
+            <h3 className="apps-empty-title">{t('common.noResults')}</h3>
+            <p className="apps-empty-description">{t('common.tryAdjustFilters')}</p>
+            <Button variant="outline" className="mt-6" onClick={resetFilters}>
+              {t('common.resetFilters')}
+            </Button>
           </div>
-        </div>
-      )}
+        ) : (
+          <>
+            <div className="apps-content-meta">
+              <p className="apps-content-count">
+                {t('candidature.count', { count: filteredApplications.length })}
+              </p>
+            </div>
 
-      {error && (
-        <div className="rounded-md border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
-      )}
-
-      {loading ? (
-        <PageLoading />
-      ) : applications.length === 0 ? (
-        <ApplicationsEmptyState onAdd={openQuickAdd} />
-      ) : filteredApplications.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <Search className="h-10 w-10 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold">{t('common.noResults')}</h3>
-          <p className="text-sm text-muted-foreground mt-2">{t('common.tryAdjustFilters')}</p>
-          <Button variant="outline" className="mt-6" onClick={resetFilters}>
-            {t('common.resetFilters')}
-          </Button>
-        </div>
-      ) : (
-        <>
-          <p className="text-sm text-muted-foreground">
-            {t('candidature.count', { count: filteredApplications.length })}
-          </p>
-
-          {viewMode === 'table' ? (
-            <ApplicationsDataTable
-              applications={filteredApplications}
-              updatingId={updatingStatusId}
-              highlightApplicationId={highlightApplicationId}
-              onHighlightDone={() => setHighlightApplicationId(null)}
-              onStatusChange={handleStatusChange}
-              onEdit={openEdit}
-              onDelete={handleDelete}
-            />
-          ) : viewMode === 'pipeline' ? (
-            <ApplicationsKanban applications={filteredApplications} onStatusChange={handleStatusChange} />
-          ) : (
-            <ApplicationsCalendar applications={filteredApplications} />
-          )}
-        </>
-      )}
+            {viewMode === 'table' ? (
+              <ApplicationsDataTable
+                applications={filteredApplications}
+                updatingId={updatingStatusId}
+                highlightApplicationId={highlightApplicationId}
+                onHighlightDone={() => setHighlightApplicationId(null)}
+                onStatusChange={handleStatusChange}
+                onEdit={openEdit}
+                onDelete={handleDelete}
+              />
+            ) : viewMode === 'pipeline' ? (
+              <ApplicationsKanban applications={filteredApplications} onStatusChange={handleStatusChange} />
+            ) : (
+              <ApplicationsCalendar applications={filteredApplications} />
+            )}
+          </>
+        )}
+      </section>
 
       <Dialog open={modalOpen} onOpenChange={(open) => !open && closeModal()}>
         <DialogContent className="platform-form-dialog max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -476,6 +515,6 @@ export default function CandidatureView() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </PageLayout>
+    </div>
   )
 }

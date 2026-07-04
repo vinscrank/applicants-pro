@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { authApi } from '../auth/api'
-import { dataApi } from '../data/api'
 import { useAuth } from '../auth/AuthContext'
 import { EMPTY_PROFILE_FORM, profileToForm, type ProfileFormData } from '../auth/types'
 import { ProfileField } from './ProfileField'
@@ -28,8 +27,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
-const EXTENSION_ID_KEY = 'candidature_extension_id'
-
 const textareaClass =
   'flex min-h-[120px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm'
 
@@ -37,14 +34,7 @@ export function ProfileView({ embedded = false }: { embedded?: boolean } = {}) {
   const { t } = useTranslation()
   const { profile, setProfile, user } = useAuth()
   const [form, setForm] = useState<ProfileFormData>(EMPTY_PROFILE_FORM)
-  const [extensionId, setExtensionId] = useState('')
-
-  useEffect(() => {
-    setExtensionId(localStorage.getItem(EXTENSION_ID_KEY) || '')
-  }, [])
   const [saving, setSaving] = useState(false)
-  const [exportingDb, setExportingDb] = useState(false)
-  const [importingDb, setImportingDb] = useState(false)
   const [cvUploading, setCvUploading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -84,11 +74,6 @@ export function ProfileView({ embedded = false }: { embedded?: boolean } = {}) {
     return () => window.clearTimeout(timer)
   }, [message])
 
-  const saveExtensionId = () => {
-    localStorage.setItem(EXTENSION_ID_KEY, extensionId.trim())
-    setMessage('ID estensione salvato')
-  }
-
   const uploadCv = async (file: File | null) => {
     if (!file) return
     setCvUploading(true)
@@ -117,38 +102,6 @@ export function ProfileView({ embedded = false }: { embedded?: boolean } = {}) {
       setError(err instanceof Error ? err.message : 'Rimozione CV fallita')
     } finally {
       setCvUploading(false)
-    }
-  }
-
-  const exportDatabase = async () => {
-    setExportingDb(true)
-    setError(null)
-    setMessage(null)
-    try {
-      await dataApi.exportDatabase()
-      setMessage('Backup database scaricato')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Esportazione fallita')
-    } finally {
-      setExportingDb(false)
-    }
-  }
-
-  const importDatabase = async (file: File | null) => {
-    if (!file) return
-    const confirmed = window.confirm(t('profile.dbImportConfirm'))
-    if (!confirmed) return
-    setImportingDb(true)
-    setError(null)
-    setMessage(null)
-    try {
-      await dataApi.importDatabase(file)
-      setMessage('Database importato. Ricarica la pagina se qualcosa non si aggiorna.')
-      window.location.reload()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Importazione fallita')
-    } finally {
-      setImportingDb(false)
     }
   }
 
@@ -290,57 +243,9 @@ export function ProfileView({ embedded = false }: { embedded?: boolean } = {}) {
             </ProfileField>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-base">Estensione Chrome autofill</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Installa l&apos;estensione dalla cartella <code className="rounded bg-muted px-1 py-0.5 text-xs">extension/</code>, poi incolla qui il suo ID da chrome://extensions.
-            </p>
-            <ProfileField id="extension_id" label="Extension ID" icon={<IconCode />}>
-              <Input id="extension_id" value={extensionId} onChange={(e) => setExtensionId(e.target.value)} placeholder="abcdefghijklmnopqrstuvwxyz123456" />
-            </ProfileField>
-            <Button type="button" variant="secondary" onClick={saveExtensionId}>
-              Salva ID estensione
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-base">Backup database</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              {t('profile.dbBackupDescription')}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Button type="button" onClick={exportDatabase} disabled={exportingDb || importingDb}>
-                {exportingDb ? 'Esportazione...' : 'Esporta database'}
-              </Button>
-              <Button type="button" variant="outline" disabled={exportingDb || importingDb} asChild>
-                <label className="cursor-pointer">
-                  <input
-                    type="file"
-                    accept=".sql,application/sql,text/plain"
-                    disabled={exportingDb || importingDb}
-                    className="sr-only"
-                    onChange={(e) => {
-                      void importDatabase(e.target.files?.[0] ?? null)
-                      e.target.value = ''
-                    }}
-                  />
-                  {importingDb ? 'Importazione...' : 'Importa database'}
-                </label>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
-      <div className="flex justify-end pt-2">
+      <div className="flex justify-end pt-2 account-save-bar">
         <Button type="button" onClick={save} disabled={saving}>
           {saving ? t('profile.saving') : t('profile.saveProfile')}
         </Button>

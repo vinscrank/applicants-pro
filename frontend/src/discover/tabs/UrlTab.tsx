@@ -1,5 +1,9 @@
 import AnnuncioView from '@/annuncio/AnnuncioView'
 
 export function UrlTab() {
-  return <AnnuncioView embedded />
+  return (
+    <div className="discover-tab-inner discover-tab-url">
+      <AnnuncioView embedded />
+    </div>
+  )
 }

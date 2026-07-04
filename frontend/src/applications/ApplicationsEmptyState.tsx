@@ -6,14 +6,12 @@ export function ApplicationsEmptyState({ onAdd }: { onAdd: () => void }) {
   const { t } = useTranslation()
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="rounded-full bg-muted p-4 mb-4">
-        <FileText className="h-8 w-8 text-muted-foreground" />
+    <div className="apps-empty">
+      <div className="apps-empty-icon">
+        <FileText className="h-7 w-7" strokeWidth={1.75} />
       </div>
-      <h3 className="text-lg font-semibold">{t('candidature.emptyTitle')}</h3>
-      <p className="text-sm text-muted-foreground mt-2 max-w-sm">
-        {t('candidature.emptyDescription')}
-      </p>
+      <h3 className="apps-empty-title">{t('candidature.emptyTitle')}</h3>
+      <p className="apps-empty-description">{t('candidature.emptyDescription')}</p>
       <Button className="mt-6" onClick={onAdd}>
         <Plus className="h-4 w-4" />
         {t('candidature.emptyAction')}

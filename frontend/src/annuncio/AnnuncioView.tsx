@@ -104,23 +104,6 @@ function AnnuncioEmptyState() {
     <section className="annuncio-empty card">
       <h2 className="annuncio-empty-title">{t('annuncio.emptyTitle')}</h2>
       <p className="annuncio-empty-text">{t('annuncio.emptyDescription')}</p>
-      <div className="annuncio-steps">
-        <div className="annuncio-step">
-          <span className="annuncio-step-num">1</span>
-          <span className="annuncio-step-title">{t('annuncio.step1Title')}</span>
-          <span className="annuncio-step-text">{t('annuncio.step1Text')}</span>
-        </div>
-        <div className="annuncio-step">
-          <span className="annuncio-step-num">2</span>
-          <span className="annuncio-step-title">{t('annuncio.step2Title')}</span>
-          <span className="annuncio-step-text">{t('annuncio.step2Text')}</span>
-        </div>
-        <div className="annuncio-step">
-          <span className="annuncio-step-num">3</span>
-          <span className="annuncio-step-title">{t('annuncio.step3Title')}</span>
-          <span className="annuncio-step-text">{t('annuncio.step3Text')}</span>
-        </div>
-      </div>
     </section>
   )
 }

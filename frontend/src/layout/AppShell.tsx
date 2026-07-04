@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AppShellSidebar, routeToShellNav, type ShellNavId } from '@/layout/AppShellSidebar'
 import { AppHeader } from '@/layout/AppHeader'
 import { CommandMenu, useCommandMenu } from '@/layout/CommandMenu'
@@ -27,6 +28,7 @@ export function AppShell({
   onLogout,
   children,
 }: AppShellProps) {
+  const { t } = useTranslation()
   const { open, setOpen } = useCommandMenu()
   const [mobileNav, setMobileNav] = useState(false)
   const activeNav: ShellNavId = routeToShellNav(route)
@@ -45,18 +47,18 @@ export function AppShell({
   return (
     <div className="relative min-h-screen bg-background">
       <LightGrid className="fixed opacity-50" />
-      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
+      <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-[260px] lg:flex-col">
         {sidebar}
       </aside>
 
       <Sheet open={mobileNav} onOpenChange={setMobileNav}>
-        <SheetContent side="left" className="w-72 border-r-0 bg-sidebar p-0 text-sidebar-foreground">
-          <SheetTitle className="sr-only">Menu</SheetTitle>
+        <SheetContent side="left" className="w-[min(100vw-2rem,280px)] border-r-0 bg-sidebar p-0 text-sidebar-foreground">
+          <SheetTitle className="sr-only">{t('nav.menu')}</SheetTitle>
           {sidebar}
         </SheetContent>
       </Sheet>
 
-      <div className={cn('flex min-h-screen flex-col lg:pl-64')}>
+      <div className={cn('flex min-h-screen flex-col lg:pl-[260px]')}>
         <AppHeader onOpenCommand={() => setOpen(true)} onOpenNav={() => setMobileNav(true)} />
         <main className="relative flex-1 px-4 py-6 sm:px-6 lg:px-8">
           <div className="relative mx-auto w-full max-w-7xl">{children}</div>

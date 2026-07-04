@@ -1,0 +1,339 @@
+.discover-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 88rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.discover-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  padding: 1.375rem 1.5rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(135deg, rgba(45, 90, 123, 0.08) 0%, rgba(26, 31, 54, 0.03) 100%),
+    var(--surface);
+  box-shadow: 0 1px 2px rgba(26, 31, 54, 0.04);
+}
+
+.discover-hero-copy {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.discover-hero-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  border-radius: 0.75rem;
+  color: #ffffff;
+  background: linear-gradient(145deg, #3d7a9e 0%, #2d5a7b 55%, #1e4a63 100%);
+  box-shadow: 0 8px 20px rgba(45, 90, 123, 0.22);
+}
+
+.discover-hero-text {
+  min-width: 0;
+}
+
+.discover-hero-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1.15;
+}
+
+.discover-hero-description {
+  margin: 0.4375rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+  max-width: 40rem;
+}
+
+.discover-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3125rem 0.6875rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #1e4a63;
+  background: rgba(45, 90, 123, 0.1);
+  border: 1px solid rgba(45, 90, 123, 0.18);
+}
+
+.discover-layout {
+  display: grid;
+  grid-template-columns: 16.5rem minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.discover-nav {
+  position: sticky;
+  top: 5.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(26, 31, 54, 0.04);
+}
+
+.discover-nav-label {
+  margin: 0 0 0.5rem;
+  padding: 0 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.discover-nav-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.6875rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.625rem;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.discover-nav-item:hover {
+  background: var(--surface-hover);
+  border-color: var(--border);
+}
+
+.discover-nav-item.active {
+  background: rgba(45, 90, 123, 0.08);
+  border-color: rgba(45, 90, 123, 0.18);
+}
+
+.discover-nav-item-featured.active {
+  background: rgba(45, 90, 123, 0.12);
+  border-color: rgba(74, 143, 184, 0.28);
+}
+
+.discover-nav-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  margin-top: 0.0625rem;
+  border-radius: 0.5rem;
+  color: var(--text-secondary);
+  background: var(--surface-muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.discover-nav-item.active .discover-nav-item-icon {
+  color: #1e4a63;
+  background: rgba(45, 90, 123, 0.14);
+}
+
+.discover-nav-item-copy {
+  min-width: 0;
+}
+
+.discover-nav-item-title {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.25;
+}
+
+.discover-nav-item-hint {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
+
+.discover-mobile-nav {
+  display: none;
+  gap: 0.375rem;
+  overflow-x: auto;
+  padding: 0.375rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+  scrollbar-width: none;
+}
+
+.discover-mobile-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.discover-mobile-nav-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+  min-width: 7.5rem;
+  padding: 0.5625rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.discover-mobile-nav-item.active {
+  background: var(--surface);
+  border-color: var(--border);
+  box-shadow: 0 1px 2px rgba(26, 31, 54, 0.06);
+}
+
+.discover-mobile-nav-title {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.discover-panel {
+  min-width: 0;
+  padding: 1.25rem 1.375rem 1.5rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(26, 31, 54, 0.04);
+}
+
+.discover-panel-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1.125rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.discover-panel-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.discover-panel-description {
+  margin: 0.3125rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+  max-width: 40rem;
+}
+
+.discover-panel-content {
+  min-width: 0;
+}
+
+.discover-tab-inner {
+  min-width: 0;
+}
+
+.discover-panel-content .jobs-shell,
+.discover-panel-content .annuncio-shell,
+.discover-panel-content .candidature-view {
+  padding: 0;
+  margin: 0;
+  max-width: none;
+}
+
+.discover-panel-content .jobs-app-main {
+  gap: 1rem;
+}
+
+.discover-panel-content .search-panel-ai,
+.discover-panel-content .annuncio-search {
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+
+.discover-panel-content .recent-careers-panel {
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--bg);
+  padding: 1rem;
+}
+
+.discover-panel-content .recent-careers-toolbar {
+  gap: 0.75rem;
+}
+
+.discover-panel-content [role='tablist'].inline-flex.h-9 {
+  height: auto;
+  padding: 0.1875rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+}
+
+.discover-panel-content [role='tablist'].inline-flex.h-9 button[data-state='active'] {
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(26, 31, 54, 0.06);
+}
+
+.discover-panel-content .platform-table-shell,
+.discover-panel-content .jobs-results-shell {
+  border-radius: 0.75rem;
+  border-color: var(--border);
+}
+
+@media (max-width: 960px) {
+  .discover-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .discover-nav {
+    display: none;
+  }
+
+  .discover-mobile-nav {
+    display: flex;
+  }
+
+  .discover-hero {
+    padding: 1.125rem 1.25rem;
+  }
+
+  .discover-panel {
+    padding: 1rem 1.125rem 1.25rem;
+  }
+}

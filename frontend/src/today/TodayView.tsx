@@ -1,4 +1,4 @@
-import { ArrowRight, Calendar, Mail } from 'lucide-react'
+import { ArrowRight, Calendar, Mail, Plus, Search } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { navigate } from '@/router'
@@ -6,18 +6,22 @@ import { useAuth } from '@/auth/AuthContext'
 import { useQuickAddOptional } from '@/contexts/QuickAddContext'
 import { useApplicationsQuery } from '@/hooks/useApplicationsQuery'
 import { useApplicationTasks, type TaskScope } from '@/applications/useApplicationTasks'
-import { KpiGrid } from '@/components/patterns/KpiGrid'
 import { ApplicationStatusBadge } from '@/applications/ApplicationStatusBadge'
 import { mapDbStatusToUi } from '@/applications/status'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DAILY_APPLICATION_GOAL } from '@/constants'
-import { ListRow } from '@/components/patterns/ListRow'
-import { PageLayout, PageLoading } from '@/layout/PageLayout'
+import { PageLoading } from '@/layout/PageLayout'
+import { cn } from '@/lib/utils'
+import '@/applications/applications-page.css'
 
 const INTERVIEW_STATUSES = new Set(['phone_screen', 'technical_interview', 'final_interview'])
 const APPLIED_STATUSES = new Set(['applied', 'follow_up_sent'])
+const TASK_TABS: TaskScope[] = ['today', 'week', 'overdue']
+const TASK_TAB_LABEL_KEYS: Record<TaskScope, string> = {
+  today: 'today.tasksTabToday',
+  week: 'today.tasksTabWeek',
+  overdue: 'today.tasksTabOverdue',
+}
 
 export function TodayView() {
   const { t, i18n } = useTranslation()
@@ -85,80 +89,107 @@ export function TodayView() {
 
   const recent = [...applications]
     .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-    .slice(0, 5)
+    .slice(0, 6)
 
   const dateLabel = mounted
     ? new Date().toLocaleDateString(i18n.language, { weekday: 'long', day: 'numeric', month: 'long' })
     : ''
 
   const greeting = mounted ? getGreeting() : t('today.pageTitle')
+  const heroTitle = `${greeting}${firstName ? `, ${firstName}` : ''}`
 
   if (loading) {
     return (
-      <PageLayout title={t('today.pageTitle')}>
+      <div className="apps-page">
+        <header className="apps-hero">
+          <div className="apps-hero-copy">
+            <h1 className="apps-hero-title">{t('today.pageTitle')}</h1>
+          </div>
+        </header>
         <PageLoading />
-      </PageLayout>
+      </div>
     )
   }
 
   return (
-    <PageLayout
-      title={`${greeting}${firstName ? `, ${firstName}` : ''}`}
-      description={
-        mounted
-          ? t('today.goalDescription', {
-              date: dateLabel,
-              current: stats?.applied_today ?? 0,
-              goal: DAILY_APPLICATION_GOAL,
-            })
-          : undefined
-      }
-      actions={
-        <>
+    <div className="apps-page">
+      <header className="apps-hero">
+        <div className="apps-hero-copy">
+          <h1 className="apps-hero-title">{heroTitle}</h1>
+          <p className="apps-hero-description">{t('today.pageLead')}</p>
+          {mounted ? (
+            <p className="apps-hero-description">
+              {t('today.goalDescription', {
+                date: dateLabel,
+                current: stats?.applied_today ?? 0,
+                goal: DAILY_APPLICATION_GOAL,
+              })}
+            </p>
+          ) : null}
+        </div>
+        <div className="apps-hero-actions">
           <Button variant="outline" onClick={() => navigate({ page: 'discover', tab: 'search' })}>
+            <Search className="h-4 w-4" />
             {t('nav.searchOffers')}
           </Button>
-          <Button onClick={() => quickAdd?.openQuickAdd()}>+ {t('nav.applicationShort')}</Button>
-        </>
-      }
-    >
-      <KpiGrid
-        columns={3}
-        items={[
-          { title: t('today.activeApplications'), value: activeCount },
-          { title: t('today.interviews'), value: interviewCount },
-          { title: t('today.responseRate'), value: `${responseRate}%` },
-        ]}
-      />
+          <Button onClick={() => quickAdd?.openQuickAdd()}>
+            <Plus className="h-4 w-4" />
+            {t('nav.applicationShort')}
+          </Button>
+        </div>
+      </header>
 
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle className="text-base">{t('today.actionsTitle')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Tabs value={taskTab} onValueChange={(v) => setTaskTab(v as TaskScope)} className="mb-4">
-            <TabsList>
-              <TabsTrigger value="today">{t('today.tasksTabToday')}</TabsTrigger>
-              <TabsTrigger value="week">{t('today.tasksTabWeek')}</TabsTrigger>
-              <TabsTrigger value="overdue">{t('today.tasksTabOverdue')}</TabsTrigger>
-            </TabsList>
-          </Tabs>
+      <div className="apps-kpi-grid">
+        <div className="apps-kpi-card">
+          <p className="apps-kpi-label">{t('today.activeApplications')}</p>
+          <p className="apps-kpi-value">{activeCount}</p>
+        </div>
+        <div className="apps-kpi-card">
+          <p className="apps-kpi-label">{t('today.interviews')}</p>
+          <p className="apps-kpi-value">{interviewCount}</p>
+        </div>
+        <div className="apps-kpi-card">
+          <p className="apps-kpi-label">{t('today.responseRate')}</p>
+          <p className="apps-kpi-value">{responseRate}%</p>
+        </div>
+        <div className="apps-kpi-card">
+          <p className="apps-kpi-label">{t('candidature.kpiAppliedToday')}</p>
+          <p className="apps-kpi-value">{stats?.applied_today ?? 0}</p>
+          <p className="apps-kpi-hint">{t('candidature.kpiAppliedTodayHint')}</p>
+        </div>
+      </div>
+
+      <div className="apps-split-panels">
+        <section className="apps-content-panel">
+          <div className="apps-panel-header">
+            <h2 className="apps-panel-title">{t('today.actionsTitle')}</h2>
+            <div className="apps-source-tabs" role="tablist" aria-label={t('today.actionsTitle')}>
+              {TASK_TABS.map((scope) => (
+                <button
+                  key={scope}
+                  type="button"
+                  role="tab"
+                  aria-selected={taskTab === scope}
+                  className={cn('apps-source-tab', taskTab === scope && 'active')}
+                  onClick={() => setTaskTab(scope)}
+                >
+                  {t(TASK_TAB_LABEL_KEYS[scope])}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {tasksLoading ? (
             <PageLoading />
           ) : displayTasks.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4">{t('today.noActions')}</p>
+            <p className="apps-empty-description">{t('today.noActions')}</p>
           ) : (
-            <div className="space-y-2">
+            <div className="apps-list-stack">
               {displayTasks.map((task) => (
-                <ListRow
+                <button
                   key={task.id}
-                  icon={
-                    task.kind === 'interview' ? (
-                      <Calendar className="h-4 w-4" />
-                    ) : (
-                      <Mail className="h-4 w-4" />
-                    )
-                  }
+                  type="button"
+                  className="platform-list-row"
                   onClick={() => {
                     if (task.id === 'stale') {
                       navigate({ page: 'candidature', quickFilter: 'follow_up' })
@@ -167,47 +198,57 @@ export function TodayView() {
                     navigate({ page: 'application', applicationId: task.appId })
                   }}
                 >
+                  <div className="platform-list-row-icon">
+                    {task.kind === 'interview' ? (
+                      <Calendar className="h-4 w-4" />
+                    ) : (
+                      <Mail className="h-4 w-4" />
+                    )}
+                  </div>
                   <div className="min-w-0 flex-1 text-left">
                     <p className="text-sm font-medium truncate">{task.title}</p>
                     <p className="text-xs text-muted-foreground truncate">{task.subtitle}</p>
                   </div>
                   <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-                </ListRow>
+                </button>
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </section>
 
-      <Card className="mt-6">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base">{t('today.recentApplications')}</CardTitle>
-          <Button variant="ghost" size="sm" onClick={() => navigate({ page: 'candidature' })}>
-            {t('common.seeAll')}
-          </Button>
-        </CardHeader>
-        <CardContent className="space-y-2">
+        <section className="apps-content-panel">
+          <div className="apps-panel-header">
+            <h2 className="apps-panel-title">{t('today.recentApplications')}</h2>
+            <Button variant="ghost" size="sm" onClick={() => navigate({ page: 'candidature' })}>
+              {t('common.seeAll')}
+            </Button>
+          </div>
+
           {recent.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t('today.noApplications')}</p>
+            <p className="apps-empty-description">{t('today.noApplications')}</p>
           ) : (
-            recent.map((app) => (
-              <ListRow
-                key={app.id}
-                onClick={() => navigate({ page: 'application', applicationId: app.id })}
-              >
-                <div className="min-w-0 flex-1 text-left">
-                  <p className="text-sm font-medium truncate">{app.company_name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{app.job_title}</p>
-                </div>
-                <ApplicationStatusBadge status={mapDbStatusToUi(app.status)} />
-                <span className="shrink-0 text-xs text-muted-foreground" suppressHydrationWarning>
-                  {mounted ? formatRelative(app.updated_at) : null}
-                </span>
-              </ListRow>
-            ))
+            <div className="apps-list-stack">
+              {recent.map((app) => (
+                <button
+                  key={app.id}
+                  type="button"
+                  className="platform-list-row"
+                  onClick={() => navigate({ page: 'application', applicationId: app.id })}
+                >
+                  <div className="min-w-0 flex-1 text-left">
+                    <p className="text-sm font-medium truncate">{app.company_name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{app.job_title}</p>
+                  </div>
+                  <ApplicationStatusBadge status={mapDbStatusToUi(app.status)} />
+                  <span className="shrink-0 text-xs text-muted-foreground" suppressHydrationWarning>
+                    {mounted ? formatRelative(app.updated_at) : null}
+                  </span>
+                </button>
+              ))}
+            </div>
           )}
-        </CardContent>
-      </Card>
-    </PageLayout>
+        </section>
+      </div>
+    </div>
   )
 }

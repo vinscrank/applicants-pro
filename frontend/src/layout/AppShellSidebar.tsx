@@ -5,15 +5,14 @@ import {
   Compass,
   FolderOpen,
   LayoutDashboard,
+  LogOut,
   UserCircle,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { navigate, type AppRoute } from '@/router'
 import { cn } from '@/lib/utils'
-import { Separator } from '@/components/ui/separator'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher'
+import './sidebar.css'
 
 export type ShellNavId =
   | 'today'
@@ -27,6 +26,12 @@ type NavItem = {
   id: ShellNavId
   icon: ReactNode
   route: AppRoute
+  featured?: boolean
+}
+
+type NavSection = {
+  labelKey: string
+  items: NavItem[]
 }
 
 const NAV_LABEL_KEYS: Record<ShellNavId, string> = {
@@ -38,13 +43,28 @@ const NAV_LABEL_KEYS: Record<ShellNavId, string> = {
   account: 'nav.account',
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { id: 'today', icon: <LayoutDashboard className="h-4 w-4" />, route: { page: 'dashboard' } },
-  { id: 'applications', icon: <Briefcase className="h-4 w-4" />, route: { page: 'candidature' } },
-  { id: 'discover', icon: <Compass className="h-4 w-4" />, route: { page: 'discover' } },
-  { id: 'progress', icon: <BarChart3 className="h-4 w-4" />, route: { page: 'progress' } },
-  { id: 'resources', icon: <FolderOpen className="h-4 w-4" />, route: { page: 'documents' } },
-  { id: 'account', icon: <UserCircle className="h-4 w-4" />, route: { page: 'account' } },
+const NAV_SECTIONS: NavSection[] = [
+  {
+    labelKey: 'nav.sectionMain',
+    items: [
+      { id: 'today', icon: <LayoutDashboard className="h-4 w-4" strokeWidth={1.75} />, route: { page: 'dashboard' } },
+      { id: 'applications', icon: <Briefcase className="h-4 w-4" strokeWidth={1.75} />, route: { page: 'candidature' } },
+      { id: 'discover', icon: <Compass className="h-4 w-4" strokeWidth={1.75} />, route: { page: 'discover' }, featured: true },
+    ],
+  },
+  {
+    labelKey: 'nav.sectionInsights',
+    items: [
+      { id: 'progress', icon: <BarChart3 className="h-4 w-4" strokeWidth={1.75} />, route: { page: 'progress' } },
+      { id: 'resources', icon: <FolderOpen className="h-4 w-4" strokeWidth={1.75} />, route: { page: 'documents' } },
+    ],
+  },
+  {
+    labelKey: 'nav.sectionAccount',
+    items: [
+      { id: 'account', icon: <UserCircle className="h-4 w-4" strokeWidth={1.75} />, route: { page: 'account' } },
+    ],
+  },
 ]
 
 export function routeToShellNav(route: AppRoute): ShellNavId {
@@ -76,6 +96,38 @@ interface AppShellSidebarProps {
   onNavigate?: () => void
 }
 
+function SidebarNavLink({
+  item,
+  active,
+  trackerTotal,
+  onClick,
+  label,
+}: {
+  item: NavItem
+  active: boolean
+  trackerTotal: number
+  onClick: () => void
+  label: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'shell-sidebar-link',
+        active && 'active',
+        item.featured && 'shell-sidebar-link-featured',
+      )}
+    >
+      <span className="shell-sidebar-link-icon">{item.icon}</span>
+      <span className="shell-sidebar-link-label">{label}</span>
+      {item.id === 'applications' && trackerTotal > 0 ? (
+        <span className="shell-sidebar-count">{trackerTotal}</span>
+      ) : null}
+    </button>
+  )
+}
+
 export function AppShellSidebar({
   activeNav,
   email,
@@ -92,78 +144,56 @@ export function AppShellSidebar({
   }
 
   return (
-    <div className="flex h-full min-h-screen flex-col bg-sidebar px-3 py-4 text-sidebar-foreground lg:min-h-0">
-      <div className="mb-6 flex items-center gap-2 px-2">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
+    <div className="shell-sidebar">
+      <header className="shell-sidebar-brand">
+        <div className="shell-sidebar-mark" aria-hidden>
           A
         </div>
-        <div className="min-w-0">
-          <p className="truncate font-display text-sm font-semibold tracking-tight">
-            {t('common.brandName')}
-          </p>
-          {planLabel ? (
-            <Badge variant="secondary" className="mt-0.5 h-5 border-0 bg-sidebar-accent px-1.5 text-[10px] uppercase tracking-wide text-sidebar-foreground/80">
-              {planLabel}
-            </Badge>
-          ) : null}
+        <div className="shell-sidebar-brand-text">
+          <p className="shell-sidebar-title">{t('common.brandName')}</p>
+          {planLabel ? <span className="shell-sidebar-plan">{planLabel}</span> : null}
         </div>
-      </div>
+      </header>
 
-      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto">
-        {NAV_ITEMS.map((item) => {
-          const active = activeNav === item.id
-          return (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => go(item.route)}
-              className={cn(
-                'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-                active
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground',
-              )}
-            >
-              {item.icon}
-              <span className="truncate">{t(NAV_LABEL_KEYS[item.id])}</span>
-              {item.id === 'applications' && trackerTotal > 0 ? (
-                <span
-                  className={cn(
-                    'ml-auto rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums',
-                    active ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-sidebar-accent text-sidebar-foreground',
-                  )}
-                >
-                  {trackerTotal}
-                </span>
-              ) : null}
-            </button>
-          )
-        })}
+      <nav className="shell-sidebar-nav" aria-label={t('nav.navigationGroup')}>
+        {NAV_SECTIONS.map((section) => (
+          <div key={section.labelKey} className="shell-sidebar-section">
+            <p className="shell-sidebar-section-label">{t(section.labelKey)}</p>
+            {section.items.map((item) => (
+              <SidebarNavLink
+                key={item.id}
+                item={item}
+                active={activeNav === item.id}
+                trackerTotal={trackerTotal}
+                label={t(NAV_LABEL_KEYS[item.id])}
+                onClick={() => go(item.route)}
+              />
+            ))}
+          </div>
+        ))}
       </nav>
 
-      <div className="mt-auto space-y-3 pt-4">
-        <Separator className="bg-sidebar-border" />
-        <div className="flex items-center gap-3 px-1">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sidebar-accent text-sm font-semibold">
+      <footer className="shell-sidebar-footer">
+        <div className="shell-sidebar-footer-divider" aria-hidden />
+        <div className="shell-sidebar-user">
+          <div className="shell-sidebar-avatar" aria-hidden>
             {email.charAt(0).toUpperCase()}
           </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{email}</p>
-            <p className="truncate text-xs text-sidebar-foreground/60">{t('common.accountPersonal')}</p>
+          <div className="shell-sidebar-user-meta">
+            <p className="shell-sidebar-user-email">{email}</p>
+            <p className="shell-sidebar-user-role">{t('common.accountPersonal')}</p>
           </div>
         </div>
-        <LanguageSwitcher />
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full border-sidebar-border bg-transparent text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"
-          onClick={onLogout}
-        >
-          {t('nav.logout')}
-        </Button>
-      </div>
+        <div className="shell-sidebar-actions">
+          <LanguageSwitcher />
+          <button type="button" className="shell-sidebar-logout" onClick={onLogout}>
+            <LogOut className="h-3.5 w-3.5" strokeWidth={2} />
+            {t('nav.logout')}
+          </button>
+        </div>
+      </footer>
     </div>
   )
 }
 
-export { NAV_ITEMS }
+export const NAV_ITEMS = NAV_SECTIONS.flatMap((section) => section.items)
