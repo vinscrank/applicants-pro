@@ -129,17 +129,6 @@ public class DiscoverSearchService {
         search.setMaybeCount(result.path("maybe_count").asInt(0));
         search.setRejectedCount(result.path("rejected_count").asInt(0));
         search.setCommandJson(result.path("command").toString());
-
-        JsonNode pool = result.has("offer_pool") && result.get("offer_pool").isArray()
-                ? result.get("offer_pool")
-                : result.get("offers");
-        List<JobSearchOffer> offers = new ArrayList<>();
-        if (pool != null && pool.isArray()) {
-            for (JsonNode offerNode : pool) {
-                offers.add(toOfferEntity(search, offerNode));
-            }
-        }
-        search.setOffers(offers);
         return searchRepository.save(search).getId();
     }
 

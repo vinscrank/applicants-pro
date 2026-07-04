@@ -27,13 +27,27 @@ dump_table() {
   eval "${pipeline}"
 }
 
-echo "Clearing seed data before import..."
-docker exec "${TARGET_CONTAINER}" psql -U "${TARGET_USER}" -d "${TARGET_DB}" -v ON_ERROR_STOP=1 -c "TRUNCATE llm_settings RESTART IDENTITY CASCADE;"
+echo "Clearing interview database before import..."
+docker exec -i "${TARGET_CONTAINER}" psql -U "${TARGET_USER}" -d "${TARGET_DB}" -v ON_ERROR_STOP=1 <<'SQL'
+TRUNCATE
+  job_applied_offers,
+  job_dismissed_offers,
+  job_offers,
+  job_searches,
+  applications,
+  user_job_preferences,
+  llm_usage,
+  llm_settings,
+  monitored_companies,
+  user_profiles,
+  users
+RESTART IDENTITY CASCADE;
+SQL
 
 dump_table users users
 dump_table user_profiles user_profiles
 dump_table offerte_searches job_searches
-dump_table offerte_offers job_offers
+echo "Skipping offerte_offers -> job_offers (offers are not stored in this database)."
 dump_table offerte_applied_offers job_applied_offers
 dump_table offerte_dismissed_offers job_dismissed_offers
 dump_table user_offerte_preferences user_job_preferences
@@ -43,10 +57,9 @@ dump_table llm_usage llm_usage
 dump_table llm_settings llm_settings
 
 echo "Resetting sequences..."
-docker exec "${TARGET_CONTAINER}" psql -U "${TARGET_USER}" -d "${TARGET_DB}" -v ON_ERROR_STOP=1 <<'SQL'
+docker exec -i "${TARGET_CONTAINER}" psql -U "${TARGET_USER}" -d "${TARGET_DB}" -v ON_ERROR_STOP=1 <<'SQL'
 SELECT setval('users_id_seq', COALESCE((SELECT MAX(id) FROM users), 1));
 SELECT setval('job_searches_id_seq', COALESCE((SELECT MAX(id) FROM job_searches), 1));
-SELECT setval('job_offers_id_seq', COALESCE((SELECT MAX(id) FROM job_offers), 1));
 SELECT setval('applications_id_seq', COALESCE((SELECT MAX(id) FROM applications), 1));
 SELECT setval('monitored_companies_id_seq', COALESCE((SELECT MAX(id) FROM monitored_companies), 1));
 SELECT setval('llm_usage_id_seq', COALESCE((SELECT MAX(id) FROM llm_usage), 1));
