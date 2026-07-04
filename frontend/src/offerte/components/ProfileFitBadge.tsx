@@ -1,4 +1,5 @@
-import '../assistant/assistant.css'
+import { useTranslation } from 'react-i18next'
+import './profile-fit.css'
 
 interface Props {
   score?: number
@@ -13,10 +14,11 @@ function tone(score: number): string {
 }
 
 export function ProfileFitBadge({ score = 0, label = '', available = false }: Props) {
+  const { t } = useTranslation()
   if (!available || score <= 0) return null
   return (
     <span className={`profile-fit-badge ${tone(score)}`} title={label || undefined}>
-      Fit profilo {score}%
+      {t('profileFitBadge.label', { score })}
     </span>
   )
 }

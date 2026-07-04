@@ -4,7 +4,7 @@ import { appNavigate } from '@/lib/navigation'
 export type ResourcesTab = 'documents' | 'contacts'
 export type CandidatureViewMode = 'table' | 'pipeline' | 'calendar'
 export type DiscoverTab = 'search' | 'url' | 'careers' | 'companies'
-export type AccountTab = 'profile' | 'billing' | 'assistant'
+export type AccountTab = 'profile' | 'billing'
 
 export type AppRoute =
   | { page: 'landing' }
@@ -69,7 +69,7 @@ export function resolveLegacyRoute(page: string, query: URLSearchParams): AppRou
     case 'billing':
       return { page: 'account', accountTab: 'billing' }
     case 'assistant':
-      return { page: 'account', accountTab: 'assistant' }
+      return { page: 'account', accountTab: 'profile' }
     case 'companies':
       return { page: 'discover', tab: 'companies' }
     case 'careers-recent':
@@ -124,7 +124,8 @@ function parseDiscoverTab(tab: string | null): DiscoverTab {
 }
 
 function parseAccountTab(tab: string | null): AccountTab {
-  if (tab === 'billing' || tab === 'assistant' || tab === 'profile') return tab
+  if (tab === 'billing' || tab === 'profile') return tab
+  if (tab === 'assistant') return 'profile'
   return 'profile'
 }
 

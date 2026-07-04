@@ -154,52 +154,6 @@ async def analyze_job_url(
         result.get("role") or "",
     ) or bool(live_matches and all(match.get("dismissed") for match in live_matches))
 
-    try:
-        from apply.page_fit_context import prepare_page_fit_from_job_page
-        from apply.profile_fit_llm import compute_profile_fit_ai
-        from apply.profile_match import apply_closed_job_notice
-        from auth.crud import get_or_create_profile
-        from vector.config import vector_ready
-        from vector.indexer import index_job_page
-        from vector.text import profile_to_dict
-
-        profile_row = get_or_create_profile(db, user.id)
-        profile = profile_to_dict(user, profile_row)
-        fit_inputs = prepare_page_fit_from_job_page(page, result)
-        page_url = fit_inputs["page_url"] or result.get("url") or body.url
-        fit = await compute_profile_fit_ai(
-            db,
-            user.id,
-            profile,
-            fit_inputs["context_text"],
-            page_url=fit_inputs["page_url"],
-            job_title=fit_inputs["job_title"],
-            company=fit_inputs["company"],
-            location=fit_inputs["location"],
-        )
-        fit = apply_closed_job_notice(fit, fit_inputs["context_text"])
-        result.update(
-            {
-                "profile_fit_score": int(fit.get("profile_fit_score") or 0),
-                "profile_fit_label": str(fit.get("profile_fit_label") or ""),
-                "profile_fit_available": bool(fit.get("profile_fit_available")),
-            }
-        )
-        if vector_ready():
-            await index_job_page(
-                db,
-                user.id,
-                url=page_url,
-                role=result.get("role") or "",
-                company=result.get("company") or "",
-                location=result.get("location") or "",
-                summary=result.get("summary") or "",
-                page_text=page.get("page_text") or "",
-                description=page.get("description") or "",
-            )
-    except Exception:
-        pass
-
     return AnalyzeJobUrlResponse(**result)
 
 

@@ -2,12 +2,11 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ProfileView } from '@/profile/ProfileView'
 import { BillingView } from '@/billing/BillingView'
-import { AssistantView } from '@/assistant/AssistantView'
 import { PageLayout } from '@/layout/PageLayout'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { navigate, parseRoute, type AccountTab } from '@/router'
 
-const ACCOUNT_TABS: AccountTab[] = ['profile', 'billing', 'assistant']
+const ACCOUNT_TABS: AccountTab[] = ['profile', 'billing']
 
 export function AccountView() {
   const { t } = useTranslation()
@@ -46,7 +45,6 @@ export function AccountView() {
       </Tabs>
       {tab === 'profile' && <ProfileView embedded />}
       {tab === 'billing' && <BillingView embedded />}
-      {tab === 'assistant' && <AssistantView embedded />}
     </PageLayout>
   )
 }

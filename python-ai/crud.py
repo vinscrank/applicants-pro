@@ -102,14 +102,6 @@ def create_application(db: Session, data: schemas.ApplicationCreate, user_id: in
     db.add(application)
     db.commit()
     db.refresh(application)
-    try:
-        from vector.config import vector_ready
-        from vector.indexer import index_application
-
-        if vector_ready():
-            index_application(db, user_id, application)
-    except Exception:
-        pass
     return application
 
 
@@ -125,14 +117,6 @@ def update_application(
         application.last_applied_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(application)
-    try:
-        from vector.config import vector_ready
-        from vector.indexer import index_application
-
-        if vector_ready():
-            index_application(db, user_id, application)
-    except Exception:
-        pass
     return application
 
 
@@ -140,17 +124,8 @@ def delete_application(db: Session, application_id: int, user_id: int) -> bool:
     application = get_application(db, application_id, user_id)
     if not application:
         return False
-    app_id = application.id
     db.delete(application)
     db.commit()
-    try:
-        from vector.config import vector_ready
-        from vector.indexer import remove_application_index
-
-        if vector_ready():
-            remove_application_index(db, user_id, app_id)
-    except Exception:
-        pass
     return True
 
 

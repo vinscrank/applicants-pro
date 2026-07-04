@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { JobUrlAnalysis } from '@/annuncio/types'
 import { remoteLabel } from '@/i18n/labels'
-import { ProfileFitBadge } from '@/vector/ProfileFitBadge'
+import { ProfileFitBadge } from '@/offerte/components/ProfileFitBadge'
 import { mapAnalysisRemoteType } from './jobUrlAnalysis'
 import './quick-add-dialog.css'
 

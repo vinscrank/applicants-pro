@@ -804,30 +804,8 @@
     "reopen": "Reopen posting",
     "hint": "You can close this panel and keep browsing the list — it stays open until you record the outcome."
   },
-  "assistant": {
-    "title": "RAG Assistant",
-    "subtitle": "Ask anything about your profile, applications, and analyzed job postings. Answers use vector search on your data.",
-    "knowledgeBase": "Personal knowledge base",
-    "vectorActive": "Vector DB active ({{model}}). Features: {{features}}.",
-    "vectorUnavailable": "Vector DB unavailable. Check GEMINI_API_KEY and restart Docker with the pgvector image.",
-    "vectorLoading": "Checking vector DB…",
-    "reindex": "Reindex data",
-    "reindexing": "Indexing…",
-    "reindexSuccess": "Index updated: profile {{profile}}, {{count}} applications.",
-    "profileOk": "ok",
-    "profileMissing": "unavailable",
-    "askFailed": "Could not get an answer",
-    "reindexFailed": "Reindex failed",
-    "emptyChat": "Type any question about your job search, or use a quick suggestion.",
-    "generating": "Retrieving context and generating answer…",
-    "placeholder": "Ask anything, e.g. Have I already applied to Stripe? Which roles am I targeting most?",
-    "ask": "Ask",
-    "questionTooShort": "Enter at least 3 characters.",
-    "sendHint": "Cmd+Enter to send",
-    "starter1": "Which applications did I submit recently?",
-    "starter2": "Which roles am I applying to most?",
-    "starter3": "Summarize my profile for a frontend application.",
-    "starter4": "Which companies appear most often in my history?"
+  "profileFitBadge": {
+    "label": "Profile fit {{score}}%"
   },
   "discover": {
     "title": "Discover",
@@ -849,11 +827,10 @@
   },
   "account": {
     "title": "Account",
-    "description": "Profile, subscription, and AI assistant",
+    "description": "Profile and subscription",
     "tabs": {
       "profile": "Profile",
-      "billing": "Subscription",
-      "assistant": "AI Assistant"
+      "billing": "Subscription"
     }
   },
   "v2": {

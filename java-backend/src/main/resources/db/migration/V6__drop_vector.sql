@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS vector_documents CASCADE;
+DROP EXTENSION IF EXISTS vector;

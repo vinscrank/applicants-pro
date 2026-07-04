@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { JobOffer } from '../types'
 import { OfferOriginIcon } from './OfferOriginIcon'
-import { ProfileFitBadge } from '../../vector/ProfileFitBadge'
+import { ProfileFitBadge } from './ProfileFitBadge'
 import './OfferApplyModal.css'
 
 interface Props {

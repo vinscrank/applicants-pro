@@ -1,2 +1,0 @@
-class EmbeddingError(Exception):
-    pass

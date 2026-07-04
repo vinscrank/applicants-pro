@@ -8,7 +8,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY database.py models.py scraper_orm.py crud.py schemas.py ./
 COPY scraper scraper
 COPY billing billing
-COPY vector vector
 COPY app app
 
 EXPOSE 8001

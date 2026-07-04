@@ -235,16 +235,6 @@ async def run_search(
             if not offer.web_dev_fit:
                 apply_prompt_match_score(offer, match=None)
     offer_pool = [o for o in offer_pool if offer_matches_prompt(o, command)]
-    if db and user_id:
-        from vector.config import vector_ready
-        from vector.embeddings import EmbeddingError
-        from vector.rank import apply_profile_fit_scores
-
-        if vector_ready():
-            try:
-                await apply_profile_fit_scores(db, user_id, offer_pool)
-            except EmbeddingError:
-                pass
     if prefs.sort_by == "relevance":
         offers = sort_offers_by_prompt_relevance(offer_pool, command)
     else:

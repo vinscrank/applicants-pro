@@ -804,30 +804,8 @@
     "reopen": "Riapri annuncio",
     "hint": "Puoi chiudere questo pannello e continuare a navigare la lista: resterà aperto finché non registri l'esito."
   },
-  "assistant": {
-    "title": "Assistente RAG",
-    "subtitle": "Puoi scrivere quello che vuoi: profilo, candidature, aziende, strategia. Le risposte usano ricerca vettoriale sui tuoi dati.",
-    "knowledgeBase": "Knowledge base personale",
-    "vectorActive": "Vector DB attivo ({{model}}). Feature: {{features}}.",
-    "vectorUnavailable": "Vector DB non disponibile. Verifica GEMINI_API_KEY e riavvia Docker con immagine pgvector.",
-    "vectorLoading": "Verifica vector DB…",
-    "reindex": "Reindex dati",
-    "reindexing": "Indicizzazione…",
-    "reindexSuccess": "Indice aggiornato: profilo {{profile}}, {{count}} candidature.",
-    "profileOk": "ok",
-    "profileMissing": "non disponibile",
-    "askFailed": "Impossibile ottenere una risposta",
-    "reindexFailed": "Reindex non riuscito",
-    "emptyChat": "Scrivi la domanda che vuoi sul tuo percorso di candidatura, oppure usa un suggerimento rapido.",
-    "generating": "Recupero contesto e generazione risposta…",
-    "placeholder": "Scrivi quello che vuoi, es. Mi sono già candidato da Stripe? Su quali ruoli sto puntando di più?",
-    "ask": "Chiedi",
-    "questionTooShort": "Inserisci almeno 3 caratteri.",
-    "sendHint": "Cmd+Invio per inviare",
-    "starter1": "Quali candidature ho inviato negli ultimi giorni?",
-    "starter2": "Per quali ruoli mi sto candidando di più?",
-    "starter3": "Riassumi il mio profilo per una candidatura frontend.",
-    "starter4": "Quali aziende compaiono più spesso nel mio storico?"
+  "profileFitBadge": {
+    "label": "Fit profilo {{score}}%"
   },
   "discover": {
     "title": "Scopri",
@@ -849,11 +827,10 @@
   },
   "account": {
     "title": "Account",
-    "description": "Profilo, abbonamento e assistente AI",
+    "description": "Profilo e abbonamento",
     "tabs": {
       "profile": "Profilo",
-      "billing": "Abbonamento",
-      "assistant": "Assistente AI"
+      "billing": "Abbonamento"
     }
   },
   "v2": {

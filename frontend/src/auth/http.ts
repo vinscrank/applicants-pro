@@ -31,8 +31,6 @@ function requestTimeoutMs(path: string, method?: string): number {
   if (path.includes('/api/offerte/search') && method === 'POST') return 300_000
   if (path.includes('/api/offerte/analyze-url')) return 90_000
   if (path.includes('/api/offerte/page-embed')) return 45_000
-  if (path.includes('/api/vector/assistant/ask')) return 90_000
-  if (path.includes('/api/vector/reindex')) return 120_000
   if (path.includes('/api/offerte/companies/auto-discover')) return 120_000
   if (path.includes('/api/offerte/companies/scan-all-recent')) return 600_000
   if (path.includes('/api/offerte/companies/scan-all-search')) return 900_000

@@ -28,7 +28,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(
     title="Interview Python AI",
-    description="Scraper, LLM and vector services",
+    description="Scraper and LLM services",
     version="0.2.0",
     lifespan=lifespan,
 )
