@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { cn } from '@/lib/utils'
 import { PageLayout } from '@/layout/PageLayout'
 import { PlatformEmptyState } from '@/layout/PlatformEmptyState'
 import { Button } from '@/components/ui/button'
@@ -61,7 +62,10 @@ import {
   type UnifiedScanMeta,
   type ScanProgress,
 } from '@/careers-recent/careersUnifiedScan'
-import { cn } from '@/lib/utils'
+import { enrichCareersOffersProfileFit } from '@/jobs/enrichOffersProfileFit'
+import { countStrongMatches, sortByProfileFit } from '@/jobs/profileFit'
+import { saveCareersScanSnapshot } from '@/careers-recent/careersScanAlerts'
+import { saveTopMatchesFromCareers } from '@/discover/topMatchesCache'
 import './recent-careers.css'
 import './careers-hub.css'
 
@@ -172,6 +176,8 @@ export function CareersHubView({ embedded = false }: { embedded?: boolean } = {}
     [rawOffers, smartFilters, roleQuery, locationQuery, trackedByKey, priorityCompanyIds, dismissedKeys],
   )
 
+  const strongMatchCount = useMemo(() => countStrongMatches(rawOffers), [rawOffers])
+
   const scopeLabel =
     selectedIds.size > 0 && selectedIds.size < scannableCompanies.length
       ? t('careersHub.filters.scopeSelected', { count: selectedIds.size })
@@ -193,8 +199,11 @@ export function CareersHubView({ embedded = false }: { embedded?: boolean } = {}
         scannableCompanies,
         onProgress: setScanProgress,
       })
-      setRawOffers(result.offers)
-      setScanMeta(result.meta)
+      const enriched = sortByProfileFit(await enrichCareersOffersProfileFit(result.offers))
+      setRawOffers(enriched)
+      setScanMeta({ ...result.meta, offerCount: enriched.length })
+      saveTopMatchesFromCareers(enriched)
+      saveCareersScanSnapshot(enriched)
       await loadCompanies()
     } catch (e) {
       setError(e instanceof Error ? e.message : t('careersRecent.errors.scanFailed'))
@@ -204,8 +213,9 @@ export function CareersHubView({ embedded = false }: { embedded?: boolean } = {}
     }
   }
 
-  const handleOffersScanned = useCallback((offers: RecentCareersOfferRow[]) => {
-    setRawOffers(offers)
+  const handleOffersScanned = useCallback(async (offers: RecentCareersOfferRow[]) => {
+    const enriched = sortByProfileFit(await enrichCareersOffersProfileFit(offers))
+    setRawOffers(enriched)
     setScanMeta({
       keyword: '',
       postedWithin,
@@ -213,9 +223,11 @@ export function CareersHubView({ embedded = false }: { embedded?: boolean } = {}
       selectedCount: 1,
       companiesScanned: 1,
       companiesFailed: 0,
-      offerCount: offers.length,
+      offerCount: enriched.length,
       strategy: 'selected-scan',
     })
+    saveTopMatchesFromCareers(enriched)
+    saveCareersScanSnapshot(enriched)
   }, [postedWithin])
 
   const markTracked = (offer: RecentCareersOfferRow, applicationId: number) => {
@@ -440,6 +452,7 @@ export function CareersHubView({ embedded = false }: { embedded?: boolean } = {}
         scanProgress={scanProgress}
         meta={scanMeta}
         filteredCount={filteredOffers.length}
+        strongMatchCount={strongMatchCount}
         roleQuery={roleQuery}
         locationQuery={locationQuery}
         smartFilterCount={smartFilters.size}

@@ -1,8 +1,9 @@
 import type { RecentCareersOfferRow } from '@/jobs/types'
 import { careersOfferRowKey } from '@/careers-recent/trackCareersOffer'
 import { filterCareersOffers } from '@/careers-recent/filterCareersOffers'
+import { isStrongProfileFit } from '@/jobs/profileFit'
 
-export type CareersSmartFilterId = 'untracked' | 'remote' | 'priority' | 'today'
+export type CareersSmartFilterId = 'untracked' | 'remote' | 'priority' | 'today' | 'strong'
 
 export interface CareersSmartFilterContext {
   trackedByKey: Record<string, number>
@@ -52,6 +53,9 @@ export function applyCareersSmartFilters(
   }
   if (smartFilters.has('today')) {
     rows = rows.filter((offer) => isPostedToday(offer.posted_at))
+  }
+  if (smartFilters.has('strong')) {
+    rows = rows.filter(isStrongProfileFit)
   }
   return rows
 }

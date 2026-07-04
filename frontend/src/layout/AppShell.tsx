@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AppShellSidebar, routeToShellNav, type ShellNavId } from '@/layout/AppShellSidebar'
 import { AppHeader } from '@/layout/AppHeader'
 import { CommandMenu, useCommandMenu } from '@/layout/CommandMenu'
 import type { AppRoute } from '@/router'
+import { readNewCareersMatchCount } from '@/careers-recent/careersScanAlerts'
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
 import { LightGrid } from '@/components/react-bits'
 import { cn } from '@/lib/utils'
@@ -31,7 +32,19 @@ export function AppShell({
   const { t } = useTranslation()
   const { open, setOpen } = useCommandMenu()
   const [mobileNav, setMobileNav] = useState(false)
+  const [discoverMatchCount, setDiscoverMatchCount] = useState(0)
   const activeNav: ShellNavId = routeToShellNav(route)
+
+  useEffect(() => {
+    const refresh = () => setDiscoverMatchCount(readNewCareersMatchCount())
+    refresh()
+    window.addEventListener('storage', refresh)
+    window.addEventListener('careers-match-alert', refresh)
+    return () => {
+      window.removeEventListener('storage', refresh)
+      window.removeEventListener('careers-match-alert', refresh)
+    }
+  }, [route])
 
   const sidebar = (
     <AppShellSidebar
@@ -39,6 +52,7 @@ export function AppShell({
       email={email}
       planLabel={planLabel}
       trackerTotal={trackerTotal}
+      discoverMatchCount={discoverMatchCount}
       onLogout={onLogout}
       onNavigate={() => setMobileNav(false)}
     />

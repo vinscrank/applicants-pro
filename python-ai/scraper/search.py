@@ -319,6 +319,9 @@ async def _run_search_scrape_once(
             for offer in offer_pool
             if job_passes_posted_constraint(offer.posted_at, command)
         ]
+    from scraper.profile_fit import enrich_job_offers
+
+    enrich_job_offers(db, user_id, offer_pool)
     if prefs.sort_by == "relevance":
         offers = sort_offers_by_prompt_relevance(offer_pool, command)
     else:

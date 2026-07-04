@@ -221,6 +221,11 @@ public class DiscoverController {
         return pythonJobsClient.post(currentUser().getId(), "/companies/auto-discover", body);
     }
 
+    @PostMapping("/offers/profile-fit")
+    public JsonNode enrichOffersProfileFit(@RequestBody JsonNode body) {
+        return pythonJobsClient.post(currentUser().getId(), "/offers/profile-fit", body);
+    }
+
     private User currentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || auth.getName() == null) {

@@ -2,6 +2,7 @@ import type { JobOffer, SearchPreferences, VerificationStatus, SearchCommand } f
 import { offerRelevanceScore, promptSearchTerms } from './offerPromptRelevance'
 import { isCompletedApplication } from './offerApplicationStatus'
 import { offerMatchesPromptIntent } from './promptMatch'
+import { profileFitSortScore } from './profileFit'
 
 function parsePostedAt(value: string | null): Date | null {
   if (!value?.trim()) return null
@@ -84,6 +85,8 @@ function sortOffers(offers: JobOffer[], prefs: SearchPreferences, command?: Sear
 
   if (prefs.sort_by === 'relevance') {
     return [...offers].sort((a, b) => {
+      const fitDiff = profileFitSortScore(b) - profileFitSortScore(a)
+      if (fitDiff !== 0) return fitDiff
       const aiDiff = aiRelevanceScore(b) - aiRelevanceScore(a)
       if (aiDiff !== 0) return aiDiff
       const sr = statusRank(a.status) - statusRank(b.status)

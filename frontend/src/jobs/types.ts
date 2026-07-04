@@ -68,6 +68,7 @@ export interface JobOffer {
   profile_fit_score?: number
   profile_fit_label?: string
   profile_fit_available?: boolean
+  profile_fit_feedback?: string
 }
 
 export interface SearchResult {
@@ -185,6 +186,10 @@ export interface RecentCareersOfferRow {
   apply_url: string
   location: string | null
   source: string
+  profile_fit_score?: number
+  profile_fit_label?: string
+  profile_fit_available?: boolean
+  profile_fit_feedback?: string
 }
 
 export interface DiscoveryResult {

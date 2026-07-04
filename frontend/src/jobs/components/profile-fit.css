@@ -22,3 +22,16 @@
   background: var(--danger-soft);
   color: var(--danger-text);
 }
+
+.profile-fit-feedback {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.profile-fit-feedback-text {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--text-secondary);
+}

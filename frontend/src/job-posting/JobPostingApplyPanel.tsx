@@ -53,7 +53,7 @@ export function JobPostingApplyPanel({
         disabled={saving || dismissLoading}
         onClick={onMarkApplied}
       >
-        {saving ? t('common.saving') : t('jobPosting.iApplied')}
+        {saving ? t('common.saving') : t('jobs.actions.applyAndTrack')}
       </button>
 
       <div className="job-posting-apply-footer">

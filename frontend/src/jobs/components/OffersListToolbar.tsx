@@ -14,6 +14,9 @@ interface Props {
   appliedCount: number
   maybeCount: number
   dismissedCount: number
+  strongMatchCount: number
+  strongMatchesOnly: boolean
+  onToggleStrongMatches: () => void
   activeView: 'valid' | 'dismissed'
   statusFilter: OfferStatusFilter
   onSelectCandidabili: () => void
@@ -32,6 +35,9 @@ export function OffersListToolbar({
   appliedCount,
   maybeCount,
   dismissedCount,
+  strongMatchCount,
+  strongMatchesOnly,
+  onToggleStrongMatches,
   activeView,
   statusFilter,
   onSelectCandidabili,
@@ -98,6 +104,16 @@ export function OffersListToolbar({
         </div>
 
         <div className="offers-list-toolbar-controls">
+          {strongMatchCount > 0 ? (
+            <button
+              type="button"
+              className={`offers-list-strong-toggle${strongMatchesOnly ? ' active' : ''}`}
+              aria-pressed={strongMatchesOnly}
+              onClick={onToggleStrongMatches}
+            >
+              {t('jobs.strongMatchesOnly', { count: strongMatchCount })}
+            </button>
+          ) : null}
           <label className="offers-list-toolbar-sort">
             <span className="sr-only">{t('jobs.sortOrder')}</span>
             <select

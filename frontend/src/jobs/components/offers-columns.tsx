@@ -7,6 +7,7 @@ import {
   isPastApplication,
 } from '../offerApplicationStatus'
 import { OfferOriginIcon } from './OfferOriginIcon'
+import { ProfileFitFeedback } from './ProfileFitFeedback'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -56,6 +57,7 @@ export function getOffersColumns(t: TFunction): ColumnDef<JobOffer>[] {
                 </span>
               ) : null}
             </div>
+            <ProfileFitFeedback offer={offer} />
           </div>
         )
       },
@@ -124,7 +126,7 @@ export function getOffersColumns(t: TFunction): ColumnDef<JobOffer>[] {
             ) : !completed ? (
               <Button type="button" size="sm" onClick={() => meta.onMarkApplied(offer)}>
                 <ClipboardCheck className="h-3.5 w-3.5" />
-                {t('jobs.actions.markApplied')}
+                {t('jobs.actions.applyAndTrack')}
               </Button>
             ) : null}
             {meta.onAnalyze ? (

@@ -84,6 +84,7 @@ class AnalyzeJobUrlResponse(BaseModel):
     profile_fit_score: int = 0
     profile_fit_label: str = ""
     profile_fit_available: bool = False
+    profile_fit_feedback: str = ""
     tracker_match: ApplicationTrackerMatch | None = None
     live_offer_matches: list[LiveOfferMatch] = []
     user_dismissed: bool = False
@@ -154,7 +155,71 @@ async def analyze_job_url(
         result.get("role") or "",
     ) or bool(live_matches and all(match.get("dismissed") for match in live_matches))
 
+    from scraper.profile_fit import compute_profile_fit, load_user_profile
+
+    profile = load_user_profile(db, user.id)
+    fit = compute_profile_fit(
+        profile,
+        role=result.get("role") or "",
+        company=result.get("company") or "",
+        location=result.get("location") or "",
+    )
+    result["profile_fit_score"] = fit["profile_fit_score"]
+    result["profile_fit_label"] = fit["profile_fit_label"]
+    result["profile_fit_available"] = fit["profile_fit_available"]
+    result["profile_fit_feedback"] = fit["profile_fit_feedback"]
+
     return AnalyzeJobUrlResponse(**result)
+
+
+class CareersOfferFitInput(BaseModel):
+    company_name: str
+    role: str
+    location: str | None = None
+
+
+class CareersOffersFitRequest(BaseModel):
+    offers: list[CareersOfferFitInput]
+
+
+class CareersOfferFitResult(BaseModel):
+    profile_fit_score: int = 0
+    profile_fit_label: str = ""
+    profile_fit_available: bool = False
+    profile_fit_feedback: str = ""
+
+
+class CareersOffersFitResponse(BaseModel):
+    offers: list[CareersOfferFitResult]
+
+
+@router.post("/offers/profile-fit", response_model=CareersOffersFitResponse)
+async def enrich_careers_offers_fit(
+    body: CareersOffersFitRequest,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(_user_id),
+):
+    _require_user(db, user_id)
+    from scraper.profile_fit import compute_profile_fit, load_user_profile
+
+    profile = load_user_profile(db, user_id)
+    results: list[CareersOfferFitResult] = []
+    for offer in body.offers:
+        fit = compute_profile_fit(
+            profile,
+            role=offer.role,
+            company=offer.company_name,
+            location=offer.location,
+        )
+        results.append(
+            CareersOfferFitResult(
+                profile_fit_score=int(fit["profile_fit_score"]),
+                profile_fit_label=str(fit["profile_fit_label"]),
+                profile_fit_available=bool(fit["profile_fit_available"]),
+                profile_fit_feedback=str(fit["profile_fit_feedback"]),
+            )
+        )
+    return CareersOffersFitResponse(offers=results)
 
 
 @router.post("/companies/{company_id}/scan", response_model=CompanyScanResult)

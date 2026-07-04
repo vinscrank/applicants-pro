@@ -12,6 +12,10 @@ import { Button } from '@/components/ui/button'
 import { DAILY_APPLICATION_GOAL } from '@/constants'
 import { PageLoading } from '@/layout/PageLayout'
 import { cn } from '@/lib/utils'
+import { TopMatchesSection } from '@/today/TopMatchesSection'
+import { ProfileReadinessWidget } from '@/profile/ProfileReadinessWidget'
+import { loadTopMatches } from '@/discover/topMatchesCache'
+import { readNewCareersMatchCount } from '@/careers-recent/careersScanAlerts'
 import '@/applications/applications-page.css'
 
 const INTERVIEW_STATUSES = new Set(['phone_screen', 'technical_interview', 'final_interview'])
@@ -26,7 +30,13 @@ const TASK_TAB_LABEL_KEYS: Record<TaskScope, string> = {
 export function TodayView() {
   const { t, i18n } = useTranslation()
   const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
+  const [topMatches, setTopMatches] = useState(() => loadTopMatches(6))
+  const [newCareersMatches, setNewCareersMatches] = useState(0)
+  useEffect(() => {
+    setMounted(true)
+    setTopMatches(loadTopMatches(6))
+    setNewCareersMatches(readNewCareersMatchCount())
+  }, [])
   const { profile } = useAuth()
   const quickAdd = useQuickAddOptional()
   const { applications, stats, loading } = useApplicationsQuery({ includeStats: true })
@@ -158,6 +168,15 @@ export function TodayView() {
           <p className="apps-kpi-hint">{t('candidature.kpiAppliedTodayHint')}</p>
         </div>
       </div>
+
+      {newCareersMatches > 0 ? (
+        <p className="text-sm text-muted-foreground mb-4">
+          {t('discover.newMatchesAlert', { count: newCareersMatches })}
+        </p>
+      ) : null}
+
+      <ProfileReadinessWidget profile={profile} />
+      <TopMatchesSection matches={topMatches} />
 
       <div className="apps-split-panels">
         <section className="apps-content-panel">

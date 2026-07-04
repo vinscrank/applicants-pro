@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { JobOffer } from '../types'
 import { OfferOriginIcon } from './OfferOriginIcon'
-import { ProfileFitBadge } from './ProfileFitBadge'
+import { ProfileFitFeedback } from './ProfileFitFeedback'
 import './OfferApplyModal.css'
 
 interface Props {
@@ -60,11 +60,7 @@ export function OfferApplyModal({
           </div>
           <div className="offer-apply-modal-role">{offer.role}</div>
           {offer.location && <div className="offer-apply-modal-meta">{offer.location}</div>}
-          <ProfileFitBadge
-            score={offer.profile_fit_score}
-            label={offer.profile_fit_label}
-            available={offer.profile_fit_available}
-          />
+          <ProfileFitFeedback offer={offer} />
         </div>
 
         <div className="offer-apply-modal-actions">
@@ -75,7 +71,7 @@ export function OfferApplyModal({
           )}
           <div className="offer-apply-modal-actions-row">
             <button type="button" className="btn btn-primary" onClick={onMarkApplied} disabled={loading}>
-              {loading ? t('common.saving') : t('candidature.quickAdd.markApplied')}
+              {loading ? t('common.saving') : t('jobs.actions.applyAndTrack')}
             </button>
             <button type="button" className="btn btn-secondary" onClick={onDismiss} disabled={loading}>
               {t('candidature.quickAdd.dismiss')}

@@ -114,6 +114,24 @@
   color: var(--text-muted);
 }
 
+.offers-list-strong-toggle {
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-hover);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.offers-list-strong-toggle.active {
+  background: var(--success-soft);
+  border-color: color-mix(in srgb, var(--success) 35%, var(--border));
+  color: var(--success-text);
+}
+
 @media (max-width: 720px) {
   .offers-list-toolbar-controls {
     width: 100%;

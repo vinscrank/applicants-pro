@@ -82,6 +82,7 @@ class JobOffer(BaseModel):
     profile_fit_score: int = Field(default=0, ge=0, le=100)
     profile_fit_label: str = ""
     profile_fit_available: bool = False
+    profile_fit_feedback: str = ""
 
 
 class SearchSummary(BaseModel):
@@ -189,6 +190,10 @@ class RecentCareersOfferRow(BaseModel):
     apply_url: str = ""
     location: Optional[str] = None
     source: str = ""
+    profile_fit_score: int = Field(default=0, ge=0, le=100)
+    profile_fit_label: str = ""
+    profile_fit_available: bool = False
+    profile_fit_feedback: str = ""
 
 
 class ScanAllRecentResult(BaseModel):

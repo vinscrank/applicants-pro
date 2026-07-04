@@ -18,6 +18,9 @@ import { prepareApplyCompanionContext, registerApplyTarget } from '../apply/exte
 import { resolveApplyUrl } from '../apply/resolveApplyUrl'
 import { formatUsd, formatUsdSpend } from './formatUsd'
 import { applySessionFiltersSplit, countOffersByStatus } from './applySessionFilters'
+import { isStrongProfileFit, countStrongMatches } from './profileFit'
+import { saveTopMatchesFromSearch } from '@/discover/topMatchesCache'
+import { enrichJobOffersProfileFit } from '@/jobs/enrichOffersProfileFit'
 import { promptInterpretationItems } from './offerPromptRelevance'
 import { matchesOfferListSearch } from './offerListSearch'
 import { PlatformPageHeader } from '../layout/PlatformPageHeader'
@@ -112,6 +115,25 @@ function applyPrefsToResult(data: SearchResult, prefs: SearchPreferences): {
   }
 }
 
+async function applyPrefsToResultWithFit(
+  data: SearchResult,
+  prefs: SearchPreferences,
+): Promise<{ result: SearchResult; pool: JobOffer[] }> {
+  const pool = poolFromResult(data)
+  const enrichedPool = await enrichJobOffersProfileFit(pool)
+  if (enrichedPool === pool) {
+    return applyPrefsToResult(data, prefs)
+  }
+  return applyPrefsToResult(
+    {
+      ...data,
+      offers: enrichedPool,
+      offer_pool: data.offer_pool?.length ? enrichedPool : data.offer_pool,
+    },
+    prefs,
+  )
+}
+
 export default function JobsView({ embedded = false }: { embedded?: boolean } = {}) {
   const { t } = useTranslation()
   const [result, setResult] = useState<SearchResult | null>(null)
@@ -135,6 +157,7 @@ export default function JobsView({ embedded = false }: { embedded?: boolean } = 
   const [highlightOfferId, setHighlightOfferId] = useState<string | null>(null)
   const [listSearchQuery, setListSearchQuery] = useState('')
   const [pipelineView, setPipelineView] = useState<PipelineView>('valid')
+  const [strongMatchesOnly, setStrongMatchesOnly] = useState(false)
   const [trackerLinkApplicationId, setTrackerLinkApplicationId] = useState<number | null>(null)
   const [duplicateModalOpen, setDuplicateModalOpen] = useState(false)
   const [duplicateMatch, setDuplicateMatch] = useState<ApplicationTrackerMatch | null>(null)
@@ -351,7 +374,7 @@ export default function JobsView({ embedded = false }: { embedded?: boolean } = 
     try {
       const data = await jobsFetch<SearchResult>(`/api/jobs/searches/${id}`)
       const prefs = clonePreferences(searchPreferences)
-      const { result: nextResult, pool } = applyPrefsToResult(data, prefs)
+      const { result: nextResult, pool } = await applyPrefsToResultWithFit(data, prefs)
       setOfferPool(pool)
       setResult(nextResult)
       setCommand(data.command)
@@ -449,7 +472,7 @@ export default function JobsView({ embedded = false }: { embedded?: boolean } = 
         }
         const data = await jobsFetch<SearchResult | null>('/api/jobs/searches/latest')
         if (!data?.command) return
-        const { result: nextResult, pool } = applyPrefsToResult(data, prefs)
+        const { result: nextResult, pool } = await applyPrefsToResultWithFit(data, prefs)
         setOfferPool(pool)
         setResult(nextResult)
         setCommand({ ...EMPTY_COMMAND, ...data.command })
@@ -606,6 +629,7 @@ export default function JobsView({ embedded = false }: { embedded?: boolean } = 
       const { result: nextResult, pool } = applyPrefsToResult(data, prefs)
       setOfferPool(pool)
       setResult(nextResult)
+      saveTopMatchesFromSearch(pool)
       setCommand(data.command)
       setSessionFilters(prefs)
       setStatusFilter('all')
@@ -929,9 +953,15 @@ export default function JobsView({ embedded = false }: { embedded?: boolean } = 
     ? dismissedOffers
     : validBucketOffers
 
-  const filteredOffers = listSearchQuery.trim()
-    ? bucketOffers.filter((o) => matchesOfferListSearch(o, listSearchQuery))
+  const strongMatchCount = countStrongMatches(activeOffers)
+
+  const profileFilteredBucket = strongMatchesOnly
+    ? bucketOffers.filter(isStrongProfileFit)
     : bucketOffers
+
+  const filteredOffers = listSearchQuery.trim()
+    ? profileFilteredBucket.filter((o) => matchesOfferListSearch(o, listSearchQuery))
+    : profileFilteredBucket
 
   const tableOffers = archivedLiveOffer
     && pipelineView === 'valid'
@@ -1067,6 +1097,9 @@ export default function JobsView({ embedded = false }: { embedded?: boolean } = 
                   appliedCount={appliedActiveCount}
                   maybeCount={maybeActiveCount}
                   dismissedCount={dismissedOffers.length}
+                  strongMatchCount={strongMatchCount}
+                  strongMatchesOnly={strongMatchesOnly}
+                  onToggleStrongMatches={() => setStrongMatchesOnly((v) => !v)}
                   activeView={pipelineView}
                   statusFilter={statusFilter}
                   onSelectCandidabili={() => {

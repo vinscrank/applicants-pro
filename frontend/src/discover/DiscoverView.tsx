@@ -10,7 +10,10 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { navigate, parseRoute, type DiscoverTab } from '@/router'
+import { useAuth } from '@/auth/AuthContext'
 import { cn } from '@/lib/utils'
+import { ProfileReadinessBanner } from '@/profile/ProfileReadinessBanner'
+import { readNewCareersMatchCount, clearNewCareersMatchCount } from '@/careers-recent/careersScanAlerts'
 import { SearchTab } from '@/discover/tabs/SearchTab'
 import { UrlTab } from '@/discover/tabs/UrlTab'
 import { CareersTab } from '@/discover/tabs/CareersTab'
@@ -53,10 +56,23 @@ function DiscoverTabPanel({ tab }: { tab: DiscoverTab }) {
 
 export function DiscoverView() {
   const { t } = useTranslation()
+  const { profile } = useAuth()
+  const [newMatchesCount, setNewMatchesCount] = useState(0)
   const [tab, setTab] = useState<DiscoverTab>(() => {
     const route = parseRoute()
     return route.page === 'discover' ? route.tab ?? 'search' : 'search'
   })
+
+  useEffect(() => {
+    setNewMatchesCount(readNewCareersMatchCount())
+  }, [])
+
+  useEffect(() => {
+    if (tab === 'careers' && newMatchesCount > 0) {
+      clearNewCareersMatchCount()
+      setNewMatchesCount(0)
+    }
+  }, [tab, newMatchesCount])
 
   useEffect(() => {
     const sync = () => {
@@ -91,6 +107,14 @@ export function DiscoverView() {
         </div>
         <span className="discover-hero-badge">{t('discover.premiumBadge')}</span>
       </header>
+
+      <ProfileReadinessBanner profile={profile} />
+
+      {newMatchesCount > 0 ? (
+        <div className="discover-new-matches-alert">
+          {t('discover.newMatchesAlert', { count: newMatchesCount })}
+        </div>
+      ) : null}
 
       <div className="discover-mobile-nav" role="tablist" aria-label={t('discover.title')}>
         {DISCOVER_TABS.map((id) => {

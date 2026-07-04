@@ -4,6 +4,7 @@ import { ClipboardCheck, ExternalLink, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { RecentCareersOfferRow } from '@/jobs/types'
 import { careersOfferRowKey } from '@/careers-recent/trackCareersOffer'
+import { ProfileFitFeedback } from '@/jobs/components/ProfileFitFeedback'
 
 export type CareersOffersTableMeta = {
   locale: string
@@ -25,6 +26,12 @@ export function getCareersOffersColumns(t: TFunction): ColumnDef<RecentCareersOf
     {
       accessorKey: 'role',
       header: t('careersRecent.colRole'),
+      cell: ({ row }) => (
+        <div className="space-y-1 min-w-[160px]">
+          <span>{row.original.role}</span>
+          <ProfileFitFeedback offer={row.original} />
+        </div>
+      ),
     },
     {
       id: 'posted_at',
@@ -77,7 +84,7 @@ export function getCareersOffersColumns(t: TFunction): ColumnDef<RecentCareersOf
             ) : (
               <ClipboardCheck className="h-3.5 w-3.5" />
             )}
-            {t('jobs.actions.markApplied')}
+            {t('jobs.actions.applyAndTrack')}
           </Button>
         )
       },

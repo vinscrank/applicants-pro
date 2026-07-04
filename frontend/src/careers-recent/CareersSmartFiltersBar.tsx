@@ -8,7 +8,7 @@ interface Props {
   disabled?: boolean
 }
 
-const FILTER_IDS: CareersSmartFilterId[] = ['untracked', 'remote', 'priority', 'today']
+const FILTER_IDS: CareersSmartFilterId[] = ['strong', 'untracked', 'remote', 'priority', 'today']
 
 export function CareersSmartFiltersBar({ active, onChange, disabled = false }: Props) {
   const { t } = useTranslation()

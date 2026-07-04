@@ -29,4 +29,5 @@ export interface JobUrlAnalysis {
   profile_fit_score?: number
   profile_fit_label?: string
   profile_fit_available?: boolean
+  profile_fit_feedback?: string
 }

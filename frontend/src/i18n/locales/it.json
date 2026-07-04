@@ -378,8 +378,10 @@
       "analyze": "Analizza",
       "dismiss": "Scarta",
       "restore": "Ripristina",
-      "markApplied": "Candidato"
+      "markApplied": "Candidato",
+      "applyAndTrack": "Candidati e traccia"
     },
+    "strongMatchesOnly": "Solo strong match ({{count}})",
     "archivedTitle": "Offerta storica",
     "archivedMissing": "Non più in questa ricerca",
     "archivedDescription": "Questa candidatura non compare più nell'ultima ricerca Live Jobs. La mostriamo dal tracker come riga storica nel tab Candidato.",
@@ -670,7 +672,10 @@
     "activeApplications": "Candidature attive",
     "tasksTabToday": "Oggi",
     "tasksTabWeek": "Settimana",
-    "tasksTabOverdue": "In ritardo"
+    "tasksTabOverdue": "In ritardo",
+    "topMatchesTitle": "Top match per te",
+    "topMatchesLead": "I lavori con miglior fit profilo dalle ultime ricerche e scansioni careers.",
+    "topMatchesViewInDiscover": "Vedi in Scopri"
   },
   "activity": {
     "title": "Attività",
@@ -826,7 +831,8 @@
       "untracked": "Non nel tracker",
       "remote": "Remote / ibrido",
       "priority": "Aziende prioritarie",
-      "today": "Pubblicati oggi"
+      "today": "Pubblicati oggi",
+      "strong": "Strong match (70%+)"
     },
     "filters": {
       "keyword": "Parola nel titolo",
@@ -848,6 +854,7 @@
       "partAll": "tutte le pagine",
       "partSelected": "{{count}} pagine",
       "partResults": "{{companies}} aziende · {{offers}} lavori · {{filtered}} mostrati",
+      "partStrongMatches": "{{count}} strong match",
       "partFailed": "{{failed}} fallite",
       "clientFiltersActive": "Filtri locali attivi: {{filters}}",
       "clientFilterRole": "titolo \"{{value}}\"",
@@ -989,10 +996,27 @@
   "profileFitBadge": {
     "label": "Fit profilo {{score}}%"
   },
+  "profileReadiness": {
+    "widgetTitle": "Preparazione profilo",
+    "widgetLead": "Completa il profilo per migliorare i match score.",
+    "bannerTitle": "Preparazione profilo {{score}}%",
+    "bannerLead": "Aggiungi skills e headline per match più accurati.",
+    "completeProfile": "Completa profilo",
+    "done": "Ok",
+    "missing": "Manca",
+    "items": {
+      "name": "Nome completo",
+      "headline": "Headline professionale",
+      "skills": "Competenze",
+      "location": "Località",
+      "experience": "Anni di esperienza"
+    }
+  },
   "discover": {
     "title": "Scopri",
     "description": "Trova lavori, analizza annunci e monitora le careers page",
     "pageLead": "Ricerca live, analisi AI da URL e monitoraggio careers page in un unico hub premium.",
+    "newMatchesAlert": "{{count}} nuovi strong match sulle careers page monitorate.",
     "sectionsLabel": "Strumenti",
     "premiumBadge": "Live Jobs",
     "searchHint": "Prompt AI su ATS verificati e LinkedIn",

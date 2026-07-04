@@ -92,6 +92,7 @@ interface AppShellSidebarProps {
   email: string
   planLabel?: string
   trackerTotal?: number
+  discoverMatchCount?: number
   onLogout: () => void
   onNavigate?: () => void
 }
@@ -100,12 +101,14 @@ function SidebarNavLink({
   item,
   active,
   trackerTotal,
+  discoverMatchCount,
   onClick,
   label,
 }: {
   item: NavItem
   active: boolean
   trackerTotal: number
+  discoverMatchCount: number
   onClick: () => void
   label: string
 }) {
@@ -124,6 +127,9 @@ function SidebarNavLink({
       {item.id === 'applications' && trackerTotal > 0 ? (
         <span className="shell-sidebar-count">{trackerTotal}</span>
       ) : null}
+      {item.id === 'discover' && discoverMatchCount > 0 ? (
+        <span className="shell-sidebar-count">{discoverMatchCount}</span>
+      ) : null}
     </button>
   )
 }
@@ -133,6 +139,7 @@ export function AppShellSidebar({
   email,
   planLabel,
   trackerTotal = 0,
+  discoverMatchCount = 0,
   onLogout,
   onNavigate,
 }: AppShellSidebarProps) {
@@ -165,6 +172,7 @@ export function AppShellSidebar({
                 item={item}
                 active={activeNav === item.id}
                 trackerTotal={trackerTotal}
+                discoverMatchCount={discoverMatchCount}
                 label={t(NAV_LABEL_KEYS[item.id])}
                 onClick={() => go(item.route)}
               />

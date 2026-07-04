@@ -9,6 +9,7 @@ interface Props {
   scanProgress: ScanProgress | null
   meta: UnifiedScanMeta | null
   filteredCount: number
+  strongMatchCount: number
   roleQuery: string
   locationQuery: string
   smartFilterCount: number
@@ -27,6 +28,7 @@ export function CareersAnalysisContextBar({
   scanProgress,
   meta,
   filteredCount,
+  strongMatchCount,
   roleQuery,
   locationQuery,
   smartFilterCount,
@@ -64,6 +66,9 @@ export function CareersAnalysisContextBar({
         filtered: filteredCount,
       }),
     )
+    if (strongMatchCount > 0) {
+      parts.push(t('careersHub.context.partStrongMatches', { count: strongMatchCount }))
+    }
     if (meta.companiesFailed > 0) {
       parts.push(t('careersHub.context.partFailed', { failed: meta.companiesFailed }))
     }

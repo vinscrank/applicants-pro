@@ -14,7 +14,7 @@ import { billingApi, type BillingStatus } from '../billing/api'
 import { PlatformPageHeader } from '../layout/PlatformPageHeader'
 import { navigateToTracker, navigateToJobs } from '../pipeline/pipelineBridge'
 import { DuplicateApplicationModal } from '../components/DuplicateApplicationModal'
-import { ProfileFitBadge } from '../jobs/components/ProfileFitBadge'
+import { ProfileFitFeedback } from '../jobs/components/ProfileFitFeedback'
 import { JobPostingApplyPanel } from './JobPostingApplyPanel'
 import { JobPostingFrame } from './JobPostingFrame'
 import { registerApplyTarget } from '../apply/extensionBridge'
@@ -461,11 +461,7 @@ export default function JobPostingView({ embedded = false }: { embedded?: boolea
                   .filter(Boolean)
                   .join(' · ')}
               </p>
-              <ProfileFitBadge
-                score={analysis.profile_fit_score}
-                label={analysis.profile_fit_label}
-                available={analysis.profile_fit_available}
-              />
+              <ProfileFitFeedback offer={analysis} />
             </header>
 
             {analysis.tracker_match && (

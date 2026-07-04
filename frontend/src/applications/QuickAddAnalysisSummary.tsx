@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { JobUrlAnalysis } from '@/job-posting/types'
 import { remoteLabel } from '@/i18n/labels'
-import { ProfileFitBadge } from '@/jobs/components/ProfileFitBadge'
+import { ProfileFitFeedback } from '@/jobs/components/ProfileFitFeedback'
 import { mapAnalysisRemoteType } from './jobUrlAnalysis'
 import './quick-add-dialog.css'
 
@@ -24,11 +24,7 @@ export function QuickAddAnalysisSummary({ analysis, duplicateHint }: Props) {
           <h3 className="quick-add-analysis-company">{analysis.company || t('candidature.quickAdd.companyUnknown')}</h3>
           <p className="quick-add-analysis-role">{analysis.role || t('candidature.quickAdd.roleUnknown')}</p>
         </div>
-        <ProfileFitBadge
-          score={analysis.profile_fit_score}
-          label={analysis.profile_fit_label}
-          available={analysis.profile_fit_available}
-        />
+        <ProfileFitFeedback offer={analysis} />
       </div>
 
       <div className="quick-add-analysis-meta">

@@ -64,6 +64,16 @@
   max-width: 40rem;
 }
 
+.discover-new-matches-alert {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--success) 35%, var(--border));
+  background: var(--success-soft);
+  font-size: 0.8125rem;
+  color: var(--text);
+}
+
 .discover-hero-badge {
   display: inline-flex;
   align-items: center;
