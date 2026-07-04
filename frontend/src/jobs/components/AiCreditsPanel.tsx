@@ -19,7 +19,7 @@ function formatOpLabel(op: string): string {
   if (op === 'learn_profile_summary') return 'Aggiornamento bio'
   if (op === 'learn_profile_summary_cv') return 'Bio da CV'
   if (op === 'classify_roles') return 'Affinita ruoli'
-  if (op === 'analyze_job_url') return 'Analisi annuncio'
+  if (op === 'analyze_job_url') return 'Job posting analysis'
   if (op === 'classify_offers') return 'Pertinenza prompt'
   if (op === 'rag_assistant') return 'Assistente RAG'
   if (op.startsWith('embed_')) return 'Embedding vettoriale'

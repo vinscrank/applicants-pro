@@ -1,9 +1,9 @@
-import { RecentCareersView } from '@/careers-recent/RecentCareersView'
+import { CareersHubView } from '@/careers-recent/CareersHubView'
 
 export function CareersTab() {
   return (
     <div className="discover-tab-inner discover-tab-careers">
-      <RecentCareersView embedded />
+      <CareersHubView embedded />
     </div>
   )
 }

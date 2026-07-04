@@ -3,7 +3,7 @@ import { appNavigate } from '@/lib/navigation'
 
 export type ResourcesTab = 'documents' | 'contacts'
 export type CandidatureViewMode = 'table' | 'pipeline' | 'calendar'
-export type DiscoverTab = 'search' | 'url' | 'careers' | 'companies'
+export type DiscoverTab = 'search' | 'url' | 'careers'
 export type AccountTab = 'profile' | 'billing'
 
 export type AppRoute =
@@ -45,6 +45,7 @@ const LEGACY_PAGES = new Set([
   'activity',
   'jobs',
   'annuncio',
+  'jobPosting',
   'companies',
   'careers-recent',
   'profile',
@@ -71,7 +72,7 @@ export function resolveLegacyRoute(page: string, query: URLSearchParams): AppRou
     case 'assistant':
       return { page: 'account', accountTab: 'profile' }
     case 'companies':
-      return { page: 'discover', tab: 'companies' }
+      return { page: 'discover', tab: 'careers' }
     case 'careers-recent':
       return { page: 'discover', tab: 'careers' }
     case 'jobs': {
@@ -83,7 +84,8 @@ export function resolveLegacyRoute(page: string, query: URLSearchParams): AppRou
       if (appId && /^\d+$/.test(appId)) route.trackerApplicationId = Number(appId)
       return route
     }
-    case 'annuncio': {
+    case 'annuncio':
+    case 'jobPosting': {
       const route: Extract<AppRoute, { page: 'discover' }> = { page: 'discover', tab: 'url' }
       const analyzeUrl = query.get('url')
       if (analyzeUrl) route.analyzeUrl = analyzeUrl
@@ -119,7 +121,8 @@ function parseQuery(queryString: string | undefined): URLSearchParams {
 }
 
 function parseDiscoverTab(tab: string | null): DiscoverTab {
-  if (tab === 'url' || tab === 'careers' || tab === 'companies' || tab === 'search') return tab
+  if (tab === 'companies') return 'careers'
+  if (tab === 'url' || tab === 'careers' || tab === 'search') return tab
   return 'search'
 }
 
@@ -189,7 +192,7 @@ function parseRouteCore(page: string, query: URLSearchParams, pathname?: string)
   if (page === 'documents') {
     const tab = query.get('tab')
     if (tab === 'companies') {
-      return { page: 'discover', tab: 'companies' }
+      return { page: 'discover', tab: 'careers' }
     }
     const route: Extract<AppRoute, { page: 'documents' }> = { page: 'documents' }
     if (tab === 'contacts' || tab === 'documents') {
@@ -263,7 +266,7 @@ export function parseRouteFromUrl(pathname: string, searchParams: URLSearchParam
   }
   if (path === '/resources') {
     const tab = searchParams.get('tab')
-    if (tab === 'companies') return { page: 'discover', tab: 'companies' }
+    if (tab === 'companies') return { page: 'discover', tab: 'careers' }
     const route: Extract<AppRoute, { page: 'documents' }> = { page: 'documents' }
     if (tab === 'contacts' || tab === 'documents') route.resourcesTab = tab
     return route

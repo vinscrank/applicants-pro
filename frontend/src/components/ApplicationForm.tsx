@@ -1,11 +1,12 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ChevronDown } from "lucide-react";
 import type { ApplicationFormData } from "../types";
 import {
-  STATUS_OPTIONS,
+  getStatusOptions,
+  getApplicationSourceOptions,
   PRIORITY_LABELS,
   REMOTE_LABELS,
-  APPLICATION_SOURCE_OPTIONS,
 } from "../constants";
 import CompanyCombobox from "./CompanyCombobox";
 
@@ -42,8 +43,11 @@ function hasAdvancedData(data: ApplicationFormData): boolean {
 }
 
 export default function ApplicationForm({ data, onChange, companyNames, isNew = false }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const formId = useId();
   const [showAdvanced, setShowAdvanced] = useState(() => !isNew && hasAdvancedData(data));
+  const statusOptions = useMemo(() => getStatusOptions(), [i18n.language]);
+  const sourceOptions = useMemo(() => getApplicationSourceOptions(), [i18n.language]);
 
   const set = <K extends keyof ApplicationFormData>(key: K, value: ApplicationFormData[K]) => {
     onChange({ ...data, [key]: value });
@@ -57,60 +61,74 @@ export default function ApplicationForm({ data, onChange, companyNames, isNew = 
       || data.status === "technical_interview"
       || data.status === "final_interview"
     ) {
-      return "Imposta la data colloquio nei dettagli avanzati.";
+      return t("candidature.form.statusInterviewHint");
     }
     return null;
-  }, [data.status]);
+  }, [data.status, t]);
+
+  const fieldId = (name: string) => `${formId}-${name}`;
 
   return (
     <>
       {isNew && (
         <p className="form-intro">
-          {t('candidature.formIntroNew')}
+          {t("candidature.formIntroNew")}
         </p>
       )}
 
       {fromLiveJobs && !isNew && (
-        <p className="form-intro form-intro-live">{t('candidature.formIntroLiveJobs')}</p>
+        <p className="form-intro form-intro-live">{t("candidature.formIntroLiveJobs")}</p>
       )}
 
       <div className="form-section form-section-essential">
         <div className="form-grid form-grid-essential">
           <div className="form-field">
-            <label>Azienda *</label>
+            <label htmlFor={fieldId("company")}>
+              {t("candidature.quickAdd.company")}
+              <span className="form-required" aria-hidden="true"> *</span>
+            </label>
             <CompanyCombobox
+              id={fieldId("company")}
               value={data.company_name}
               options={companyNames}
               onChange={(company_name) => set("company_name", company_name)}
-              placeholder="Es. Stripe, Google..."
+              placeholder={t("candidature.form.companyPlaceholder")}
               required
             />
           </div>
           <div className="form-field">
-            <label>Ruolo *</label>
+            <label htmlFor={fieldId("role")}>
+              {t("candidature.quickAdd.role")}
+              <span className="form-required" aria-hidden="true"> *</span>
+            </label>
             <input
+              id={fieldId("role")}
               value={data.job_title}
               onChange={(e) => set("job_title", e.target.value)}
-              placeholder="Es. Flutter Developer"
+              placeholder={t("candidature.form.rolePlaceholder")}
               required
             />
           </div>
           <div className="form-field">
-            <label>Stato</label>
+            <label htmlFor={fieldId("status")}>{t("candidature.quickAdd.status")}</label>
             <select
+              id={fieldId("status")}
+              className="form-select"
               value={data.status}
               onChange={(e) => set("status", e.target.value as ApplicationFormData["status"])}
             >
-              {STATUS_OPTIONS.map((o) => (
+              {statusOptions.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
             </select>
             {statusHint ? <span className="form-field-hint">{statusHint}</span> : null}
           </div>
           <div className="form-field form-field-method">
-            <label>Canale</label>
+            <label htmlFor={fieldId("channel")}>{t("candidature.form.channel")}</label>
             <div className="method-field-row">
               <select
+                id={fieldId("channel")}
+                className="form-select"
                 value={data.application_method || "company_website"}
                 onChange={(e) => {
                   const value = e.target.value as ApplicationFormData["application_method"];
@@ -121,31 +139,36 @@ export default function ApplicationForm({ data, onChange, companyNames, isNew = 
                   });
                 }}
               >
-                {APPLICATION_SOURCE_OPTIONS.map((o) => (
+                {sourceOptions.map((o) => (
                   <option key={o.value} value={o.value}>{o.label}</option>
                 ))}
               </select>
               {data.application_method === "other" && (
                 <input
+                  id={fieldId("channel-other")}
                   value={data.application_method_other || ""}
                   onChange={(e) => set("application_method_other", e.target.value)}
-                  placeholder="Specifica..."
+                  placeholder={t("candidature.form.channelOtherPlaceholder")}
+                  aria-label={t("candidature.form.channelOtherPlaceholder")}
                 />
               )}
             </div>
           </div>
           <div className="form-field form-field-wide">
-            <label>URL annuncio</label>
+            <label htmlFor={fieldId("job-url")}>{t("candidature.quickAdd.jobLink")}</label>
             <input
+              id={fieldId("job-url")}
+              type="url"
               value={data.job_url || ""}
               onChange={(e) => set("job_url", e.target.value)}
-              placeholder="https://..."
+              placeholder={t("candidature.form.urlPlaceholder")}
             />
           </div>
           {!isNew && (
             <div className="form-field">
-              <label>Prossimo follow-up</label>
+              <label htmlFor={fieldId("follow-up")}>{t("candidature.form.followUp")}</label>
               <input
+                id={fieldId("follow-up")}
                 type="date"
                 value={data.follow_up_date || ""}
                 onChange={(e) => set("follow_up_date", e.target.value)}
@@ -153,11 +176,12 @@ export default function ApplicationForm({ data, onChange, companyNames, isNew = 
             </div>
           )}
           <div className="form-field form-field-wide">
-            <label>Note</label>
+            <label htmlFor={fieldId("notes")}>{t("candidature.form.notes")}</label>
             <textarea
+              id={fieldId("notes")}
               value={data.notes || ""}
               onChange={(e) => set("notes", e.target.value)}
-              placeholder="Prossimi passi, contatti, dettagli colloquio..."
+              placeholder={t("candidature.form.notesPlaceholder")}
               rows={3}
             />
           </div>
@@ -172,26 +196,36 @@ export default function ApplicationForm({ data, onChange, companyNames, isNew = 
             onClick={() => setShowAdvanced((open) => !open)}
             aria-expanded={showAdvanced}
           >
-            {showAdvanced ? "Nascondi dettagli avanzati" : "Dettagli avanzati (opzionale)"}
-            <span aria-hidden="true">{showAdvanced ? "▾" : "▸"}</span>
+            <span>
+              {showAdvanced ? t("candidature.form.advancedHide") : t("candidature.form.advancedShow")}
+            </span>
+            <ChevronDown
+              className={`form-advanced-chevron${showAdvanced ? " open" : ""}`}
+              aria-hidden="true"
+              size={16}
+              strokeWidth={2}
+            />
           </button>
 
           {showAdvanced && (
             <div className="form-advanced-panel">
               <div className="form-section">
-                <h3>Posizione</h3>
+                <h3>{t("candidature.form.sectionPosition")}</h3>
                 <div className="form-grid">
                   <div className="form-field">
-                    <label>Località</label>
+                    <label htmlFor={fieldId("location")}>{t("candidature.form.location")}</label>
                     <input
+                      id={fieldId("location")}
                       value={data.location || ""}
                       onChange={(e) => set("location", e.target.value)}
-                      placeholder="Città, paese"
+                      placeholder={t("candidature.form.locationPlaceholder")}
                     />
                   </div>
                   <div className="form-field">
-                    <label>Modalità lavoro</label>
+                    <label htmlFor={fieldId("remote")}>{t("candidature.form.workMode")}</label>
                     <select
+                      id={fieldId("remote")}
+                      className="form-select"
                       value={data.remote_type || "unknown"}
                       onChange={(e) => set("remote_type", e.target.value as ApplicationFormData["remote_type"])}
                     >
@@ -201,8 +235,10 @@ export default function ApplicationForm({ data, onChange, companyNames, isNew = 
                     </select>
                   </div>
                   <div className="form-field">
-                    <label>Priorità</label>
+                    <label htmlFor={fieldId("priority")}>{t("candidature.quickAdd.priority")}</label>
                     <select
+                      id={fieldId("priority")}
+                      className="form-select"
                       value={data.priority}
                       onChange={(e) => set("priority", e.target.value as ApplicationFormData["priority"])}
                     >
@@ -212,8 +248,10 @@ export default function ApplicationForm({ data, onChange, companyNames, isNew = 
                     </select>
                   </div>
                   <div className="form-field">
-                    <label>Sponsorizzazione visto</label>
+                    <label htmlFor={fieldId("visa")}>{t("candidature.form.visaSponsorship")}</label>
                     <select
+                      id={fieldId("visa")}
+                      className="form-select"
                       value={
                         data.visa_sponsorship === null
                           ? ""
@@ -228,52 +266,57 @@ export default function ApplicationForm({ data, onChange, companyNames, isNew = 
                         )
                       }
                     >
-                      <option value="">Non specificato</option>
-                      <option value="yes">Sì</option>
-                      <option value="no">No</option>
+                      <option value="">{t("common.notSpecified")}</option>
+                      <option value="yes">{t("common.yes")}</option>
+                      <option value="no">{t("common.no")}</option>
                     </select>
                   </div>
                 </div>
               </div>
 
               <div className="form-section">
-                <h3>Date</h3>
+                <h3>{t("candidature.form.sectionDates")}</h3>
                 <div className="form-grid">
                   <div className="form-field">
-                    <label>Data creazione</label>
+                    <label htmlFor={fieldId("created")}>{t("candidature.form.createdAt")}</label>
                     <input
+                      id={fieldId("created")}
                       type="date"
                       value={data.created_at}
                       onChange={(e) => set("created_at", e.target.value)}
                     />
                   </div>
                   <div className="form-field">
-                    <label>Ultima candidatura</label>
+                    <label htmlFor={fieldId("last-applied")}>{t("candidature.form.lastAppliedAt")}</label>
                     <input
+                      id={fieldId("last-applied")}
                       type="date"
                       value={data.last_applied_at || ""}
                       onChange={(e) => set("last_applied_at", e.target.value)}
                     />
                   </div>
                   <div className="form-field">
-                    <label>Ultimo contatto</label>
+                    <label htmlFor={fieldId("last-contact")}>{t("candidature.form.lastContact")}</label>
                     <input
+                      id={fieldId("last-contact")}
                       type="date"
                       value={data.last_contact_date || ""}
                       onChange={(e) => set("last_contact_date", e.target.value)}
                     />
                   </div>
                   <div className="form-field">
-                    <label>Risposta ricevuta</label>
+                    <label htmlFor={fieldId("response")}>{t("candidature.form.responseReceived")}</label>
                     <input
+                      id={fieldId("response")}
                       type="date"
                       value={data.response_received_at || ""}
                       onChange={(e) => set("response_received_at", e.target.value)}
                     />
                   </div>
                   <div className="form-field">
-                    <label>Data colloquio</label>
+                    <label htmlFor={fieldId("interview")}>{t("candidature.form.interviewDate")}</label>
                     <input
+                      id={fieldId("interview")}
                       type="date"
                       value={data.interview_date || ""}
                       onChange={(e) => set("interview_date", e.target.value)}
@@ -283,48 +326,54 @@ export default function ApplicationForm({ data, onChange, companyNames, isNew = 
               </div>
 
               <div className="form-section">
-                <h3>Contatti</h3>
+                <h3>{t("candidature.form.sectionContacts")}</h3>
                 <div className="form-grid">
                   <div className="form-field">
-                    <label>Talent Acquisition</label>
+                    <label htmlFor={fieldId("ta-name")}>{t("candidature.form.taName")}</label>
                     <input
+                      id={fieldId("ta-name")}
                       value={data.ta_name || ""}
                       onChange={(e) => set("ta_name", e.target.value)}
                     />
                   </div>
                   <div className="form-field">
-                    <label>Email TA</label>
+                    <label htmlFor={fieldId("ta-email")}>{t("candidature.form.taEmail")}</label>
                     <input
+                      id={fieldId("ta-email")}
                       type="email"
                       value={data.ta_email || ""}
                       onChange={(e) => set("ta_email", e.target.value)}
                     />
                   </div>
                   <div className="form-field">
-                    <label>Telefono TA</label>
+                    <label htmlFor={fieldId("ta-phone")}>{t("candidature.form.taPhone")}</label>
                     <input
+                      id={fieldId("ta-phone")}
                       value={data.ta_phone || ""}
                       onChange={(e) => set("ta_phone", e.target.value)}
                     />
                   </div>
                   <div className="form-field form-field-wide">
-                    <label>LinkedIn TA</label>
+                    <label htmlFor={fieldId("ta-linkedin")}>{t("candidature.form.taLinkedIn")}</label>
                     <input
+                      id={fieldId("ta-linkedin")}
                       value={data.ta_linkedin_url || ""}
                       onChange={(e) => set("ta_linkedin_url", e.target.value)}
-                      placeholder="https://linkedin.com/in/..."
+                      placeholder={t("candidature.form.linkedinPlaceholder")}
                     />
                   </div>
                   <div className="form-field">
-                    <label>Hiring Manager</label>
+                    <label htmlFor={fieldId("hm-name")}>{t("candidature.form.hiringManager")}</label>
                     <input
+                      id={fieldId("hm-name")}
                       value={data.hiring_manager_name || ""}
                       onChange={(e) => set("hiring_manager_name", e.target.value)}
                     />
                   </div>
                   <div className="form-field form-field-wide">
-                    <label>LinkedIn Hiring Manager</label>
+                    <label htmlFor={fieldId("hm-linkedin")}>{t("candidature.form.hiringManagerLinkedIn")}</label>
                     <input
+                      id={fieldId("hm-linkedin")}
                       value={data.hiring_manager_linkedin_url || ""}
                       onChange={(e) => set("hiring_manager_linkedin_url", e.target.value)}
                     />
@@ -332,44 +381,47 @@ export default function ApplicationForm({ data, onChange, companyNames, isNew = 
                   <div className="form-field checkbox-field">
                     <input
                       type="checkbox"
-                      id="conn-sent"
+                      id={fieldId("conn-sent")}
                       checked={data.linkedin_connection_sent}
                       onChange={(e) => set("linkedin_connection_sent", e.target.checked)}
                     />
-                    <label htmlFor="conn-sent">Connessione LinkedIn inviata</label>
+                    <label htmlFor={fieldId("conn-sent")}>{t("candidature.form.linkedinConnectionSent")}</label>
                   </div>
                   <div className="form-field checkbox-field">
                     <input
                       type="checkbox"
-                      id="msg-sent"
+                      id={fieldId("msg-sent")}
                       checked={data.linkedin_message_sent}
                       onChange={(e) => set("linkedin_message_sent", e.target.checked)}
                     />
-                    <label htmlFor="msg-sent">Messaggio LinkedIn inviato</label>
+                    <label htmlFor={fieldId("msg-sent")}>{t("candidature.form.linkedinMessageSent")}</label>
                   </div>
                 </div>
               </div>
 
-              <div className="form-section">
-                <h3>Link e retribuzione</h3>
+              <div className="form-section form-section-last">
+                <h3>{t("candidature.form.sectionLinksCompensation")}</h3>
                 <div className="form-grid">
                   <div className="form-field">
-                    <label>Sito azienda</label>
+                    <label htmlFor={fieldId("company-website")}>{t("candidature.form.companyWebsite")}</label>
                     <input
+                      id={fieldId("company-website")}
                       value={data.company_website || ""}
                       onChange={(e) => set("company_website", e.target.value)}
                     />
                   </div>
                   <div className="form-field">
-                    <label>LinkedIn azienda</label>
+                    <label htmlFor={fieldId("company-linkedin")}>{t("candidature.form.companyLinkedIn")}</label>
                     <input
+                      id={fieldId("company-linkedin")}
                       value={data.company_linkedin_url || ""}
                       onChange={(e) => set("company_linkedin_url", e.target.value)}
                     />
                   </div>
                   <div className="form-field">
-                    <label>Stipendio min (EUR)</label>
+                    <label htmlFor={fieldId("salary-min")}>{t("candidature.form.salaryMin")}</label>
                     <input
+                      id={fieldId("salary-min")}
                       type="number"
                       value={data.salary_min ?? ""}
                       onChange={(e) =>
@@ -378,8 +430,9 @@ export default function ApplicationForm({ data, onChange, companyNames, isNew = 
                     />
                   </div>
                   <div className="form-field">
-                    <label>Stipendio max (EUR)</label>
+                    <label htmlFor={fieldId("salary-max")}>{t("candidature.form.salaryMax")}</label>
                     <input
+                      id={fieldId("salary-max")}
                       type="number"
                       value={data.salary_max ?? ""}
                       onChange={(e) =>

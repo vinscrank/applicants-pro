@@ -6,7 +6,7 @@ import { ExternalLink, Sparkles } from 'lucide-react'
 import { useApplicationMutations } from '@/hooks/useApplicationMutations'
 import { EMPTY_FORM, normalizeApplicationMethod } from '@/constants'
 import type { ApplicationMethodType } from '@/types'
-import type { JobUrlAnalysis } from '@/annuncio/types'
+import type { JobUrlAnalysis } from '@/job-posting/types'
 import type { ApplicationTrackerMatch } from './trackerMatch'
 import type { PriorityType } from '@/types'
 import { priorityLabel } from '@/i18n/labels'
@@ -112,7 +112,7 @@ export function QuickAddDialog({ open, onOpenChange, onSaved }: QuickAddDialogPr
   const runAnalyze = async () => {
     const trimmed = jobUrl.trim()
     if (!trimmed) {
-      setError(t('annuncio.pasteUrlError'))
+      setError(t('jobPosting.pasteUrlError'))
       return
     }
     setStep('analyzing')
@@ -433,7 +433,7 @@ export function QuickAddDialog({ open, onOpenChange, onSaved }: QuickAddDialogPr
       <DuplicateApplicationModal
         open={duplicateModalOpen}
         match={duplicateMatch}
-        mode="annuncio"
+        mode="jobPosting"
         saving={busy}
         onClose={() => {
           setDuplicateModalOpen(false)

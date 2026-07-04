@@ -1,5 +1,5 @@
 import type { RemoteType } from '@/types'
-import type { JobUrlAnalysis, LiveOfferMatch } from '@/annuncio/types'
+import type { JobUrlAnalysis, LiveOfferMatch } from '@/job-posting/types'
 import type { ApplicationTrackerMatch } from './trackerMatch'
 import { jobsFetch } from '@/jobs/api'
 import { markJobsDismissRestore } from '@/jobs/jobsListSession'
@@ -11,7 +11,7 @@ export function mapAnalysisRemoteType(value: string): RemoteType {
 }
 
 export function analysisTrackerNotes(analysis: JobUrlAnalysis, applied = false): string {
-  const lead = applied ? 'Analisi annuncio · candidatura inviata' : 'Analisi annuncio · bozza'
+  const lead = applied ? 'Job posting analysis · application submitted' : 'Job posting analysis · draft'
   const parts = [lead, analysis.review]
   if (analysis.summary) parts.push(analysis.summary)
   return parts.filter(Boolean).join('\n\n')

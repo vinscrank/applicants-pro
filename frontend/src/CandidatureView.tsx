@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Filter, LayoutGrid, CalendarDays, List, Plus, Search, X } from 'lucide-react'
+import { Filter, LayoutGrid, CalendarDays, List, Plus, Search, X, ExternalLink } from 'lucide-react'
 import type { Application, ApplicationFormData, StatusType } from './types'
 import { applicationToForm } from './api'
 import { applicationSchema } from '@/lib/schemas/application'
@@ -33,6 +33,7 @@ import { Badge } from './components/ui/badge'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -202,6 +203,14 @@ export default function CandidatureView() {
   const closeModal = () => {
     setModalOpen(false)
     setEditingId(null)
+  }
+
+  const jobUrl = formData.job_url?.trim() ?? ''
+  const canOpenExternal = /^https?:\/\//i.test(jobUrl)
+
+  const openExternalPage = () => {
+    if (!canOpenExternal) return
+    window.open(jobUrl, '_blank', 'noopener,noreferrer')
   }
 
   const handleSave = async () => {
@@ -495,23 +504,48 @@ export default function CandidatureView() {
       </section>
 
       <Dialog open={modalOpen} onOpenChange={(open) => !open && closeModal()}>
-        <DialogContent className="platform-form-dialog max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{t('candidature.editTitle')}</DialogTitle>
+        <DialogContent
+          className="platform-form-dialog platform-form-dialog--application max-w-2xl grid-rows-[auto_1fr_auto] gap-0 p-0"
+          onOpenAutoFocus={(event) => event.preventDefault()}
+        >
+          <DialogHeader className="platform-form-dialog__header">
+            <DialogTitle className="platform-form-dialog__title">{t('candidature.editTitle')}</DialogTitle>
+            {formData.company_name || formData.job_title ? (
+              <DialogDescription className="platform-form-dialog__subtitle">
+                {t('candidature.form.editSubtitle', {
+                  company: formData.company_name || t('candidature.quickAdd.companyUnknown'),
+                  role: formData.job_title || t('candidature.quickAdd.roleUnknown'),
+                })}
+              </DialogDescription>
+            ) : null}
           </DialogHeader>
-          <ApplicationForm
-            data={formData}
-            onChange={setFormData}
-            companyNames={companyNameOptions}
-            isNew={false}
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={closeModal}>
-              {t('common.cancel')}
+          <div className="platform-form-dialog__body">
+            <ApplicationForm
+              key={editingId ?? 'new'}
+              data={formData}
+              onChange={setFormData}
+              companyNames={companyNameOptions}
+              isNew={false}
+            />
+          </div>
+          <DialogFooter className="platform-form-dialog__footer platform-form-dialog__footer-split">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={openExternalPage}
+              disabled={!canOpenExternal}
+            >
+              <ExternalLink className="h-4 w-4" aria-hidden="true" />
+              {t('candidature.form.openExternalPage')}
             </Button>
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? t('common.saving') : t('common.save')}
-            </Button>
+            <div className="platform-form-dialog__footer-actions">
+              <Button variant="outline" onClick={closeModal}>
+                {t('common.cancel')}
+              </Button>
+              <Button onClick={handleSave} disabled={saving}>
+                {saving ? t('common.saving') : t('common.save')}
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

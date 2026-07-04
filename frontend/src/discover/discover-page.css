@@ -268,7 +268,7 @@
 }
 
 .discover-panel-content .jobs-shell,
-.discover-panel-content .annuncio-shell,
+.discover-panel-content .job-posting-shell,
 .discover-panel-content .candidature-view {
   padding: 0;
   margin: 0;
@@ -280,7 +280,7 @@
 }
 
 .discover-panel-content .search-panel-ai,
-.discover-panel-content .annuncio-search {
+.discover-panel-content .job-posting-search {
   border-radius: 0.75rem;
   border: 1px solid var(--border);
   box-shadow: none;

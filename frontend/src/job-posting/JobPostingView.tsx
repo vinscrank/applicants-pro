@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { JobUrlAnalysis, LiveOfferMatch } from './types'
 import type { RemoteType } from '../types'
 import type { ApplicationTrackerMatch } from '../applications/trackerMatch'
+import { formatTrackerMatchDate, trackerMatchStatusLabel } from '../applications/trackerMatch'
 import { remoteLabel as remoteLabelI18n } from '../i18n/labels'
 import { jobsFetch } from '../jobs/api'
 import { markJobsDismissRestore } from '../jobs/jobsListSession'
@@ -14,13 +15,12 @@ import { PlatformPageHeader } from '../layout/PlatformPageHeader'
 import { navigateToTracker, navigateToJobs } from '../pipeline/pipelineBridge'
 import { DuplicateApplicationModal } from '../components/DuplicateApplicationModal'
 import { ProfileFitBadge } from '../jobs/components/ProfileFitBadge'
-import { AnnuncioApplyPanel } from './AnnuncioApplyPanel'
-import { TrackerAppliedWidget } from './TrackerAppliedWidget'
-import { AnnuncioJobFrame } from './AnnuncioJobFrame'
+import { JobPostingApplyPanel } from './JobPostingApplyPanel'
+import { JobPostingFrame } from './JobPostingFrame'
 import { registerApplyTarget } from '../apply/extensionBridge'
 import '../jobs/jobs-theme.css'
 import '../components/DuplicateApplicationModal.css'
-import './annuncio.css'
+import './job-posting.css'
 
 const SOURCE_TAGS = ['LinkedIn', 'Greenhouse', 'Lever', 'Stripe', 'Workable', 'Ashby']
 
@@ -34,7 +34,7 @@ function remoteLabel(value: string): string {
 }
 
 function trackerNotes(analysis: JobUrlAnalysis): string {
-  const parts = ['Analisi annuncio · candidatura inviata', analysis.review]
+  const parts = ['Job posting analysis · application submitted', analysis.review]
   if (analysis.summary) parts.push(analysis.summary)
   return parts.filter(Boolean).join('\n\n')
 }
@@ -75,40 +75,40 @@ function publishLiveAppliedSync(
   })
 }
 
-function AnnuncioLoadingCard() {
+function JobPostingLoadingCard() {
   const { t } = useTranslation()
 
   return (
-    <section className="annuncio-loading card" aria-busy="true" aria-label={t('annuncio.loadingAria')}>
-      <div className="annuncio-loading-head">
+    <section className="job-posting-loading card" aria-busy="true" aria-label={t('jobPosting.loadingAria')}>
+      <div className="job-posting-loading-head">
         <span className="spinner" />
-        {t('annuncio.analyzing')}
+        {t('jobPosting.analyzing')}
       </div>
-      <div className="annuncio-skeleton-line w60" />
-      <div className="annuncio-skeleton-line w40" />
-      <div className="annuncio-skeleton-grid">
-        <div className="annuncio-skeleton-block" />
-        <div className="annuncio-skeleton-block" />
-        <div className="annuncio-skeleton-block" />
+      <div className="job-posting-skeleton-line w60" />
+      <div className="job-posting-skeleton-line w40" />
+      <div className="job-posting-skeleton-grid">
+        <div className="job-posting-skeleton-block" />
+        <div className="job-posting-skeleton-block" />
+        <div className="job-posting-skeleton-block" />
       </div>
-      <div className="annuncio-skeleton-line w80" />
-      <div className="annuncio-skeleton-line w80" />
+      <div className="job-posting-skeleton-line w80" />
+      <div className="job-posting-skeleton-line w80" />
     </section>
   )
 }
 
-function AnnuncioEmptyState() {
+function JobPostingEmptyState() {
   const { t } = useTranslation()
 
   return (
-    <section className="annuncio-empty card">
-      <h2 className="annuncio-empty-title">{t('annuncio.emptyTitle')}</h2>
-      <p className="annuncio-empty-text">{t('annuncio.emptyDescription')}</p>
+    <section className="job-posting-empty card">
+      <h2 className="job-posting-empty-title">{t('jobPosting.emptyTitle')}</h2>
+      <p className="job-posting-empty-text">{t('jobPosting.emptyDescription')}</p>
     </section>
   )
 }
 
-export default function AnnuncioView({ embedded = false }: { embedded?: boolean } = {}) {
+export default function JobPostingView({ embedded = false }: { embedded?: boolean } = {}) {
   const { t } = useTranslation()
   const [url, setUrl] = useState('')
   const [loading, setLoading] = useState(false)
@@ -138,7 +138,7 @@ export default function AnnuncioView({ embedded = false }: { embedded?: boolean 
   const runAnalyze = useCallback(async (targetUrl: string) => {
     const trimmed = targetUrl.trim()
     if (!trimmed) {
-      setError(t('annuncio.pasteUrlError'))
+      setError(t('jobPosting.pasteUrlError'))
       return
     }
     setLoading(true)
@@ -235,7 +235,7 @@ export default function AnnuncioView({ embedded = false }: { embedded?: boolean 
   const addToTracker = useCallback(async (allowDuplicate = false) => {
     if (!analysis) return
     if (!analysis.company.trim() || !analysis.role.trim()) {
-      setError(t('annuncio.missingFieldsError'))
+      setError(t('jobPosting.missingFieldsError'))
       return
     }
     if (!allowDuplicate && analysis.tracker_match) {
@@ -287,11 +287,11 @@ export default function AnnuncioView({ embedded = false }: { embedded?: boolean 
       setSuccess(
         allowDuplicate
           ? syncedLive > 0
-            ? t('annuncio.success.duplicateWithSync', { count: syncedLive })
-            : t('annuncio.success.duplicateAdded')
+            ? t('jobPosting.success.duplicateWithSync', { count: syncedLive })
+            : t('jobPosting.success.duplicateAdded')
           : syncedLive > 0
-            ? t('annuncio.success.addedWithSync', { count: syncedLive })
-            : t('annuncio.success.added'),
+            ? t('jobPosting.success.addedWithSync', { count: syncedLive })
+            : t('jobPosting.success.added'),
       )
     } catch (e) {
       setError(e instanceof Error ? e.message : t('errors.genericSave'))
@@ -346,7 +346,7 @@ export default function AnnuncioView({ embedded = false }: { embedded?: boolean 
             }
           : current,
       )
-      setSuccess(t('annuncio.success.dismissed'))
+      setSuccess(t('jobPosting.success.dismissed'))
     } catch (e) {
       setError(e instanceof Error ? e.message : t('errors.dismissFailed'))
     } finally {
@@ -360,44 +360,45 @@ export default function AnnuncioView({ embedded = false }: { embedded?: boolean 
   }, [addToTracker])
 
   if (billingLoading) {
-    return <div className="annuncio-shell"><p className="annuncio-muted">{t('common.loading')}</p></div>
+    return <div className="job-posting-shell"><p className="job-posting-muted">{t('common.loading')}</p></div>
   }
 
   if (!canUse) {
     return (
-      <div className="annuncio-shell candidature-view">
+      <div className="job-posting-shell candidature-view">
         <UpgradeGate />
       </div>
     )
   }
 
-  const hasSideInsights = analysis && (analysis.highlights.length > 0 || analysis.concerns.length > 0)
   const primaryLiveOffer = analysis?.live_offer_matches?.[0] ?? null
 
   return (
-    <div className={`annuncio-shell candidature-view${analysis && !loading ? ' annuncio-shell-workspace' : ''}`}>
-      {!embedded && (
+    <div className={`job-posting-shell candidature-view${analysis && !loading ? ' job-posting-shell-workspace' : ''}`}>
+      {!embedded && !analysis && (
       <PlatformPageHeader
-        title={t('annuncio.title')}
-        subtitle={t('annuncio.subtitle')}
+        title={t('jobPosting.title')}
+        subtitle={t('jobPosting.subtitle')}
       />
       )}
-      <section className="annuncio-search card">
-        <div className="annuncio-search-top">
-          <div className="annuncio-search-copy">
-            <h2>{t('annuncio.analyzeLinkTitle')}</h2>
-            <p>{t('annuncio.analyzeLinkLead')}</p>
+      <section className={`job-posting-search card${analysis ? ' job-posting-search-compact' : ''}`}>
+        {!analysis && (
+        <div className="job-posting-search-top">
+          <div className="job-posting-search-copy">
+            <h2>{t('jobPosting.analyzeLinkTitle')}</h2>
+            <p>{t('jobPosting.analyzeLinkLead')}</p>
           </div>
-          <span className="annuncio-search-badge">AI</span>
+          <span className="job-posting-search-badge">AI</span>
         </div>
-        <div className="annuncio-search-input-wrap">
+        )}
+        <div className="job-posting-search-input-wrap">
           <input
-            id="annuncio-url"
+            id="job-posting-url"
             type="url"
-            className="annuncio-url-input"
+            className="job-posting-url-input"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder={t('annuncio.urlPlaceholder')}
+            placeholder={t('jobPosting.urlPlaceholder')}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !loading) {
                 e.preventDefault()
@@ -406,30 +407,32 @@ export default function AnnuncioView({ embedded = false }: { embedded?: boolean 
               if (e.key === 'Enter' && !e.metaKey && !e.ctrlKey && !loading) analyze()
             }}
           />
-          <button type="button" className="btn btn-primary annuncio-analyze-btn" onClick={analyze} disabled={loading}>
+          <button type="button" className="btn btn-primary job-posting-analyze-btn" onClick={analyze} disabled={loading}>
             {loading ? (
               <>
                 <span className="spinner" />
                 {t('common.analyzing')}
               </>
             ) : (
-              t('annuncio.analyze')
+              t('jobPosting.analyze')
             )}
           </button>
         </div>
-        <div className="annuncio-search-foot">
-          <div className="annuncio-source-tags">
+        <div className="job-posting-search-foot">
+          {!analysis && (
+          <div className="job-posting-source-tags">
             {SOURCE_TAGS.map((tag) => (
-              <span key={tag} className="annuncio-source-tag">{tag}</span>
+              <span key={tag} className="job-posting-source-tag">{tag}</span>
             ))}
           </div>
-          <span className="annuncio-kbd-hint">{t('annuncio.keyboardHint')}</span>
+          )}
+          <span className="job-posting-kbd-hint">{t('jobPosting.keyboardHint')}</span>
         </div>
       </section>
 
-      {error && <div className="error-banner annuncio-status-banner">{error}</div>}
+      {error && <div className="error-banner job-posting-status-banner">{error}</div>}
       {success && (
-        <div className="success-banner success-banner-with-action annuncio-status-banner">
+        <div className="success-banner success-banner-with-action job-posting-status-banner">
           <span>{success}</span>
           {trackerApplicationId != null && (
             <button
@@ -443,119 +446,107 @@ export default function AnnuncioView({ embedded = false }: { embedded?: boolean 
         </div>
       )}
 
-      {loading && <AnnuncioLoadingCard />}
-      {!loading && !analysis && !error && <AnnuncioEmptyState />}
+      {loading && <JobPostingLoadingCard />}
+      {!loading && !analysis && !error && <JobPostingEmptyState />}
 
       {analysis && !loading && (
-        <>
-          {analysis.tracker_match && (
-            <TrackerAppliedWidget
-              match={analysis.tracker_match}
-              sessionKey={analysis.url}
-              side="right"
-              onOpenTracker={() => navigateToTracker({ applicationId: analysis.tracker_match!.application_id })}
-            />
-          )}
-        <div className="annuncio-workspace">
-          <aside className="annuncio-workspace-side">
-            <article className="annuncio-result card annuncio-result-compact">
-              <header className="annuncio-hero annuncio-hero-compact">
-                <div className="annuncio-hero-main">
-                  <span className="annuncio-origin-badge">{analysis.origin_label}</span>
-                  <h2 className="annuncio-company">{analysis.company || t('annuncio.companyUnknown')}</h2>
-                  <p className="annuncio-role">{analysis.role || t('annuncio.roleUnknown')}</p>
-                  <ProfileFitBadge
-                    score={analysis.profile_fit_score}
-                    label={analysis.profile_fit_label}
-                    available={analysis.profile_fit_available}
-                  />
+        <div className="job-posting-workspace">
+          <aside className="job-posting-workspace-rail card">
+            <header className="job-posting-rail-head">
+              <span className="job-posting-origin-badge">{analysis.origin_label}</span>
+              <h2 className="job-posting-rail-company">{analysis.company || t('jobPosting.companyUnknown')}</h2>
+              <p className="job-posting-rail-role">{analysis.role || t('jobPosting.roleUnknown')}</p>
+              <p className="job-posting-rail-meta">
+                {[analysis.location || t('jobPosting.notIndicated'), remoteLabel(analysis.remote_type)]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </p>
+              <ProfileFitBadge
+                score={analysis.profile_fit_score}
+                label={analysis.profile_fit_label}
+                available={analysis.profile_fit_available}
+              />
+            </header>
+
+            {analysis.tracker_match && (
+              <div className="job-posting-rail-tracker-banner">
+                <div className="job-posting-rail-tracker-copy">
+                  <strong>{t('jobPosting.trackerBannerTitle')}</strong>
+                  <span>
+                    {trackerMatchStatusLabel(analysis.tracker_match.status)}
+                    {formatTrackerMatchDate(analysis.tracker_match.last_applied_at)
+                      ? ` · ${formatTrackerMatchDate(analysis.tracker_match.last_applied_at)}`
+                      : ''}
+                  </span>
                 </div>
-              </header>
-
-              <div className="annuncio-body annuncio-body-compact">
-                <div className="annuncio-meta-row annuncio-meta-row-compact">
-                  <div className="annuncio-meta-item">
-                    <span className="annuncio-meta-label">{t('annuncio.location')}</span>
-                    <span className={`annuncio-meta-value${analysis.location ? '' : ' annuncio-meta-value-muted'}`}>
-                      {analysis.location || t('annuncio.notIndicated')}
-                    </span>
-                  </div>
-                  <div className="annuncio-meta-item">
-                    <span className="annuncio-meta-label">{t('annuncio.modality')}</span>
-                    <span className="annuncio-meta-value">{remoteLabel(analysis.remote_type)}</span>
-                  </div>
-                </div>
-
-                {primaryLiveOffer && (
-                  <div className="annuncio-live-offer-banner annuncio-banner-compact">
-                    <div className="annuncio-live-offer-copy">
-                      <strong>
-                        {primaryLiveOffer.applied
-                          ? t('annuncio.alreadyAppliedLive')
-                          : t('annuncio.presentLive')}
-                      </strong>
-                    </div>
-                    <button
-                      type="button"
-                      className="pipeline-link-btn pipeline-link-btn-secondary"
-                      onClick={() =>
-                        navigateToJobs({
-                          highlightOfferId: primaryLiveOffer.offer_id,
-                          statusFilter: primaryLiveOffer.applied ? 'applied' : undefined,
-                        })
-                      }
-                    >
-                      {t('annuncio.liveOffers')}
-                    </button>
-                  </div>
-                )}
-
-                <div className={`annuncio-content-grid${hasSideInsights ? '' : ' annuncio-content-grid-single'}`}>
-                  <section className="annuncio-panel-block annuncio-panel-block-review">
-                    {analysis.summary && (
-                      <>
-                        <h3 className="annuncio-block-title">{t('annuncio.summary')}</h3>
-                        <p className="annuncio-block-text">{analysis.summary}</p>
-                      </>
-                    )}
-                    {analysis.review && (
-                      <>
-                        <h3 className="annuncio-block-title">{t('annuncio.aiReview')}</h3>
-                        <p className="annuncio-block-text">{analysis.review}</p>
-                      </>
-                    )}
-                  </section>
-
-                  {hasSideInsights && (
-                    <aside className="annuncio-panel-block annuncio-panel-block-side">
-                      {analysis.highlights.length > 0 && (
-                        <div className="annuncio-side-section">
-                          <h3 className="annuncio-block-title">{t('annuncio.highlights')}</h3>
-                          <ul className="annuncio-insight-list">
-                            {analysis.highlights.map((item) => (
-                              <li key={item} className="annuncio-insight-item">{item}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      {analysis.concerns.length > 0 && (
-                        <div className="annuncio-side-section">
-                          <h3 className="annuncio-block-title">{t('annuncio.concerns')}</h3>
-                          <ul className="annuncio-insight-list annuncio-insight-list-warn">
-                            {analysis.concerns.map((item) => (
-                              <li key={item} className="annuncio-insight-item">{item}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </aside>
-                  )}
-                </div>
+                <button
+                  type="button"
+                  className="job-posting-rail-tracker-link"
+                  onClick={() => navigateToTracker({ applicationId: analysis.tracker_match!.application_id })}
+                >
+                  {t('jobPosting.trackerBannerAction')}
+                </button>
               </div>
-            </article>
+            )}
 
-            <AnnuncioApplyPanel
-              analysis={analysis}
+            {primaryLiveOffer && (
+              <div className="job-posting-rail-live-banner">
+                <span className="job-posting-rail-live-copy">
+                  {primaryLiveOffer.applied
+                    ? t('jobPosting.alreadyAppliedLive')
+                    : t('jobPosting.presentLive')}
+                </span>
+                <button
+                  type="button"
+                  className="job-posting-rail-live-link"
+                  onClick={() =>
+                    navigateToJobs({
+                      highlightOfferId: primaryLiveOffer.offer_id,
+                      statusFilter: primaryLiveOffer.applied ? 'applied' : undefined,
+                    })
+                  }
+                >
+                  {t('jobPosting.liveOffers')}
+                </button>
+              </div>
+            )}
+
+            <div className="job-posting-rail-scroll">
+              {analysis.summary && (
+                <section className="job-posting-rail-section">
+                  <h3 className="job-posting-rail-section-title">{t('jobPosting.summary')}</h3>
+                  <p className="job-posting-rail-section-text">{analysis.summary}</p>
+                </section>
+              )}
+              {analysis.review && (
+                <section className="job-posting-rail-section">
+                  <h3 className="job-posting-rail-section-title">{t('jobPosting.aiReview')}</h3>
+                  <p className="job-posting-rail-section-text">{analysis.review}</p>
+                </section>
+              )}
+              {analysis.highlights.length > 0 && (
+                <section className="job-posting-rail-section">
+                  <h3 className="job-posting-rail-section-title">{t('jobPosting.highlights')}</h3>
+                  <ul className="job-posting-rail-list">
+                    {analysis.highlights.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+              {analysis.concerns.length > 0 && (
+                <section className="job-posting-rail-section job-posting-rail-section-warn">
+                  <h3 className="job-posting-rail-section-title">{t('jobPosting.concerns')}</h3>
+                  <ul className="job-posting-rail-list">
+                    {analysis.concerns.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </div>
+
+            <JobPostingApplyPanel
               saving={saving}
               dismissLoading={dismissLoading}
               alreadyDismissed={alreadyDismissed}
@@ -566,17 +557,16 @@ export default function AnnuncioView({ embedded = false }: { embedded?: boolean 
             />
           </aside>
 
-          <section className="annuncio-workspace-frame card">
-            <AnnuncioJobFrame url={analysis.url} />
+          <section className="job-posting-workspace-frame card">
+            <JobPostingFrame url={analysis.url} />
           </section>
         </div>
-        </>
       )}
 
       <DuplicateApplicationModal
         open={duplicateModalOpen}
         match={duplicateMatch}
-        mode="annuncio"
+        mode="jobPosting"
         saving={saving}
         onClose={() => setDuplicateModalOpen(false)}
         onOpenTracker={(applicationId) => {

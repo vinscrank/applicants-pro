@@ -9,7 +9,7 @@ import {
 interface Props {
   open: boolean
   match: ApplicationTrackerMatch | null
-  mode: 'annuncio' | 'live'
+  mode: 'jobPosting' | 'live'
   saving?: boolean
   onClose: () => void
   onOpenTracker: (applicationId: number) => void
@@ -48,7 +48,7 @@ export function DuplicateApplicationModal({
         </div>
         <div className="modal-body">
           <p className="duplicate-application-lead">
-            {mode === 'live' ? t('candidature.duplicate.liveLead') : t('candidature.duplicate.annuncioLead')}
+            {mode === 'live' ? t('candidature.duplicate.liveLead') : t('candidature.duplicate.jobPostingLead')}
           </p>
           <div className="duplicate-application-card">
             <strong>{match.company_name}</strong>
@@ -60,7 +60,7 @@ export function DuplicateApplicationModal({
               {appliedDate ? ` · ${appliedDate}` : ''}
             </span>
           </div>
-          {mode === 'annuncio' && (
+          {mode === 'jobPosting' && (
             <p className="duplicate-application-note">{t('candidature.duplicate.note')}</p>
           )}
         </div>
@@ -68,7 +68,7 @@ export function DuplicateApplicationModal({
           <button type="button" className="btn btn-secondary" onClick={onClose} disabled={saving}>
             {t('common.cancel')}
           </button>
-          {mode === 'annuncio' && onCreateDuplicate && (
+          {mode === 'jobPosting' && onCreateDuplicate && (
             <button
               type="button"
               className="btn btn-secondary"

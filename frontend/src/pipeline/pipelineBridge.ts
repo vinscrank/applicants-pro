@@ -33,7 +33,7 @@ export function navigateToJobs(options?: {
   navigate(route)
 }
 
-export function openAnnuncioAnalyzeInNewTab(offer: { id: string; apply_url: string }) {
+export function openJobPostingAnalyzeInNewTab(offer: { id: string; apply_url: string }) {
   const params = new URLSearchParams()
   params.set('tab', 'url')
   if (offer.apply_url) params.set('url', offer.apply_url)

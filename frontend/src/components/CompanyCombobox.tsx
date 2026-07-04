@@ -1,6 +1,8 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
+  id?: string;
   value: string;
   options: string[];
   onChange: (value: string) => void;
@@ -9,6 +11,7 @@ interface Props {
 }
 
 export default function CompanyCombobox({
+  id,
   value,
   options,
   onChange,
@@ -16,7 +19,9 @@ export default function CompanyCombobox({
   required,
 }: Props) {
   const listId = useId();
+  const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement>(null);
+  const userIntentRef = useRef(false);
   const [open, setOpen] = useState(false);
   const query = value.trim().toLowerCase();
   const filtered = query
@@ -24,6 +29,10 @@ export default function CompanyCombobox({
     : options;
   const exactMatch = options.some((name) => name.toLowerCase() === query);
   const showNewOption = query.length > 0 && !exactMatch;
+
+  useEffect(() => {
+    setOpen(false);
+  }, [value]);
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
@@ -43,13 +52,28 @@ export default function CompanyCombobox({
   return (
     <div className="combobox" ref={rootRef}>
       <input
+        id={id}
         className="combobox-input"
         value={value}
         onChange={(e) => {
           onChange(e.target.value);
           setOpen(true);
         }}
-        onFocus={() => setOpen(true)}
+        onPointerDown={() => {
+          userIntentRef.current = true;
+        }}
+        onFocus={() => {
+          if (userIntentRef.current) {
+            setOpen(true);
+            userIntentRef.current = false;
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
         placeholder={placeholder}
         required={required}
         role="combobox"
@@ -82,7 +106,7 @@ export default function CompanyCombobox({
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => selectValue(value.trim())}
               >
-                Aggiungi &quot;{value.trim()}&quot;
+                {t("candidature.form.comboboxAdd", { value: value.trim() })}
               </button>
             </li>
           )}

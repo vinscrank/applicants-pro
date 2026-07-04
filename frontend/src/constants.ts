@@ -31,8 +31,6 @@ export function getStatusOptions(): { value: StatusType; label: string }[] {
   return STATUS_TYPES.map((value) => ({ value, label: statusLabel(value) }));
 }
 
-export const STATUS_OPTIONS = getStatusOptions();
-
 export const DAILY_APPLICATION_GOAL = 20;
 
 export type ColorTagId = "rejected" | "waiting" | "new" | "interview";
@@ -67,6 +65,11 @@ export const METHOD_LABELS = new Proxy({} as Record<ApplicationMethodType, strin
     return methodLabel(prop as ApplicationMethodType);
   },
 });
+
+export function getApplicationSourceOptions(): { value: FormApplicationMethodType; label: string }[] {
+  const values: FormApplicationMethodType[] = ["company_website", "linkedin", "indeed", "other"];
+  return values.map((value) => ({ value, label: methodLabel(value) }));
+}
 
 export const APPLICATION_SOURCE_OPTIONS: { value: FormApplicationMethodType; label: string }[] = [
   { value: "company_website", label: "Sito azienda" },

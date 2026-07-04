@@ -63,4 +63,6 @@ export function setAppLocale(locale: AppLocale) {
   void i18n.changeLanguage(locale)
 }
 
+export type { AppLocale } from './locale'
+
 export default i18n

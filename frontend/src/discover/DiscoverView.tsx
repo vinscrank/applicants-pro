@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import {
   Building2,
-  Clock,
   Compass,
   Link2,
   Search,
@@ -15,10 +14,9 @@ import { cn } from '@/lib/utils'
 import { SearchTab } from '@/discover/tabs/SearchTab'
 import { UrlTab } from '@/discover/tabs/UrlTab'
 import { CareersTab } from '@/discover/tabs/CareersTab'
-import { CompaniesTab } from '@/discover/tabs/CompaniesTab'
 import './discover-page.css'
 
-const DISCOVER_TABS: DiscoverTab[] = ['search', 'url', 'careers', 'companies']
+const DISCOVER_TABS: DiscoverTab[] = ['search', 'url', 'careers']
 
 const TAB_META: Record<
   DiscoverTab,
@@ -36,14 +34,9 @@ const TAB_META: Record<
     hintKey: 'discover.urlHint',
   },
   careers: {
-    icon: Clock,
+    icon: Building2,
     titleKey: 'discover.tabs.careers',
     hintKey: 'discover.careersHint',
-  },
-  companies: {
-    icon: Building2,
-    titleKey: 'discover.tabs.companies',
-    hintKey: 'discover.companiesHint',
   },
 }
 
@@ -55,8 +48,6 @@ function DiscoverTabPanel({ tab }: { tab: DiscoverTab }) {
       return <UrlTab />
     case 'careers':
       return <CareersTab />
-    case 'companies':
-      return <CompaniesTab />
   }
 }
 

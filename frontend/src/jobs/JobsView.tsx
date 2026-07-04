@@ -21,7 +21,7 @@ import { applySessionFiltersSplit, countOffersByStatus } from './applySessionFil
 import { promptInterpretationItems } from './offerPromptRelevance'
 import { matchesOfferListSearch } from './offerListSearch'
 import { PlatformPageHeader } from '../layout/PlatformPageHeader'
-import { navigateToTracker, openAnnuncioAnalyzeInNewTab } from '../pipeline/pipelineBridge'
+import { navigateToTracker, openJobPostingAnalyzeInNewTab } from '../pipeline/pipelineBridge'
 import type { Application } from '../types'
 import { queryApplication, queryApplicationsFiltered } from '@/graphql/applications'
 import { subscribeOfferDismissed, subscribeOfferApplied, offerMatchesDismissSync, offerMatchesAppliedSync, publishOfferApplied, publishOfferDismissed, type OfferDismissSyncPayload, type OfferAppliedSyncPayload } from './jobsSyncChannel'
@@ -793,19 +793,19 @@ export default function JobsView({ embedded = false }: { embedded?: boolean } = 
   useEffect(() => {
     return subscribeOfferDismissed((payload) => {
       applyDismissSync(payload)
-      setSuccess(t('jobs.success.dismissedFromAnnuncio'))
+      setSuccess(t('jobs.success.dismissedFromJobPosting'))
     })
   }, [applyDismissSync])
 
   useEffect(() => {
     return subscribeOfferApplied((payload) => {
       applyAppliedSync(payload)
-      setSuccess(t('jobs.success.syncedFromAnnuncio'))
+      setSuccess(t('jobs.success.syncedFromJobPosting'))
     })
   }, [applyAppliedSync])
 
   const handleAnalyze = useCallback((offer: JobOffer) => {
-    openAnnuncioAnalyzeInNewTab(offer)
+    openJobPostingAnalyzeInNewTab(offer)
   }, [])
 
   const handleDismiss = useCallback(async (offer: JobOffer): Promise<boolean> => {

@@ -32,6 +32,7 @@ import {
   dismissCareersOffer,
   trackCareersOffer,
 } from '@/careers-recent/trackCareersOffer'
+import { scanResultsToOffers } from '@/careers-recent/careersScanUtils'
 import { DuplicateApplicationModal } from '@/components/DuplicateApplicationModal'
 import { OfferApplyModal } from '@/jobs/components/OfferApplyModal'
 import { registerApplyTarget } from '@/apply/extensionBridge'
@@ -96,6 +97,8 @@ interface Props {
   onLlmRefresh?: () => void
   discoverCompanyEnabled: boolean
   autoDiscoverEnabled: boolean
+  layout?: 'full' | 'watchlist'
+  onOffersScanned?: (offers: RecentCareersOfferRow[]) => void
 }
 
 function careersLabel(company: Company): string {
@@ -129,29 +132,6 @@ function formatPostedAt(value: string | null | undefined, locale: string): strin
   })
 }
 
-function scanResultsToOffers(scanResults: Record<number, CompanyScanResult>): RecentCareersOfferRow[] {
-  const rows: RecentCareersOfferRow[] = []
-  for (const scan of Object.values(scanResults)) {
-    for (const offer of scan.recent_offers) {
-      rows.push({
-        company_id: scan.company_id,
-        company_name: scan.company_name,
-        role: offer.role,
-        posted_at: offer.posted_at,
-        apply_url: offer.apply_url,
-        location: offer.location,
-        source: offer.source,
-      })
-    }
-  }
-  rows.sort((a, b) => {
-    const da = a.posted_at ? new Date(a.posted_at).getTime() : 0
-    const db = b.posted_at ? new Date(b.posted_at).getTime() : 0
-    return db - da
-  })
-  return rows
-}
-
 function emptyForm(): CompanyCreateRequest {
   return {
     name: '',
@@ -173,7 +153,10 @@ export function CareersCompaniesPanel({
   onLlmRefresh,
   discoverCompanyEnabled,
   autoDiscoverEnabled,
+  layout = 'full',
+  onOffersScanned,
 }: Props) {
+  const isWatchlist = layout === 'watchlist'
   const { t, i18n } = useTranslation()
   const locale = i18n.language.startsWith('it') ? 'it-IT' : 'en-US'
 
@@ -443,10 +426,6 @@ export function CareersCompaniesPanel({
   }
 
   const autoDiscover = async () => {
-    if (!autoDiscoverEnabled) {
-      onError(t('companies.careers.autoDiscoverHint'))
-      return
-    }
     if (!window.confirm(t('companies.careers.autoDiscoverConfirm'))) return
     onDiscoveringChange(true)
     onError(null)
@@ -595,7 +574,12 @@ export function CareersCompaniesPanel({
       )
       setScanResults((prev) => ({ ...prev, [company.id!]: data }))
       await onRefresh()
-      setOffersModalOpen(true)
+      const offers = scanResultsToOffers({ [company.id!]: data })
+      if (isWatchlist && onOffersScanned) {
+        onOffersScanned(offers)
+      } else {
+        setOffersModalOpen(true)
+      }
       const period = data.posted_within_label
       onSuccess(
         data.recent_count > 0
@@ -626,6 +610,7 @@ export function CareersCompaniesPanel({
     onError(null)
     let ok = 0
     let failed = 0
+    const batchResults: Record<number, CompanyScanResult> = {}
     for (let i = 0; i < targets.length; i++) {
       const company = targets[i]
       setScanningId(company.id!)
@@ -644,6 +629,7 @@ export function CareersCompaniesPanel({
             body: JSON.stringify({ posted_within: scanWindow }),
           },
         )
+        batchResults[company.id!] = data
         setScanResults((prev) => ({ ...prev, [company.id!]: data }))
         ok++
       } catch {
@@ -654,7 +640,12 @@ export function CareersCompaniesPanel({
     setScanningBulk(false)
     setPanelStatus(null)
     await onRefresh()
-    setOffersModalOpen(true)
+    const offers = scanResultsToOffers(batchResults)
+    if (isWatchlist && onOffersScanned) {
+      onOffersScanned(offers)
+    } else {
+      setOffersModalOpen(true)
+    }
     onSuccess(t('companies.careers.scanBulkDone', { ok, failed }))
   }
 
@@ -725,6 +716,7 @@ export function CareersCompaniesPanel({
         </div>
 
         <div className="careers-companies-controls-row careers-companies-controls-actions">
+          {!isWatchlist && (
           <div className="careers-companies-action-group">
             <Button
               type="button"
@@ -780,16 +772,17 @@ export function CareersCompaniesPanel({
               </Button>
             )}
           </div>
+          )}
+          {autoDiscoverEnabled && (
           <Button
             variant="outline"
             size="sm"
-            className={cn(!autoDiscoverEnabled && 'careers-auto-discover-off')}
             onClick={autoDiscover}
-            disabled={discovering || scanBusy || !autoDiscoverEnabled}
-            title={autoDiscoverEnabled ? undefined : t('companies.careers.autoDiscoverHint')}
+            disabled={discovering || scanBusy}
           >
-            {discovering ? t('companies.careers.autoDiscoverScanning') : autoDiscoverEnabled ? t('companies.careers.autoDiscover') : t('companies.careers.autoDiscoverOff')}
+            {discovering ? t('companies.careers.autoDiscoverScanning') : t('companies.careers.autoDiscover')}
           </Button>
+          )}
         </div>
       </div>
 
@@ -965,6 +958,7 @@ export function CareersCompaniesPanel({
         )}
       </div>
 
+      {!isWatchlist && (
       <Dialog
         open={offersModalOpen}
         onOpenChange={(open) => {
@@ -1039,6 +1033,7 @@ export function CareersCompaniesPanel({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      )}
 
       <Dialog
         open={pickerOpen}
