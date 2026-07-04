@@ -1,14 +1,20 @@
 package com.interview.discover;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.interview.auth.AuthService;
 import com.interview.domain.User;
 import com.interview.service.DiscoverSearchService;
+import com.interview.service.PythonOfferteClient;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,10 +31,27 @@ public class DiscoverController {
 
     private final AuthService authService;
     private final DiscoverSearchService discoverSearchService;
+    private final PythonOfferteClient pythonOfferteClient;
+    private final OfferStateService offerStateService;
+    private final OfferTrackService offerTrackService;
+    private final MonitoredCompanyService monitoredCompanyService;
+    private final JobPageEmbedService jobPageEmbedService;
 
-    public DiscoverController(AuthService authService, DiscoverSearchService discoverSearchService) {
+    public DiscoverController(
+            AuthService authService,
+            DiscoverSearchService discoverSearchService,
+            PythonOfferteClient pythonOfferteClient,
+            OfferStateService offerStateService,
+            OfferTrackService offerTrackService,
+            MonitoredCompanyService monitoredCompanyService,
+            JobPageEmbedService jobPageEmbedService) {
         this.authService = authService;
         this.discoverSearchService = discoverSearchService;
+        this.pythonOfferteClient = pythonOfferteClient;
+        this.offerStateService = offerStateService;
+        this.offerTrackService = offerTrackService;
+        this.monitoredCompanyService = monitoredCompanyService;
+        this.jobPageEmbedService = jobPageEmbedService;
     }
 
     @GetMapping("/search/default")
@@ -97,6 +120,105 @@ public class DiscoverController {
     @PutMapping("/llm/controls")
     public JsonNode updateLlmControls(@RequestBody JsonNode body) {
         return discoverSearchService.updateLlmControls(body);
+    }
+
+    @PutMapping("/offers/{offerId}/applied")
+    public JsonNode updateOfferApplied(@PathVariable String offerId, @RequestBody JsonNode body) {
+        Integer userId = currentUser().getId();
+        boolean applied = body.path("applied").asBoolean(false);
+        return offerStateService.setApplied(userId, offerId, applied);
+    }
+
+    @PutMapping("/offers/{offerId}/dismissed")
+    public JsonNode updateOfferDismissed(@PathVariable String offerId, @RequestBody JsonNode body) {
+        Integer userId = currentUser().getId();
+        boolean dismissed = body.path("dismissed").asBoolean(false);
+        String applyUrl = body.path("apply_url").asText("");
+        String company = body.path("company").asText("");
+        String role = body.path("role").asText("");
+        return offerStateService.setDismissed(userId, offerId, dismissed, applyUrl, company, role);
+    }
+
+    @PostMapping("/offers/{offerId}/track")
+    public JsonNode trackOffer(@PathVariable String offerId, @RequestBody JsonNode body) {
+        return offerTrackService.trackOffer(currentUser().getId(), offerId, body);
+    }
+
+    @PostMapping("/analyze-url")
+    public JsonNode analyzeUrl(@RequestBody JsonNode body) {
+        return pythonOfferteClient.post(currentUser().getId(), "/analyze-url", body);
+    }
+
+    @GetMapping(value = "/page-embed", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> pageEmbed(@RequestParam String url) {
+        String html = jobPageEmbedService.embedPage(url);
+        return ResponseEntity.ok()
+                .header("Cache-Control", "private, max-age=300")
+                .header("X-Content-Type-Options", "nosniff")
+                .contentType(MediaType.TEXT_HTML)
+                .body(html);
+    }
+
+    @PostMapping("/analyze-url/track")
+    public JsonNode trackAnalyzedUrl(@RequestBody JsonNode body) {
+        return offerTrackService.trackAnalyzedUrl(currentUser().getId(), body);
+    }
+
+    @GetMapping("/companies")
+    public ArrayNode listCompanies(
+            @RequestParam(name = "include_inactive", defaultValue = "false") boolean includeInactive) {
+        return monitoredCompanyService.listCompanies(includeInactive);
+    }
+
+    @GetMapping("/companies/{companyId}")
+    public JsonNode getCompany(@PathVariable Integer companyId) {
+        return monitoredCompanyService.getCompany(companyId);
+    }
+
+    @PostMapping("/companies")
+    public JsonNode createCompany(@RequestBody JsonNode body) {
+        return monitoredCompanyService.createCompany(body);
+    }
+
+    @PutMapping("/companies/{companyId}")
+    public JsonNode updateCompany(@PathVariable Integer companyId, @RequestBody JsonNode body) {
+        return monitoredCompanyService.updateCompany(companyId, body);
+    }
+
+    @DeleteMapping("/companies/{companyId}")
+    public JsonNode deleteCompany(@PathVariable Integer companyId) {
+        return monitoredCompanyService.deactivateCompany(companyId);
+    }
+
+    @PostMapping("/companies/{companyId}/scan")
+    public JsonNode scanCompany(@PathVariable Integer companyId, @RequestBody(required = false) JsonNode body) {
+        return pythonOfferteClient.post(
+                currentUser().getId(), "/companies/" + companyId + "/scan", body);
+    }
+
+    @PostMapping("/companies/scan-all-recent")
+    public JsonNode scanAllRecent(@RequestBody(required = false) JsonNode body) {
+        return pythonOfferteClient.post(currentUser().getId(), "/companies/scan-all-recent", body);
+    }
+
+    @PostMapping("/companies/scan-all-search")
+    public JsonNode scanAllSearch(@RequestBody JsonNode body) {
+        return pythonOfferteClient.post(currentUser().getId(), "/companies/scan-all-search", body);
+    }
+
+    @PostMapping("/companies/discover-url")
+    public JsonNode discoverCompanyUrl(@RequestBody JsonNode body) {
+        return pythonOfferteClient.post(currentUser().getId(), "/companies/discover-url", body);
+    }
+
+    @PostMapping("/companies/discover-name")
+    public JsonNode discoverCompanyName(@RequestBody JsonNode body) {
+        return pythonOfferteClient.post(currentUser().getId(), "/companies/discover-name", body);
+    }
+
+    @PostMapping("/companies/auto-discover")
+    public JsonNode autoDiscoverCompanies(@RequestBody(required = false) JsonNode body) {
+        return pythonOfferteClient.post(currentUser().getId(), "/companies/auto-discover", body);
     }
 
     private User currentUser() {

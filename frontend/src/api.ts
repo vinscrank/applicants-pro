@@ -14,8 +14,8 @@ export type ApplicationTask = {
 export type TaskScope = 'today' | 'week' | 'overdue'
 
 export const api = {
-  getTasks: async (_scope: TaskScope = 'today'): Promise<ApplicationTask[]> => {
-    return [];
+  getTasks: async (scope: TaskScope = 'today'): Promise<ApplicationTask[]> => {
+    return authFetch<ApplicationTask[]>(`/api/tasks?scope=${encodeURIComponent(scope)}`)
   },
 };
 

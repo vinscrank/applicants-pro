@@ -112,6 +112,11 @@ export type ApplicationStatsQuery = {
     interview: number;
     offer: number;
     rejected: number;
+    followUpDue: number;
+    linkedinPending: number;
+    appliedToday: number;
+    dailyAverage: number;
+    byStatus: Array<{ status: string; count: number }>;
   };
 };
 
@@ -123,6 +128,14 @@ export const GET_APPLICATION_STATS: TypedDocumentNode<ApplicationStatsQuery> = g
       interview
       offer
       rejected
+      followUpDue
+      linkedinPending
+      appliedToday
+      dailyAverage
+      byStatus {
+        status
+        count
+      }
     }
   }
 `;

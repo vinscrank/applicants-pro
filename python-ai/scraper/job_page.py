@@ -256,19 +256,6 @@ async def fetch_job_page_html(url: str) -> tuple[str, str]:
         return response.text, final_url
 
 
-def prepare_page_embed_html(html: str, base_url: str) -> str:
-    from html import escape
-
-    safe_base = escape(base_url, quote=True)
-    base_tag = f'<base href="{safe_base}">'
-    lower = html.lower()
-    if "<head" in lower:
-        return re.sub(r"(<head[^>]*>)", rf"\1{base_tag}", html, count=1, flags=re.I)
-    if "<html" in lower:
-        return re.sub(r"(<html[^>]*>)", rf"\1<head>{base_tag}</head>", html, count=1, flags=re.I)
-    return f"<!DOCTYPE html><html><head>{base_tag}</head><body>{html}</body></html>"
-
-
 async def fetch_job_page(url: str) -> dict:
     cleaned = _validate_public_url(url)
     html, _final_url = await fetch_job_page_html(cleaned)

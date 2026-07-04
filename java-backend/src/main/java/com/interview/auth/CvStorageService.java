@@ -113,4 +113,23 @@ public class CvStorageService {
 
     public record StoredCv(String filename, String mime) {
     }
+
+    public java.nio.file.Path resolveCvPath(int userId) {
+        java.nio.file.Path directory = root.resolve(String.valueOf(userId));
+        if (!java.nio.file.Files.isDirectory(directory)) {
+            return null;
+        }
+        try (var stream = java.nio.file.Files.list(directory)) {
+            return stream
+                    .filter(java.nio.file.Files::isRegularFile)
+                    .filter(path -> {
+                        String name = path.getFileName().toString().toLowerCase();
+                        return name.endsWith(".pdf") || name.endsWith(".doc") || name.endsWith(".docx");
+                    })
+                    .findFirst()
+                    .orElse(null);
+        } catch (java.io.IOException ex) {
+            return null;
+        }
+    }
 }

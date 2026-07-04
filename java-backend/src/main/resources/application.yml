@@ -19,6 +19,7 @@ management:
         include: health,info
 
 app:
+  public-url: ${APP_PUBLIC_URL:http://localhost:3000}
   jwt:
     secret: change-me-in-production-use-at-least-32-characters-long
     expiration-ms: 86400000
@@ -30,7 +31,12 @@ app:
     secret-key: ${STRIPE_SECRET_KEY:}
     webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
     price-id: ${STRIPE_PRICE_ID:}
+    price-pro: ${STRIPE_PRICE_PRO:}
+    price-pro-annual: ${STRIPE_PRICE_PRO_ANNUAL:}
+    price-business: ${STRIPE_PRICE_BUSINESS:}
+    price-business-annual: ${STRIPE_PRICE_BUSINESS_ANNUAL:}
     success-url: http://localhost:3000/billing/success
     cancel-url: http://localhost:3000/billing/cancel
+    portal-return-url: http://localhost:3000/#account?tab=billing
   billing:
     owner-emails: ${OWNER_EMAILS:vinci.loca1@gmail.com,m@m.com}

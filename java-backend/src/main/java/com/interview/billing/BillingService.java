@@ -5,6 +5,7 @@ import com.interview.billing.dto.BillingStatusResponse;
 import com.interview.billing.dto.CheckoutSessionResponse;
 import com.interview.billing.dto.PlanPublicResponse;
 import com.interview.billing.dto.PlansListResponse;
+import com.interview.billing.dto.PortalSessionResponse;
 import com.interview.config.BillingProperties;
 import com.interview.config.StripeProperties;
 import com.interview.domain.User;
@@ -46,7 +47,7 @@ public class BillingService {
         plans.add(toPlanPublic(BillingPlans.getPlan("free")));
         plans.add(toPlanPublic(BillingPlans.getPlan("pro")));
         plans.add(toPlanPublic(BillingPlans.getPlan("business")));
-        return new PlansListResponse(plans, stripeProperties.isConfigured());
+        return new PlansListResponse(plans, stripeProperties.hasCheckoutPrices());
     }
 
     private PlanPublicResponse toPlanPublic(BillingPlans.PlanDefinition plan) {
@@ -130,22 +131,29 @@ public class BillingService {
     }
 
     @Transactional
-    public CheckoutSessionResponse createCheckoutSession(User user) {
+    public CheckoutSessionResponse createCheckoutSession(User user, String planId, String interval) {
         requireStripeConfigured();
+        if (isOwner(user)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Owner account already has full access");
+        }
+        String priceId = resolvePriceId(planId, interval);
+        if (priceId == null || priceId.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Stripe price not configured");
+        }
 
         try {
             String customerId = ensureStripeCustomer(user);
-
             SessionCreateParams params = SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
                     .setCustomer(customerId)
                     .setSuccessUrl(stripeProperties.getSuccessUrl())
                     .setCancelUrl(stripeProperties.getCancelUrl())
                     .addLineItem(SessionCreateParams.LineItem.builder()
-                            .setPrice(stripeProperties.getPriceId())
+                            .setPrice(priceId)
                             .setQuantity(1L)
                             .build())
                     .putMetadata("userId", user.getId().toString())
+                    .putMetadata("planId", planId != null ? planId : "pro")
                     .build();
 
             Session session = Session.create(params);
@@ -154,6 +162,52 @@ public class BillingService {
             throw new ResponseStatusException(
                     HttpStatus.BAD_GATEWAY, "Failed to create Stripe checkout session");
         }
+    }
+
+    @Transactional
+    public PortalSessionResponse createPortalSession(User user) {
+        requireStripeConfigured();
+        if (user.getStripeCustomerId() == null || user.getStripeCustomerId().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No active subscription");
+        }
+        try {
+            com.stripe.model.billingportal.Session session =
+                    com.stripe.model.billingportal.Session.create(
+                            com.stripe.param.billingportal.SessionCreateParams.builder()
+                                    .setCustomer(user.getStripeCustomerId())
+                                    .setReturnUrl(stripeProperties.getPortalReturnUrl())
+                                    .build());
+            return new PortalSessionResponse(session.getUrl());
+        } catch (Exception ex) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_GATEWAY, "Failed to create Stripe portal session");
+        }
+    }
+
+    private String resolvePriceId(String planId, String interval) {
+        String normalizedPlan = planId != null ? planId.trim().toLowerCase(Locale.ROOT) : "pro";
+        boolean yearly = "year".equalsIgnoreCase(interval);
+        return switch (normalizedPlan) {
+            case "business" -> yearly
+                    ? stripeProperties.getPriceBusinessAnnual()
+                    : stripeProperties.getPriceBusiness();
+            case "pro" -> yearly
+                    ? stripeProperties.getPriceProAnnual()
+                    : firstNonBlank(stripeProperties.getPricePro(), stripeProperties.getPriceId());
+            default -> stripeProperties.getPriceId();
+        };
+    }
+
+    private static String firstNonBlank(String primary, String fallback) {
+        if (primary != null && !primary.isBlank()) {
+            return primary;
+        }
+        return fallback;
+    }
+
+    @Transactional
+    public CheckoutSessionResponse createCheckoutSession(User user) {
+        return createCheckoutSession(user, "pro", "month");
     }
 
     @Transactional
@@ -187,6 +241,10 @@ public class BillingService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         user.setPlanTier("pro");
+        String planId = session.getMetadata().get("planId");
+        if (planId != null && (planId.equals("pro") || planId.equals("business"))) {
+            user.setPlanTier(planId);
+        }
         user.setSubscriptionStatus("active");
         user.setStripeCustomerId(session.getCustomer());
         user.setStripeSubscriptionId(session.getSubscription());

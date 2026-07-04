@@ -87,10 +87,6 @@ def set_offers_applied(db: Session, user_id: int, offer_ids: list[str], applied:
     db.commit()
 
 
-def set_offer_applied(db: Session, user_id: int, offer_id: str, applied: bool) -> None:
-    set_offers_applied(db, user_id, [offer_id], applied)
-
-
 def get_dismissed_offer_ids(db: Session, user_id: int, offer_ids: list[str] | None = None) -> set[str]:
     q = db.query(scraper_orm.OfferteDismissedOffer.offer_id).filter(
         scraper_orm.OfferteDismissedOffer.user_id == user_id
@@ -122,40 +118,6 @@ def _is_generic_apply_url(url_norm: str) -> bool:
         if path.endswith("/jobs") or path.endswith("/jobs/"):
             return True
     return False
-
-
-def _delete_dismissed_by_match_keys(
-    db: Session,
-    user_id: int,
-    url_norm: str,
-    company_norm: str,
-    role_norm: str,
-    keep_offer_id: str | None = None,
-) -> None:
-    from sqlalchemy import or_
-
-    conditions = []
-    if url_norm:
-        conditions.append(scraper_orm.OfferteDismissedOffer.apply_url_norm == url_norm)
-    if company_norm and role_norm:
-        conditions.append(
-            (scraper_orm.OfferteDismissedOffer.company_norm == company_norm)
-            & (scraper_orm.OfferteDismissedOffer.role_norm == role_norm)
-        )
-    if not conditions:
-        return
-    rows = (
-        db.query(scraper_orm.OfferteDismissedOffer)
-        .filter(
-            scraper_orm.OfferteDismissedOffer.user_id == user_id,
-            or_(*conditions),
-        )
-        .all()
-    )
-    for row in rows:
-        if keep_offer_id and row.offer_id == keep_offer_id:
-            continue
-        db.delete(row)
 
 
 def dedupe_user_dismissed_offers(db: Session, user_id: int) -> int:
@@ -208,18 +170,6 @@ def _specific_apply_url(url: str) -> str:
     if _is_generic_apply_url(url_norm):
         return ""
     return url_norm
-
-
-def _lookup_offer_fields(db: Session, offer_id: str) -> tuple[str, str, str]:
-    row = (
-        db.query(scraper_orm.OfferteOfferRow)
-        .filter(scraper_orm.OfferteOfferRow.offer_id == offer_id)
-        .order_by(scraper_orm.OfferteOfferRow.id.desc())
-        .first()
-    )
-    if not row:
-        return "", "", ""
-    return row.apply_url or "", row.company or "", row.role or ""
 
 
 def _dismissed_match_keys(
@@ -277,75 +227,6 @@ def job_url_is_dismissed(
     if company_role[0] and company_role[1] and company_role in dismissed_company_roles:
         return True
     return False
-
-
-def set_offer_dismissed(
-    db: Session,
-    user_id: int,
-    offer_id: str,
-    dismissed: bool,
-    apply_url: str | None = None,
-    company: str | None = None,
-    role: str | None = None,
-) -> None:
-    url_norm = _specific_apply_url(apply_url or "")
-    company_norm, role_norm = _company_role_key(company or "", role or "")
-    if not url_norm and (not company_norm or not role_norm):
-        lookup_url, lookup_company, lookup_role = _lookup_offer_fields(db, offer_id)
-        if not url_norm:
-            url_norm = _specific_apply_url(lookup_url)
-        if not company_norm or not role_norm:
-            company_norm, role_norm = _company_role_key(lookup_company, lookup_role)
-
-    if dismissed:
-        _delete_dismissed_by_match_keys(
-            db,
-            user_id,
-            url_norm,
-            company_norm,
-            role_norm,
-            keep_offer_id=offer_id,
-        )
-        row = db.get(scraper_orm.OfferteDismissedOffer, (user_id, offer_id))
-        now = datetime.now(timezone.utc)
-        if row:
-            row.dismissed_at = now
-            if url_norm:
-                row.apply_url_norm = url_norm
-            if company_norm and role_norm:
-                row.company_norm = company_norm
-                row.role_norm = role_norm
-        else:
-            db.add(
-                scraper_orm.OfferteDismissedOffer(
-                    user_id=user_id,
-                    offer_id=offer_id,
-                    dismissed_at=now,
-                    apply_url_norm=url_norm or None,
-                    company_norm=company_norm or None,
-                    role_norm=role_norm or None,
-                )
-            )
-    else:
-        from sqlalchemy import or_
-
-        conditions = [scraper_orm.OfferteDismissedOffer.offer_id == offer_id]
-        if url_norm:
-            conditions.append(scraper_orm.OfferteDismissedOffer.apply_url_norm == url_norm)
-        if company_norm and role_norm:
-            conditions.append(
-                (scraper_orm.OfferteDismissedOffer.company_norm == company_norm)
-                & (scraper_orm.OfferteDismissedOffer.role_norm == role_norm)
-            )
-        (
-            db.query(scraper_orm.OfferteDismissedOffer)
-            .filter(
-                scraper_orm.OfferteDismissedOffer.user_id == user_id,
-                or_(*conditions),
-            )
-            .delete(synchronize_session=False)
-        )
-    db.commit()
 
 
 def _norm_match_text(value: str) -> str:
@@ -734,21 +615,6 @@ def find_matching_live_offers(
     return matched
 
 
-def mark_live_offers_applied_for_job(
-    db: Session,
-    user_id: int,
-    job_url: str,
-    company: str = "",
-    role: str = "",
-) -> list[dict]:
-    matches = find_matching_live_offers(db, user_id, job_url, company, role)
-    if matches:
-        set_offers_applied(db, user_id, [match["offer_id"] for match in matches], True)
-        for match in matches:
-            match["applied"] = True
-    return matches
-
-
 def _find_offer_row_for_dismissed(
     db: Session,
     user_id: int,
@@ -855,120 +721,6 @@ def _row_to_offer(row: scraper_orm.OfferteOfferRow) -> JobOffer:
     )
 
 
-def save_search(db: Session, result: SearchResult, user_id: int) -> int:
-    searched_at = result.searched_at
-    if searched_at.tzinfo is None:
-        searched_at = searched_at.replace(tzinfo=timezone.utc)
-    row = scraper_orm.OfferteSearch(
-        user_id=user_id,
-        searched_at=searched_at,
-        total_found=result.total_found,
-        verified_count=result.verified_count,
-        maybe_count=result.maybe_count,
-        rejected_count=result.rejected_count,
-        command_json=json.dumps(result.command.model_dump()),
-    )
-    db.add(row)
-    db.flush()
-    pool = result.offer_pool or result.offers
-    seen_ids: set[str] = set()
-    for o in pool:
-        if o.id in seen_ids:
-            continue
-        seen_ids.add(o.id)
-        verified_at = o.verified_at
-        if verified_at.tzinfo is None:
-            verified_at = verified_at.replace(tzinfo=timezone.utc)
-        db.add(
-            scraper_orm.OfferteOfferRow(
-                search_id=row.id,
-                offer_id=o.id,
-                company=o.company,
-                role=o.role,
-                apply_url=o.apply_url,
-                source=o.source,
-                origin=o.origin,
-                posted_at=o.posted_at,
-                language_requirement=o.language_requirement,
-                seniority=o.seniority.value,
-                web_dev_fit=o.web_dev_fit,
-                web_dev_fit_label=o.web_dev_fit_label,
-                status=o.status.value,
-                status_reason=o.status_reason,
-                location=o.location,
-                verified_at=verified_at,
-            )
-        )
-    db.commit()
-    db.refresh(row)
-    return row.id
-
-
-def get_search(db: Session, search_id: int, user_id: int) -> SearchResult | None:
-    row = db.get(scraper_orm.OfferteSearch, search_id)
-    if not row or row.user_id != user_id:
-        return None
-    offers = (
-        db.query(scraper_orm.OfferteOfferRow)
-        .filter(scraper_orm.OfferteOfferRow.search_id == search_id)
-        .order_by(scraper_orm.OfferteOfferRow.id)
-        .all()
-    )
-    searched_at = row.searched_at
-    if searched_at.tzinfo is None:
-        searched_at = searched_at.replace(tzinfo=timezone.utc)
-    command = SearchCommand(**json.loads(row.command_json))
-    offer_pool = enrich_offers_applied(db, [_row_to_offer(o) for o in offers], user_id)
-    offer_pool = supplement_pool_with_tracker_applications(db, offer_pool, user_id, command)
-    visible_offers = [o for o in offer_pool if _offer_visible_for_command(o, command)]
-    return SearchResult(
-        id=row.id,
-        command=command,
-        preferences=SearchPreferences(),
-        searched_at=searched_at,
-        total_found=row.total_found,
-        verified_count=row.verified_count,
-        maybe_count=row.maybe_count,
-        rejected_count=row.rejected_count,
-        offers=visible_offers,
-        offer_pool=offer_pool,
-    )
-
-
-def get_latest_search(db: Session, user_id: int) -> SearchResult | None:
-    row = (
-        db.query(scraper_orm.OfferteSearch)
-        .filter(scraper_orm.OfferteSearch.user_id == user_id)
-        .order_by(scraper_orm.OfferteSearch.id.desc())
-        .first()
-    )
-    if not row:
-        return None
-    return get_search(db, row.id, user_id)
-
-
-def list_searches(db: Session, user_id: int, limit: int = 20) -> list[dict]:
-    rows = (
-        db.query(scraper_orm.OfferteSearch)
-        .filter(scraper_orm.OfferteSearch.user_id == user_id)
-        .order_by(scraper_orm.OfferteSearch.id.desc())
-        .limit(limit)
-        .all()
-    )
-    return [
-        {
-            "id": r.id,
-            "searched_at": r.searched_at.isoformat(),
-            "total_found": r.total_found,
-            "verified_count": r.verified_count,
-            "maybe_count": r.maybe_count,
-            "rejected_count": r.rejected_count,
-            "command_json": r.command_json,
-        }
-        for r in rows
-    ]
-
-
 def _row_to_company(row: scraper_orm.MonitoredCompany) -> Company:
     discovered = row.discovered_at
     if discovered and discovered.tzinfo is None:
@@ -992,89 +744,6 @@ def get_company_by_id(db: Session, company_id: int) -> Company | None:
     if not row:
         return None
     return _row_to_company(row)
-
-
-def _company_ats_slug_taken(
-    db: Session,
-    ats: str,
-    slug: str,
-    exclude_id: int | None = None,
-) -> bool:
-    q = db.query(scraper_orm.MonitoredCompany).filter(
-        scraper_orm.MonitoredCompany.ats == ats,
-        scraper_orm.MonitoredCompany.slug == slug,
-    )
-    if exclude_id is not None:
-        q = q.filter(scraper_orm.MonitoredCompany.id != exclude_id)
-    return q.first() is not None
-
-
-def create_company(db: Session, data: dict) -> Company:
-    now = datetime.now(timezone.utc)
-    ats = (data.get("ats") or "website").strip()
-    slug = (data.get("slug") or "").strip()
-    name = (data.get("name") or "").strip()
-    if not name:
-        raise ValueError("name_required")
-    if not slug:
-        raise ValueError("slug_required")
-    if _company_ats_slug_taken(db, ats, slug):
-        raise ValueError("ats_slug_conflict")
-    row = scraper_orm.MonitoredCompany(
-        name=name,
-        ats=ats,
-        slug=slug,
-        careers_url=(data.get("careers_url") or "").strip(),
-        job_count=int(data.get("job_count") or 0),
-        active=bool(data.get("active", True)),
-        source=data.get("source") or "manual",
-        discovered_at=now,
-        priority=bool(data.get("priority", False)),
-    )
-    db.add(row)
-    db.commit()
-    db.refresh(row)
-    return _row_to_company(row)
-
-
-def update_company(db: Session, company_id: int, data: dict) -> Company | None:
-    row = db.get(scraper_orm.MonitoredCompany, company_id)
-    if not row:
-        return None
-    if data.get("name") is not None:
-        name = data["name"].strip()
-        if not name:
-            raise ValueError("name_required")
-        row.name = name
-    next_ats = data["ats"].strip() if data.get("ats") is not None else row.ats
-    next_slug = data["slug"].strip() if data.get("slug") is not None else row.slug
-    if data.get("ats") is not None or data.get("slug") is not None:
-        if not next_slug:
-            raise ValueError("slug_required")
-        if _company_ats_slug_taken(db, next_ats, next_slug, exclude_id=company_id):
-            raise ValueError("ats_slug_conflict")
-        row.ats = next_ats
-        row.slug = next_slug
-    if data.get("careers_url") is not None:
-        row.careers_url = data["careers_url"].strip()
-    if data.get("active") is not None:
-        row.active = bool(data["active"])
-    if data.get("job_count") is not None:
-        row.job_count = int(data["job_count"])
-    if data.get("priority") is not None:
-        row.priority = bool(data["priority"])
-    db.commit()
-    db.refresh(row)
-    return _row_to_company(row)
-
-
-def deactivate_company(db: Session, company_id: int) -> bool:
-    row = db.get(scraper_orm.MonitoredCompany, company_id)
-    if not row:
-        return False
-    row.active = False
-    db.commit()
-    return True
 
 
 def update_company_job_count(db: Session, company_id: int, job_count: int) -> None:
@@ -1165,22 +834,3 @@ def get_user_search_preferences(db: Session, user_id: int) -> SearchPreferences:
         return SearchPreferences(**json.loads(row.preferences_json))
     except (json.JSONDecodeError, TypeError, ValueError):
         return DEFAULT_SEARCH_PREFERENCES.model_copy()
-
-
-def save_user_search_preferences(db: Session, user_id: int, prefs: SearchPreferences) -> SearchPreferences:
-    now = datetime.now(timezone.utc)
-    payload = json.dumps(prefs.model_dump())
-    row = db.get(scraper_orm.UserOffertePreferences, user_id)
-    if row:
-        row.preferences_json = payload
-        row.updated_at = now
-    else:
-        db.add(
-            scraper_orm.UserOffertePreferences(
-                user_id=user_id,
-                preferences_json=payload,
-                updated_at=now,
-            )
-        )
-    db.commit()
-    return prefs

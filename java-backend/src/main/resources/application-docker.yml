@@ -16,3 +16,4 @@ management:
 app:
   python-ai:
     base-url: http://python-ai:8001
+    read-timeout-ms: 600000

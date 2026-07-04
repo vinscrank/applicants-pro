@@ -2,8 +2,10 @@ package com.interview.billing;
 
 import com.interview.auth.AuthService;
 import com.interview.billing.dto.BillingStatusResponse;
+import com.interview.billing.dto.CheckoutRequest;
 import com.interview.billing.dto.CheckoutSessionResponse;
 import com.interview.billing.dto.PlansListResponse;
+import com.interview.billing.dto.PortalSessionResponse;
 import com.interview.domain.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -39,8 +41,20 @@ public class BillingController {
     }
 
     @PostMapping("/checkout")
-    public CheckoutSessionResponse checkout() {
-        return billingService.createCheckoutSession(currentUser());
+    public CheckoutSessionResponse checkout(@RequestBody(required = false) CheckoutRequest request) {
+        User user = currentUser();
+        if (request == null) {
+            return billingService.createCheckoutSession(user);
+        }
+        return billingService.createCheckoutSession(
+                user,
+                request.planId() != null ? request.planId() : "pro",
+                request.interval() != null ? request.interval() : "month");
+    }
+
+    @PostMapping("/portal")
+    public PortalSessionResponse portal() {
+        return billingService.createPortalSession(currentUser());
     }
 
     @PostMapping("/webhook")

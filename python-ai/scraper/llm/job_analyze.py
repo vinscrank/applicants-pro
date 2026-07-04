@@ -10,9 +10,9 @@ _ANALYZE_CACHE_TTL = 600
 
 
 def _analyze_cache_key(page_url: str) -> str:
-    from apply.page_fit_context import normalize_job_page_url
+    from scraper.url_normalize import normalize_job_url
 
-    return hashlib.sha256(normalize_job_page_url(page_url).encode()).hexdigest()
+    return hashlib.sha256(normalize_job_url(page_url).encode()).hexdigest()
 
 
 def _analyze_cache_get(key: str) -> dict | None:

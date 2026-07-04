@@ -61,19 +61,126 @@ public class ApplicationService {
 
   public ApplicationStatsResponse statsForUser(Integer userId) {
     List<Application> apps = applicationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    java.util.Map<String, Integer> byStatus = new java.util.LinkedHashMap<>();
+    int followUpDue = 0;
+    int linkedinPending = 0;
+    int appliedToday = 0;
+    LocalDate today = LocalDate.now();
+    java.util.List<LocalDate> appliedDates = new java.util.ArrayList<>();
+    java.util.Set<String> closedStatuses = java.util.Set.of(
+        "rejected", "ghosted", "withdrawn", "accepted");
+
+    for (Application app : apps) {
+      if ("draft".equals(app.getStatus())) {
+        continue;
+      }
+      byStatus.merge(app.getStatus(), 1, Integer::sum);
+      LocalDate appliedOn = app.getLastAppliedAt() != null
+          ? app.getLastAppliedAt().toLocalDate()
+          : app.getCreatedAt();
+      if (appliedOn != null) {
+        appliedDates.add(appliedOn);
+        if (appliedOn.equals(today)) {
+          appliedToday++;
+        }
+      }
+      if (app.getFollowUpDate() != null
+          && !app.getFollowUpDate().isAfter(today)
+          && !closedStatuses.contains(app.getStatus())) {
+        followUpDue++;
+      }
+      if (!app.isLinkedinConnectionSent()
+          && app.getTaLinkedinUrl() != null
+          && !app.getTaLinkedinUrl().isBlank()) {
+        linkedinPending++;
+      }
+    }
+
+    double dailyAverage = 0;
+    if (!appliedDates.isEmpty()) {
+      LocalDate firstDay = appliedDates.stream().min(LocalDate::compareTo).orElse(today);
+      long trackedDays = Math.max(1, java.time.temporal.ChronoUnit.DAYS.between(firstDay, today) + 1);
+      dailyAverage = Math.round((appliedDates.size() * 10.0) / trackedDays) / 10.0;
+    }
+
     int applied = 0;
     int interview = 0;
     int offer = 0;
     int rejected = 0;
-    for (Application app : apps) {
-      switch (app.getStatus()) {
-        case "phone_screen", "technical_interview", "final_interview" -> interview++;
-        case "offer", "accepted" -> offer++;
-        case "rejected", "ghosted", "withdrawn" -> rejected++;
-        default -> applied++;
+    for (var entry : byStatus.entrySet()) {
+      switch (entry.getKey()) {
+        case "phone_screen", "technical_interview", "final_interview" -> interview += entry.getValue();
+        case "offer", "accepted" -> offer += entry.getValue();
+        case "rejected", "ghosted", "withdrawn" -> rejected += entry.getValue();
+        default -> applied += entry.getValue();
       }
     }
-    return new ApplicationStatsResponse(apps.size(), applied, interview, offer, rejected);
+
+    java.util.List<ApplicationStatsResponse.StatusCount> statusRows = byStatus.entrySet().stream()
+        .map(entry -> new ApplicationStatsResponse.StatusCount(entry.getKey(), entry.getValue()))
+        .toList();
+
+    return new ApplicationStatsResponse(
+        byStatus.values().stream().mapToInt(Integer::intValue).sum(),
+        applied,
+        interview,
+        offer,
+        rejected,
+        followUpDue,
+        linkedinPending,
+        appliedToday,
+        dailyAverage,
+        statusRows);
+  }
+
+  public java.util.List<com.interview.service.dto.ApplicationTaskResponse> tasksForUser(
+      Integer userId, String scope) {
+    java.util.Set<String> closedStatuses = java.util.Set.of(
+        "rejected", "ghosted", "withdrawn", "accepted");
+    LocalDate today = LocalDate.now();
+    java.util.List<com.interview.service.dto.ApplicationTaskResponse> tasks = new java.util.ArrayList<>();
+
+    for (Application app : applicationRepository.findByUserIdOrderByCreatedAtDesc(userId)) {
+      if ("draft".equals(app.getStatus()) || closedStatuses.contains(app.getStatus())) {
+        continue;
+      }
+      if (app.getFollowUpDate() != null && taskInScope(app.getFollowUpDate(), scope, today)) {
+        tasks.add(new com.interview.service.dto.ApplicationTaskResponse(
+            "fu-" + app.getId(),
+            app.getId(),
+            "follow_up",
+            app.getCompanyName(),
+            app.getJobTitle(),
+            app.getFollowUpDate()));
+      }
+      if (app.getInterviewDate() != null && taskInScope(app.getInterviewDate(), scope, today)) {
+        tasks.add(new com.interview.service.dto.ApplicationTaskResponse(
+            "in-" + app.getId(),
+            app.getId(),
+            "interview",
+            app.getCompanyName(),
+            app.getJobTitle(),
+            app.getInterviewDate()));
+      }
+    }
+
+    tasks.sort(java.util.Comparator
+        .comparing(com.interview.service.dto.ApplicationTaskResponse::due)
+        .thenComparing(com.interview.service.dto.ApplicationTaskResponse::applicationId));
+    return tasks;
+  }
+
+  private static boolean taskInScope(LocalDate due, String scope, LocalDate today) {
+    return switch (scope) {
+      case "today" -> due.equals(today);
+      case "week" -> {
+        LocalDate weekStart = today.minusDays(today.getDayOfWeek().getValue() - 1L);
+        LocalDate weekEnd = weekStart.plusDays(6);
+        yield !due.isBefore(weekStart) && !due.isAfter(weekEnd);
+      }
+      case "overdue" -> due.isBefore(today);
+      default -> false;
+    };
   }
 
   private void applyCreateInput(Application app, CreateApplicationInput input) {

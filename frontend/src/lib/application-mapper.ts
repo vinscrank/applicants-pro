@@ -214,18 +214,22 @@ export function gqlStatsToStats(stats: {
   interview: number;
   offer: number;
   rejected: number;
+  followUpDue: number;
+  linkedinPending: number;
+  appliedToday: number;
+  dailyAverage: number;
+  byStatus: Array<{ status: string; count: number }>;
 }): import("@/types").Stats {
+  const by_status: Record<string, number> = {};
+  for (const row of stats.byStatus ?? []) {
+    by_status[row.status] = row.count;
+  }
   return {
     total: stats.total,
-    by_status: {
-      applied: stats.applied,
-      interview: stats.interview,
-      offer: stats.offer,
-      rejected: stats.rejected,
-    },
-    follow_up_due: 0,
-    linkedin_pending: 0,
-    applied_today: 0,
-    daily_average: 0,
+    by_status,
+    follow_up_due: stats.followUpDue,
+    linkedin_pending: stats.linkedinPending,
+    applied_today: stats.appliedToday,
+    daily_average: stats.dailyAverage,
   };
 }

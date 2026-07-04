@@ -151,10 +151,20 @@ input JobSearchInput {
   remote: Boolean
 }
 
+type StatusCount {
+  status: String!
+  count: Int!
+}
+
 type ApplicationStats {
   total: Int!
   applied: Int!
   interview: Int!
   offer: Int!
   rejected: Int!
+  followUpDue: Int!
+  linkedinPending: Int!
+  appliedToday: Int!
+  dailyAverage: Float!
+  byStatus: [StatusCount!]!
 }

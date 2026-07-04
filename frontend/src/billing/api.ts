@@ -101,10 +101,10 @@ export const billingApi = {
     const raw = await authFetch<JavaBillingStatus>(`${BILLING_PREFIX}/status`)
     return mapBillingStatus(raw)
   },
-  checkout: async (_plan_id: string, _interval: 'month' | 'year') => {
+  checkout: async (plan_id: string, interval: 'month' | 'year') => {
     const data = await authFetch<{ checkoutUrl?: string; checkout_url?: string }>(
       `${BILLING_PREFIX}/checkout`,
-      { method: 'POST', body: JSON.stringify({}) },
+      { method: 'POST', body: JSON.stringify({ plan_id, interval }) },
     )
     return { checkout_url: data.checkoutUrl ?? data.checkout_url ?? '' }
   },
