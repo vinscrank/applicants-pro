@@ -3,13 +3,14 @@ package com.interview.service;
 import com.interview.domain.Application;
 import com.interview.graphql.dto.CreateApplicationInput;
 import com.interview.graphql.dto.UpdateApplicationInput;
-import com.interview.service.dto.ApplicationStatsResponse;
 import com.interview.repository.ApplicationRepository;
+import com.interview.service.dto.ApplicationStatsResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
-import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -26,16 +27,16 @@ public class ApplicationService {
     return applicationRepository.findByUserIdOrderByCreatedAtDesc(userId);
   }
 
+  public Application getForUser(Integer userId, Integer id) {
+    return applicationRepository.findByIdAndUserId(id, userId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
+  }
+
   @Transactional
   public Application createForUser(Integer userId, CreateApplicationInput input) {
     Application app = new Application();
     app.setUserId(userId);
-    app.setCompanyName(input.companyName());
-    app.setJobTitle(input.jobTitle());
-    app.setJobUrl(input.jobUrl());
-    app.setLocation(input.location());
-    app.setStatus(input.status() != null ? input.status() : "applied");
-    app.setPriority(input.priority() != null ? input.priority() : "medium");
+    applyCreateInput(app, input);
     app.setCreatedAt(LocalDate.now());
     app.setUpdatedAt(LocalDateTime.now());
     return applicationRepository.save(app);
@@ -45,18 +46,7 @@ public class ApplicationService {
   public Application updateForUser(Integer userId, UpdateApplicationInput input) {
     Application app = applicationRepository.findByIdAndUserId(Integer.valueOf(input.id()), userId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Application not found"));
-    if (input.companyName() != null)
-      app.setCompanyName(input.companyName());
-    if (input.jobTitle() != null)
-      app.setJobTitle(input.jobTitle());
-    if (input.jobUrl() != null)
-      app.setJobUrl(input.jobUrl());
-    if (input.location() != null)
-      app.setLocation(input.location());
-    if (input.status() != null)
-      app.setStatus(input.status());
-    if (input.priority() != null)
-      app.setPriority(input.priority());
+    applyUpdateInput(app, input);
     app.setUpdatedAt(LocalDateTime.now());
     return applicationRepository.save(app);
   }
@@ -69,18 +59,213 @@ public class ApplicationService {
     return true;
   }
 
-
   public ApplicationStatsResponse statsForUser(Integer userId) {
     List<Application> apps = applicationRepository.findByUserIdOrderByCreatedAtDesc(userId);
-    int applied = 0, interview = 0, offer = 0, rejected = 0;
+    int applied = 0;
+    int interview = 0;
+    int offer = 0;
+    int rejected = 0;
     for (Application app : apps) {
       switch (app.getStatus()) {
-        case "interview" -> interview++;
-        case "offer" -> offer++;
-        case "rejected" -> rejected++;
+        case "phone_screen", "technical_interview", "final_interview" -> interview++;
+        case "offer", "accepted" -> offer++;
+        case "rejected", "ghosted", "withdrawn" -> rejected++;
         default -> applied++;
       }
     }
     return new ApplicationStatsResponse(apps.size(), applied, interview, offer, rejected);
+  }
+
+  private void applyCreateInput(Application app, CreateApplicationInput input) {
+    app.setCompanyName(input.companyName());
+    app.setJobTitle(input.jobTitle());
+    setIfPresent(input.jobUrl(), app::setJobUrl);
+    setIfPresent(input.companyWebsite(), app::setCompanyWebsite);
+    setIfPresent(input.companyLinkedinUrl(), app::setCompanyLinkedinUrl);
+    setIfPresent(input.location(), app::setLocation);
+    app.setStatus(input.status() != null ? input.status() : "applied");
+    app.setPriority(input.priority() != null ? input.priority() : "medium");
+    setIfPresent(input.remoteType(), app::setRemoteType);
+    setIfPresent(input.applicationMethod(), app::setApplicationMethod);
+    setIfPresent(input.applicationMethodOther(), app::setApplicationMethodOther);
+    if (input.salaryMin() != null) {
+      app.setSalaryMin(input.salaryMin());
+    }
+    if (input.salaryMax() != null) {
+      app.setSalaryMax(input.salaryMax());
+    }
+    if (input.salaryCurrency() != null) {
+      app.setSalaryCurrency(input.salaryCurrency());
+    }
+    if (input.visaSponsorship() != null) {
+      app.setVisaSponsorship(input.visaSponsorship());
+    }
+    setIfPresent(input.taName(), app::setTaName);
+    setIfPresent(input.taEmail(), app::setTaEmail);
+    setIfPresent(input.taLinkedinUrl(), app::setTaLinkedinUrl);
+    setIfPresent(input.taPhone(), app::setTaPhone);
+    setIfPresent(input.hiringManagerName(), app::setHiringManagerName);
+    setIfPresent(input.hiringManagerLinkedinUrl(), app::setHiringManagerLinkedinUrl);
+    if (input.linkedinConnectionSent() != null) {
+      app.setLinkedinConnectionSent(input.linkedinConnectionSent());
+    }
+    if (input.linkedinMessageSent() != null) {
+      app.setLinkedinMessageSent(input.linkedinMessageSent());
+    }
+    setDateIfPresent(input.followUpDate(), app::setFollowUpDate);
+    setDateIfPresent(input.lastContactDate(), app::setLastContactDate);
+    setDateIfPresent(input.responseReceivedAt(), app::setResponseReceivedAt);
+    setDateIfPresent(input.interviewDate(), app::setInterviewDate);
+    setDateTimeIfPresent(input.lastAppliedAt(), app::setLastAppliedAt);
+    app.setApplicationSource(input.applicationSource() != null ? input.applicationSource() : "manual");
+    setIfPresent(input.linkedOfferId(), app::setLinkedOfferId);
+    setIfPresent(input.notes(), app::setNotes);
+  }
+
+  private void applyUpdateInput(Application app, UpdateApplicationInput input) {
+    if (input.companyName() != null) {
+      app.setCompanyName(input.companyName());
+    }
+    if (input.jobTitle() != null) {
+      app.setJobTitle(input.jobTitle());
+    }
+    if (input.jobUrl() != null) {
+      app.setJobUrl(blankToNull(input.jobUrl()));
+    }
+    if (input.companyWebsite() != null) {
+      app.setCompanyWebsite(blankToNull(input.companyWebsite()));
+    }
+    if (input.companyLinkedinUrl() != null) {
+      app.setCompanyLinkedinUrl(blankToNull(input.companyLinkedinUrl()));
+    }
+    if (input.location() != null) {
+      app.setLocation(blankToNull(input.location()));
+    }
+    if (input.status() != null) {
+      app.setStatus(input.status());
+    }
+    if (input.priority() != null) {
+      app.setPriority(input.priority());
+    }
+    if (input.remoteType() != null) {
+      app.setRemoteType(blankToNull(input.remoteType()));
+    }
+    if (input.applicationMethod() != null) {
+      app.setApplicationMethod(blankToNull(input.applicationMethod()));
+    }
+    if (input.applicationMethodOther() != null) {
+      app.setApplicationMethodOther(blankToNull(input.applicationMethodOther()));
+    }
+    if (input.salaryMin() != null) {
+      app.setSalaryMin(input.salaryMin());
+    }
+    if (input.salaryMax() != null) {
+      app.setSalaryMax(input.salaryMax());
+    }
+    if (input.salaryCurrency() != null) {
+      app.setSalaryCurrency(input.salaryCurrency());
+    }
+    if (input.visaSponsorship() != null) {
+      app.setVisaSponsorship(input.visaSponsorship());
+    }
+    if (input.taName() != null) {
+      app.setTaName(blankToNull(input.taName()));
+    }
+    if (input.taEmail() != null) {
+      app.setTaEmail(blankToNull(input.taEmail()));
+    }
+    if (input.taLinkedinUrl() != null) {
+      app.setTaLinkedinUrl(blankToNull(input.taLinkedinUrl()));
+    }
+    if (input.taPhone() != null) {
+      app.setTaPhone(blankToNull(input.taPhone()));
+    }
+    if (input.hiringManagerName() != null) {
+      app.setHiringManagerName(blankToNull(input.hiringManagerName()));
+    }
+    if (input.hiringManagerLinkedinUrl() != null) {
+      app.setHiringManagerLinkedinUrl(blankToNull(input.hiringManagerLinkedinUrl()));
+    }
+    if (input.linkedinConnectionSent() != null) {
+      app.setLinkedinConnectionSent(input.linkedinConnectionSent());
+    }
+    if (input.linkedinMessageSent() != null) {
+      app.setLinkedinMessageSent(input.linkedinMessageSent());
+    }
+    if (input.followUpDate() != null) {
+      app.setFollowUpDate(parseDateOrNull(input.followUpDate()));
+    }
+    if (input.lastContactDate() != null) {
+      app.setLastContactDate(parseDateOrNull(input.lastContactDate()));
+    }
+    if (input.responseReceivedAt() != null) {
+      app.setResponseReceivedAt(parseDateOrNull(input.responseReceivedAt()));
+    }
+    if (input.interviewDate() != null) {
+      app.setInterviewDate(parseDateOrNull(input.interviewDate()));
+    }
+    if (input.lastAppliedAt() != null) {
+      app.setLastAppliedAt(parseDateTimeOrNull(input.lastAppliedAt()));
+    }
+    if (input.applicationSource() != null) {
+      app.setApplicationSource(input.applicationSource());
+    }
+    if (input.linkedOfferId() != null) {
+      app.setLinkedOfferId(blankToNull(input.linkedOfferId()));
+    }
+    if (input.notes() != null) {
+      app.setNotes(blankToNull(input.notes()));
+    }
+  }
+
+  private static void setIfPresent(String value, java.util.function.Consumer<String> setter) {
+    if (value != null) {
+      setter.accept(blankToNull(value));
+    }
+  }
+
+  private static void setDateIfPresent(String value, java.util.function.Consumer<LocalDate> setter) {
+    if (value != null) {
+      setter.accept(parseDateOrNull(value));
+    }
+  }
+
+  private static void setDateTimeIfPresent(String value, java.util.function.Consumer<LocalDateTime> setter) {
+    if (value != null) {
+      setter.accept(parseDateTimeOrNull(value));
+    }
+  }
+
+  private static String blankToNull(String value) {
+    if (value == null || value.isBlank()) {
+      return null;
+    }
+    return value;
+  }
+
+  private static LocalDate parseDateOrNull(String value) {
+    if (value == null || value.isBlank()) {
+      return null;
+    }
+    try {
+      return LocalDate.parse(value.length() >= 10 ? value.substring(0, 10) : value);
+    } catch (DateTimeParseException ex) {
+      return null;
+    }
+  }
+
+  private static LocalDateTime parseDateTimeOrNull(String value) {
+    if (value == null || value.isBlank()) {
+      return null;
+    }
+    try {
+      return LocalDateTime.parse(value);
+    } catch (DateTimeParseException ex) {
+      try {
+        return LocalDate.parse(value.substring(0, 10)).atStartOfDay();
+      } catch (DateTimeParseException ignored) {
+        return null;
+      }
+    }
   }
 }

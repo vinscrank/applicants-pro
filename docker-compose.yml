@@ -28,6 +28,7 @@ services:
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
       STRIPE_PRICE_ID: ${STRIPE_PRICE_ID:-}
+      OWNER_EMAILS: ${OWNER_EMAILS:-vinci.loca1@gmail.com,m@m.com}
     depends_on:
       db:
         condition: service_healthy

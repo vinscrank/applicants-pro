@@ -8,27 +8,78 @@ type Application {
   id: ID!
   companyName: String!
   jobTitle: String!
-  status: String!
-  priority: String
-  location: String
   jobUrl: String
-  createdAt: String
+  companyWebsite: String
+  companyLinkedinUrl: String
+  location: String
+  status: String!
+  priority: String!
+  remoteType: String
+  applicationMethod: String
+  applicationMethodOther: String
+  salaryMin: Int
+  salaryMax: Int
+  salaryCurrency: String!
+  visaSponsorship: Boolean
+  taName: String
+  taEmail: String
+  taLinkedinUrl: String
+  taPhone: String
+  hiringManagerName: String
+  hiringManagerLinkedinUrl: String
+  linkedinConnectionSent: Boolean!
+  linkedinMessageSent: Boolean!
+  followUpDate: String
+  lastContactDate: String
+  responseReceivedAt: String
+  interviewDate: String
+  createdAt: String!
+  lastAppliedAt: String
+  applicationSource: String!
+  linkedOfferId: String
+  notes: String
+  updatedAt: String!
 }
 
 type Query {
   me: User
   applications: [Application!]!
+  application(id: ID!): Application
   applicationStats: ApplicationStats!
-
 }
 
 input CreateApplicationInput {
   companyName: String!
   jobTitle: String!
   jobUrl: String
+  companyWebsite: String
+  companyLinkedinUrl: String
   location: String
   status: String
   priority: String
+  remoteType: String
+  applicationMethod: String
+  applicationMethodOther: String
+  salaryMin: Int
+  salaryMax: Int
+  salaryCurrency: String
+  visaSponsorship: Boolean
+  taName: String
+  taEmail: String
+  taLinkedinUrl: String
+  taPhone: String
+  hiringManagerName: String
+  hiringManagerLinkedinUrl: String
+  linkedinConnectionSent: Boolean
+  linkedinMessageSent: Boolean
+  followUpDate: String
+  lastContactDate: String
+  responseReceivedAt: String
+  interviewDate: String
+  lastAppliedAt: String
+  applicationSource: String
+  linkedOfferId: String
+  notes: String
 }
 
 input UpdateApplicationInput {
@@ -36,9 +87,34 @@ input UpdateApplicationInput {
   companyName: String
   jobTitle: String
   jobUrl: String
+  companyWebsite: String
+  companyLinkedinUrl: String
   location: String
   status: String
   priority: String
+  remoteType: String
+  applicationMethod: String
+  applicationMethodOther: String
+  salaryMin: Int
+  salaryMax: Int
+  salaryCurrency: String
+  visaSponsorship: Boolean
+  taName: String
+  taEmail: String
+  taLinkedinUrl: String
+  taPhone: String
+  hiringManagerName: String
+  hiringManagerLinkedinUrl: String
+  linkedinConnectionSent: Boolean
+  linkedinMessageSent: Boolean
+  followUpDate: String
+  lastContactDate: String
+  responseReceivedAt: String
+  interviewDate: String
+  lastAppliedAt: String
+  applicationSource: String
+  linkedOfferId: String
+  notes: String
 }
 
 type Mutation {

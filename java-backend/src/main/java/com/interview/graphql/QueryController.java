@@ -35,6 +35,12 @@ public class QueryController {
   }
 
   @QueryMapping
+  public Application application(@org.springframework.graphql.data.method.annotation.Argument Integer id) {
+    Integer userId = authService.getUserByEmail(currentUserEmail()).getId();
+    return applicationService.getForUser(userId, id);
+  }
+
+  @QueryMapping
   public ApplicationStatsResponse applicationStats() {
     Integer userId = authService.getUserByEmail(currentUserEmail()).getId();
     return applicationService.statsForUser(userId);

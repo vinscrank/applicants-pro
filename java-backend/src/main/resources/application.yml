@@ -32,3 +32,5 @@ app:
     price-id: ${STRIPE_PRICE_ID:}
     success-url: http://localhost:3000/billing/success
     cancel-url: http://localhost:3000/billing/cancel
+  billing:
+    owner-emails: ${OWNER_EMAILS:vinci.loca1@gmail.com,m@m.com}

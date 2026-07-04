@@ -1,7 +1,9 @@
 package com.interview.billing;
 
+import com.interview.billing.dto.BillingFeaturesResponse;
 import com.interview.billing.dto.BillingStatusResponse;
 import com.interview.billing.dto.CheckoutSessionResponse;
+import com.interview.config.BillingProperties;
 import com.interview.config.StripeProperties;
 import com.interview.domain.User;
 import com.interview.repository.UserRepository;
@@ -13,6 +15,7 @@ import com.stripe.net.Webhook;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import java.time.LocalDateTime;
+import java.util.Locale;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,19 +25,46 @@ import org.springframework.web.server.ResponseStatusException;
 public class BillingService {
 
     private final StripeProperties stripeProperties;
+    private final BillingProperties billingProperties;
     private final UserRepository userRepository;
 
-    public BillingService(StripeProperties stripeProperties, UserRepository userRepository) {
+    public BillingService(
+            StripeProperties stripeProperties,
+            BillingProperties billingProperties,
+            UserRepository userRepository) {
         this.stripeProperties = stripeProperties;
+        this.billingProperties = billingProperties;
         this.userRepository = userRepository;
     }
 
     public BillingStatusResponse getStatus(User user) {
+        boolean isOwner = isOwner(user);
+        boolean ownerAccess = isOwner || "owner".equals(user.getPlanTier());
+        BillingPlans.PlanDefinition plan = BillingPlans.planForUser(user, isOwner);
         return new BillingStatusResponse(
+                plan.id(),
+                plan.name(),
                 user.getPlanTier(),
+                ownerAccess,
                 user.getSubscriptionStatus(),
                 user.getSubscriptionPeriodEnd(),
-                stripeProperties.isConfigured());
+                stripeProperties.isConfigured(),
+                new BillingFeaturesResponse(
+                        plan.offerteLive(),
+                        plan.aiCallsMonth(),
+                        0,
+                        plan.autoDiscover(),
+                        plan.companionAutofill(),
+                        plan.applicationsMax()));
+    }
+
+    private boolean isOwner(User user) {
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            return false;
+        }
+        return billingProperties
+                .getOwnerEmailSet()
+                .contains(user.getEmail().trim().toLowerCase(Locale.ROOT));
     }
 
     @Transactional
