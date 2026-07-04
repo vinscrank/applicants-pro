@@ -46,7 +46,7 @@ def evaluate_llm_access(db: Session, user_id: int | None = None) -> dict:
         return {
             "ready": False,
             "reason": REASON_MISSING_BUDGET,
-            "access_message": "Imposta un budget mensile maggiore di zero per attivare Offerte Live.",
+            "access_message": "Imposta un budget mensile maggiore di zero per attivare Live Jobs.",
         }
     if budget_exceeded:
         return {

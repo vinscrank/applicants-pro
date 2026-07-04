@@ -56,7 +56,7 @@ public class BillingService {
                 plan.name(),
                 planPriceEurMonth(plan.id()),
                 planPriceEurYear(plan.id()),
-                plan.offerteLive(),
+                plan.liveJobs(),
                 plan.aiCallsMonth(),
                 plan.autoDiscover(),
                 plan.companionAutofill(),
@@ -113,7 +113,7 @@ public class BillingService {
                 user.getSubscriptionPeriodEnd(),
                 stripeProperties.isConfigured(),
                 new BillingFeaturesResponse(
-                        plan.offerteLive(),
+                        plan.liveJobs(),
                         plan.aiCallsMonth(),
                         0,
                         plan.autoDiscover(),

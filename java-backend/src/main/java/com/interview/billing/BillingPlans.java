@@ -8,7 +8,7 @@ public final class BillingPlans {
     public record PlanDefinition(
             String id,
             String name,
-            boolean offerteLive,
+            boolean liveJobs,
             int aiCallsMonth,
             boolean autoDiscover,
             boolean companionAutofill,

@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { authApi } from './api'
 import { getAccessToken } from './http'
-import { clearOfferteListSession, setActiveUserId } from '../offerte/offerteListSession'
+import { clearJobsListSession, setActiveUserId } from '../jobs/jobsListSession'
 import type { AuthMeResponse, UserProfile } from './types'
 import { apolloClient } from '@/lib/apollo-client'
 
@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null)
       setProfile(null)
       setActiveUserId(null)
-      clearOfferteListSession()
+      clearJobsListSession()
       setLoading(false)
       return
     }
@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null)
       setProfile(null)
       setActiveUserId(null)
-      clearOfferteListSession()
+      clearJobsListSession()
     } finally {
       setLoading(false)
     }
@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
     setProfile(null)
     setActiveUserId(null)
-    clearOfferteListSession()
+    clearJobsListSession()
     void apolloClient.clearStore()
   }, [])
 

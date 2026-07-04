@@ -29,7 +29,7 @@ export type FormApplicationMethodType =
   | "indeed"
   | "other";
 
-export type ApplicationSourceType = "manual" | "quick_add" | "offerte_live" | "careers" | "extension";
+export type ApplicationSourceType = "manual" | "quick_add" | "live_jobs" | "careers" | "extension";
 
 export interface Application {
   id: number;
@@ -65,7 +65,6 @@ export interface Application {
   application_source: ApplicationSourceType;
   linked_offer_id?: string | null;
   notes: string | null;
-  offerte_offer_id?: string | null;
   updated_at: string;
 }
 

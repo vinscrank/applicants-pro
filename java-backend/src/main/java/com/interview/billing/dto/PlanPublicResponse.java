@@ -8,7 +8,7 @@ public record PlanPublicResponse(
         String name,
         @JsonProperty("price_eur_month") double priceEurMonth,
         @JsonProperty("price_eur_year") double priceEurYear,
-        @JsonProperty("offerte_live") boolean offerteLive,
+        @JsonProperty("live_jobs") boolean liveJobs,
         @JsonProperty("ai_calls_month") int aiCallsMonth,
         @JsonProperty("auto_discover") boolean autoDiscover,
         @JsonProperty("companion_autofill") boolean companionAutofill,

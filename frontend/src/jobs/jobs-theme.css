@@ -1,0 +1,17 @@
+.jobs-shell {
+  --verified: var(--success);
+  --verified-text: var(--success-text);
+  --maybe: var(--warning);
+  --maybe-text: var(--warning-text);
+  --rejected: var(--danger);
+  --rejected-text: var(--danger-text);
+  color: var(--text);
+}
+
+.jobs-shell a {
+  color: var(--color-primary-accent);
+}
+
+.jobs-shell a:hover {
+  color: var(--color-primary);
+}

@@ -7,7 +7,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_offerte_preferences")
+@Table(name = "user_job_preferences")
 public class UserSearchPreferences {
 
     @Id

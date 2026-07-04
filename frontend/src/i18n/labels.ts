@@ -43,7 +43,7 @@ export function quickFilterLabel(filter: QuickFilter): string {
 
 export function sourceFilterLabel(filter: SourceFilter): string {
   if (filter === 'all') return i18n.t('candidature.sourceAll')
-  if (filter === 'offerte_live') return i18n.t('candidature.sourceLive')
+  if (filter === 'live_jobs') return i18n.t('candidature.sourceLive')
   return i18n.t('candidature.sourceManual')
 }
 

@@ -91,7 +91,7 @@ export function QuickAddDialog({ open, onOpenChange, onSaved }: QuickAddDialogPr
     if (!open) return
     billingApi
       .status()
-      .then((billing) => setCanAnalyze(billing?.features.offerte_live === true))
+      .then((billing) => setCanAnalyze(billing?.features.live_jobs === true))
       .catch(() => setCanAnalyze(false))
   }, [open])
 

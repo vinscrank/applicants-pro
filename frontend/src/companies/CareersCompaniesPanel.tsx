@@ -13,7 +13,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { offerteFetch } from '@/offerte/api'
+import { jobsFetch } from '@/jobs/api'
 import type {
   Company,
   CompanyCreateRequest,
@@ -23,7 +23,7 @@ import type {
   DiscoveryResult,
   JobOffer,
   RecentCareersOfferRow,
-} from '@/offerte/types'
+} from '@/jobs/types'
 import { CareersOffersTable } from '@/careers-recent/CareersOffersTable'
 import { filterCareersOffers } from '@/careers-recent/filterCareersOffers'
 import {
@@ -33,7 +33,7 @@ import {
   trackCareersOffer,
 } from '@/careers-recent/trackCareersOffer'
 import { DuplicateApplicationModal } from '@/components/DuplicateApplicationModal'
-import { OfferApplyModal } from '@/offerte/components/OfferApplyModal'
+import { OfferApplyModal } from '@/jobs/components/OfferApplyModal'
 import { registerApplyTarget } from '@/apply/extensionBridge'
 import type { ApplicationTrackerMatch } from '@/applications/trackerMatch'
 import { navigateToTracker } from '@/pipeline/pipelineBridge'
@@ -358,7 +358,7 @@ export function CareersCompaniesPanel({
       setDismissedKeys((prev) => new Set(prev).add(careersOfferRowKey(applyModalCareersOffer)))
       closeApplyModal()
     } catch (e) {
-      onError(e instanceof Error ? e.message : t('offerte.errors.dismissFailed'))
+      onError(e instanceof Error ? e.message : t('jobs.errors.dismissFailed'))
     } finally {
       setApplyModalLoading(false)
     }
@@ -430,7 +430,7 @@ export function CareersCompaniesPanel({
     setTogglingPriorityId(company.id)
     onError(null)
     try {
-      await offerteFetch<Company>(`/api/offerte/companies/${company.id}`, {
+      await jobsFetch<Company>(`/api/jobs/companies/${company.id}`, {
         method: 'PUT',
         body: JSON.stringify({ priority: !(company.priority ?? false) }),
       })
@@ -452,7 +452,7 @@ export function CareersCompaniesPanel({
     onError(null)
     setPanelStatus(t('companies.careers.autoDiscoverScanning'))
     try {
-      const data = await offerteFetch<DiscoveryResult>('/api/offerte/companies/auto-discover', {
+      const data = await jobsFetch<DiscoveryResult>('/api/jobs/companies/auto-discover', {
         method: 'POST',
         body: JSON.stringify({}),
       })
@@ -480,7 +480,7 @@ export function CareersCompaniesPanel({
     onDiscoveringChange(true)
     onError(null)
     try {
-      const data = await offerteFetch<Company>('/api/offerte/companies/discover-url', {
+      const data = await jobsFetch<Company>('/api/jobs/companies/discover-url', {
         method: 'POST',
         body: JSON.stringify({ url: urlInput.trim(), name: urlName.trim() }),
       })
@@ -506,7 +506,7 @@ export function CareersCompaniesPanel({
     onDiscoveringChange(true)
     onError(null)
     try {
-      const data = await offerteFetch<Company>('/api/offerte/companies/discover-name', {
+      const data = await jobsFetch<Company>('/api/jobs/companies/discover-name', {
         method: 'POST',
         body: JSON.stringify({ name: nameInput.trim() }),
       })
@@ -533,7 +533,7 @@ export function CareersCompaniesPanel({
     setSavingManual(true)
     onError(null)
     try {
-      const data = await offerteFetch<Company>('/api/offerte/companies', {
+      const data = await jobsFetch<Company>('/api/jobs/companies', {
         method: 'POST',
         body: JSON.stringify(manualForm),
       })
@@ -553,7 +553,7 @@ export function CareersCompaniesPanel({
     setSavingEdit(true)
     onError(null)
     try {
-      const data = await offerteFetch<Company>(`/api/offerte/companies/${editCompany.id}`, {
+      const data = await jobsFetch<Company>(`/api/jobs/companies/${editCompany.id}`, {
         method: 'PUT',
         body: JSON.stringify(editForm),
       })
@@ -572,7 +572,7 @@ export function CareersCompaniesPanel({
     if (!window.confirm(t('companies.careers.deleteConfirm', { name: company.name }))) return
     onError(null)
     try {
-      await offerteFetch(`/api/offerte/companies/${company.id}`, { method: 'DELETE' })
+      await jobsFetch(`/api/jobs/companies/${company.id}`, { method: 'DELETE' })
       if (detailCompany?.id === company.id) setDetailCompany(null)
       await onRefresh()
       onSuccess(t('companies.careers.successDeleted', { name: company.name }))
@@ -586,8 +586,8 @@ export function CareersCompaniesPanel({
     setScanningId(company.id)
     onError(null)
     try {
-      const data = await offerteFetch<CompanyScanResult>(
-        `/api/offerte/companies/${company.id}/scan`,
+      const data = await jobsFetch<CompanyScanResult>(
+        `/api/jobs/companies/${company.id}/scan`,
         {
           method: 'POST',
           body: JSON.stringify({ posted_within: scanWindow }),
@@ -637,8 +637,8 @@ export function CareersCompaniesPanel({
         }),
       )
       try {
-        const data = await offerteFetch<CompanyScanResult>(
-          `/api/offerte/companies/${company.id}/scan`,
+        const data = await jobsFetch<CompanyScanResult>(
+          `/api/jobs/companies/${company.id}/scan`,
           {
             method: 'POST',
             body: JSON.stringify({ posted_within: scanWindow }),

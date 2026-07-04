@@ -4,21 +4,21 @@ import type { JobUrlAnalysis, LiveOfferMatch } from './types'
 import type { RemoteType } from '../types'
 import type { ApplicationTrackerMatch } from '../applications/trackerMatch'
 import { remoteLabel as remoteLabelI18n } from '../i18n/labels'
-import { offerteFetch } from '../offerte/api'
-import { markOfferteDismissRestore } from '../offerte/offerteListSession'
-import { publishOfferDismissed, publishOfferApplied, subscribeOfferApplied, subscribeOfferDismissed, offerMatchesAppliedSync, offerMatchesDismissSync } from '../offerte/offerteSyncChannel'
+import { jobsFetch } from '../jobs/api'
+import { markJobsDismissRestore } from '../jobs/jobsListSession'
+import { publishOfferDismissed, publishOfferApplied, subscribeOfferApplied, subscribeOfferDismissed, offerMatchesAppliedSync, offerMatchesDismissSync } from '../jobs/jobsSyncChannel'
 import { parseRoute, isDiscoverUrlRoute } from '../router'
-import { UpgradeGate } from '../offerte/components/UpgradeGate'
+import { UpgradeGate } from '../jobs/components/UpgradeGate'
 import { billingApi, type BillingStatus } from '../billing/api'
 import { PlatformPageHeader } from '../layout/PlatformPageHeader'
-import { navigateToTracker, navigateToOfferteLive } from '../pipeline/pipelineBridge'
+import { navigateToTracker, navigateToJobs } from '../pipeline/pipelineBridge'
 import { DuplicateApplicationModal } from '../components/DuplicateApplicationModal'
-import { ProfileFitBadge } from '../offerte/components/ProfileFitBadge'
+import { ProfileFitBadge } from '../jobs/components/ProfileFitBadge'
 import { AnnuncioApplyPanel } from './AnnuncioApplyPanel'
 import { TrackerAppliedWidget } from './TrackerAppliedWidget'
 import { AnnuncioJobFrame } from './AnnuncioJobFrame'
 import { registerApplyTarget } from '../apply/extensionBridge'
-import '../offerte/offerte-theme.css'
+import '../jobs/jobs-theme.css'
 import '../components/DuplicateApplicationModal.css'
 import './annuncio.css'
 
@@ -143,7 +143,7 @@ export default function AnnuncioView({ embedded = false }: { embedded?: boolean 
   const [sourceOfferId, setSourceOfferId] = useState<string | null>(null)
   const autoAnalyzeStarted = useRef(false)
 
-  const canUse = billing?.features.offerte_live === true
+  const canUse = billing?.features.live_jobs === true
 
   useEffect(() => {
     const route = parseRoute()
@@ -165,7 +165,7 @@ export default function AnnuncioView({ embedded = false }: { embedded?: boolean 
     setDismissedLocally(false)
     setAnalysis(null)
     try {
-      const data = await offerteFetch<JobUrlAnalysis>('/api/offerte/analyze-url', {
+      const data = await jobsFetch<JobUrlAnalysis>('/api/jobs/analyze-url', {
         method: 'POST',
         body: JSON.stringify({ url: trimmed }),
       })
@@ -264,7 +264,7 @@ export default function AnnuncioView({ embedded = false }: { embedded?: boolean 
     setError(null)
     setSuccess(null)
     try {
-      const res = await offerteFetch<TrackAnalyzedUrlResponse>('/api/offerte/analyze-url/track', {
+      const res = await jobsFetch<TrackAnalyzedUrlResponse>('/api/jobs/analyze-url/track', {
         method: 'POST',
         body: JSON.stringify({
           url: analysis.url,
@@ -332,7 +332,7 @@ export default function AnnuncioView({ embedded = false }: { embedded?: boolean 
     setSuccess(null)
     try {
       const offerId = dismissOfferIdForAnalysis(analysis)
-      await offerteFetch(`/api/offerte/offers/${encodeURIComponent(offerId)}/dismissed`, {
+      await jobsFetch(`/api/jobs/offers/${encodeURIComponent(offerId)}/dismissed`, {
         method: 'PUT',
         body: JSON.stringify({
           dismissed: true,
@@ -341,7 +341,7 @@ export default function AnnuncioView({ embedded = false }: { embedded?: boolean 
           role: analysis.role.trim(),
         }),
       })
-      markOfferteDismissRestore(offerId)
+      markJobsDismissRestore(offerId)
       const liveIds = (analysis.live_offer_matches ?? []).map((match) => match.offer_id)
       const offerIds = [...new Set([sourceOfferId, offerId, ...liveIds].filter(Boolean) as string[])]
       publishOfferDismissed({
@@ -516,7 +516,7 @@ export default function AnnuncioView({ embedded = false }: { embedded?: boolean 
                       type="button"
                       className="pipeline-link-btn pipeline-link-btn-secondary"
                       onClick={() =>
-                        navigateToOfferteLive({
+                        navigateToJobs({
                           highlightOfferId: primaryLiveOffer.offer_id,
                           statusFilter: primaryLiveOffer.applied ? 'applied' : undefined,
                         })

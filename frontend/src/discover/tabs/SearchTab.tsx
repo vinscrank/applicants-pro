@@ -1,5 +1,5 @@
-import OfferteView from '@/offerte/OfferteView'
+import JobsView from '@/jobs/JobsView'
 
 export function SearchTab() {
-  return <OfferteView embedded />
+  return <JobsView embedded />
 }

@@ -1,6 +1,7 @@
 import type { Application, ApplicationFormData, StatusType } from "./types";
 import type { ColorTagId } from "./constants";
 import { normalizeApplicationMethod } from "./constants";
+import { authFetch } from "./auth/http";
 
 export type ApplicationTask = {
   id: string

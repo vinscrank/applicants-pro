@@ -7,7 +7,7 @@ import { applicationSchema } from '@/lib/schemas/application'
 import { EMPTY_FORM } from './constants'
 import ApplicationForm from './components/ApplicationForm'
 import { navigate, parseRoute } from './router'
-import { navigateToOfferteLive } from './pipeline/pipelineBridge'
+import { navigateToJobs } from './pipeline/pipelineBridge'
 import { useQuickAdd } from './contexts/QuickAddContext'
 import { useApplicationsQuery } from './hooks/useApplicationsQuery'
 import { useApplicationMutations } from './hooks/useApplicationMutations'
@@ -101,8 +101,8 @@ export default function CandidatureView() {
       } else {
         setHighlightApplicationId(null)
       }
-      if (route.sourceFilter === 'offerte_live') {
-        setSourceFilter('offerte_live')
+      if (route.sourceFilter === 'live_jobs') {
+        setSourceFilter('live_jobs')
       }
       if (route.view === 'pipeline' && route.highlightApplicationId == null) {
         setViewMode('pipeline')
@@ -171,7 +171,7 @@ export default function CandidatureView() {
   const sourceCounts = useMemo(
     () => ({
       all: applications.length,
-      offerte_live: applications.filter((app) => app.application_source === 'offerte_live').length,
+      live_jobs: applications.filter((app) => app.application_source === 'live_jobs').length,
       manual: applications.filter((app) => app.application_source === 'manual').length,
     }),
     [applications]
@@ -275,7 +275,7 @@ export default function CandidatureView() {
       description={description}
       actions={
         <>
-          <Button variant="outline" onClick={() => navigateToOfferteLive()}>
+          <Button variant="outline" onClick={() => navigateToJobs()}>
             <Search className="h-4 w-4" />
             {t('nav.searchOffers')}
           </Button>
@@ -332,7 +332,7 @@ export default function CandidatureView() {
             {(
               [
                 { id: 'all' as const, count: undefined },
-                { id: 'offerte_live' as const, count: sourceCounts.offerte_live },
+                { id: 'live_jobs' as const, count: sourceCounts.live_jobs },
                 { id: 'manual' as const, count: sourceCounts.manual },
               ] as const
             ).map((tab) => (
@@ -342,7 +342,7 @@ export default function CandidatureView() {
                 className={cn('platform-source-tab', sourceFilter === tab.id && 'active')}
                 onClick={() => {
                   setSourceFilter(tab.id)
-                  navigate({ page: 'candidature', sourceFilter: tab.id === 'offerte_live' ? 'offerte_live' : undefined })
+                  navigate({ page: 'candidature', sourceFilter: tab.id === 'live_jobs' ? 'live_jobs' : undefined })
                 }}
               >
                 {sourceFilterLabel(tab.id)}

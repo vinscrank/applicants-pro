@@ -30,7 +30,7 @@ Esempio di riga tipica:
 | Metodo | Path | Owner futuro |
 |--------|------|--------------|
 | `GET` | `/api/applications` | Java |
-| `POST` | `/api/offerte/search` | Java→Python |
+| `POST` | `/api/jobs/search` | Java→Python |
 | `POST` | `/api/apply/page-fit` | Java→Python |
 
 **Owner futuro** = chi gestirà quell'endpoint dopo la migrazione.
@@ -43,7 +43,7 @@ Backend attuale — entry point Python:
 # backend/main.py (semplificato)
 app = FastAPI()
 app.include_router(auth_router)      # /api/auth
-app.include_router(offerte_router)   # /api/offerte
+app.include_router(jobs_router)   # /api/jobs
 app.include_router(apply_router)   # /api/apply
 app.include_router(vector_router)  # /api/vector
 ```
@@ -75,7 +75,7 @@ In **fase 2** le stesse tabelle avranno classi Java `@Entity` equivalenti e migr
 | `users` | Login | Java |
 | `user_profiles` | Profilo + CV | Java |
 | `applications` | Tracker candidature | Java |
-| `offerte_searches` / `offerte_offers` | Ricerca offerte | Java + Python |
+| `job_searches` / `job_offers` | Ricerca jobs | Java + Python |
 | `vector_documents` | Embedding AI | Python |
 | `monitored_companies` | Aziende careers | Java + Python |
 
@@ -94,7 +94,7 @@ Next.js (:3000) → FastAPI (:8000) → PostgreSQL (:5434)
 ## Checklist verifica
 
 - [ ] `docker compose up -d --build`
-- [ ] Login, kanban, search offerte, extension smoke
+- [ ] Login, kanban, search jobs, extension smoke
 - [ ] `curl http://localhost:8000/api/health`
 
 ---

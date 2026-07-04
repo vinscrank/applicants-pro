@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
-import { useApplicationsQuery } from '@/hooks/useApplicationsQuery'
+import { useApplicationQuery } from '@/hooks/useApplicationQuery'
 import { navigate } from '@/router'
 import { PageLayout, PageLoading } from '@/layout/PageLayout'
 import { PlatformEmptyState } from '@/layout/PlatformEmptyState'
@@ -43,11 +43,7 @@ function DetailRow({ label, value }: { label: string; value: ReactNode }) {
 
 export function ApplicationDetailView({ applicationId }: Props) {
   const { t } = useTranslation()
-  const { applications, loading } = useApplicationsQuery()
-  const application = useMemo(
-    () => applications.find((a) => a.id === applicationId) ?? null,
-    [applications, applicationId],
-  )
+  const { application, loading } = useApplicationQuery(applicationId)
 
   const timelineItems = useMemo(() => {
     if (!application) return []

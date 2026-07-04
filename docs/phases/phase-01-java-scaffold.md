@@ -27,7 +27,7 @@ Prima di leggere il codice Java, tieni a mente questa tabella. La useremo in **t
 | `phpunit` | `./gradlew test` (JUnit) |
 | Sail / Docker DB | Testcontainers (Postgres in Docker per i test) |
 
-**Candidature oggi:** l'app che usi (login, kanban, offerte) gira ancora su **Python FastAPI :8000**. Java **:8081** è un secondo backend accanto, come avere due cartelle Laravel in monorepo ma solo una servita al browser.
+**Candidature oggi:** l'app che usi (login, kanban, jobs) gira ancora su **Python FastAPI :8000**. Java **:8081** è un secondo backend accanto, come avere due cartelle Laravel in monorepo ma solo una servita al browser.
 
 ---
 
@@ -418,7 +418,7 @@ significa che il processo è stato **interrotto** (`Ctrl+C` o kill), non che l'a
 
 ## Cosa NON fa ancora Java
 
-- Nessuna API per candidature / auth / offerte
+- Nessuna API per candidature / auth / jobs
 - Nessun GraphQL endpoint usato
 - Nessuna entity JPA
 - Frontend non chiama `:8081`

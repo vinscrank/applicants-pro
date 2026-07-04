@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { offerteFetchHtml } from '../offerte/api'
+import { jobsFetchHtml } from '../jobs/api'
 
 type FrameMode = 'live' | 'preview'
 
@@ -36,8 +36,8 @@ export function AnnuncioJobFrame({ url, onOpenLive }: Props) {
     setPreviewLoading(true)
     setPreviewError(null)
     try {
-      const html = await offerteFetchHtml(
-        `/api/offerte/page-embed?url=${encodeURIComponent(url)}`,
+      const html = await jobsFetchHtml(
+        `/api/jobs/page-embed?url=${encodeURIComponent(url)}`,
       )
       revokeBlob()
       const blob = new Blob([html], { type: 'text/html;charset=utf-8' })

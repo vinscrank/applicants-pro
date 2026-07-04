@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "offerte_searches")
+@Table(name = "job_searches")
 public class JobSearchRecord {
 
     @Id

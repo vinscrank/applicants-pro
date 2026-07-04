@@ -59,38 +59,38 @@ Legenda owner futuro:
 
 ---
 
-## Offerte / Search (`/api/offerte`)
+## Jobs / Search (`/api/jobs`)
 
 | Metodo | Path | Owner futuro | Note |
 |--------|------|--------------|------|
-| GET | `/api/offerte/search/default` | Java→Python | Prompt default |
-| POST | `/api/offerte/search/parse` | Java→Python | Parse prompt LLM |
-| PUT | `/api/offerte/llm/controls` | Python | Toggle operazioni LLM |
-| GET | `/api/offerte/llm/stats` | Python | Usage/budget stats |
-| PUT | `/api/offerte/llm/budget` | Python | Budget mensile |
-| GET | `/api/offerte/preferences` | Java | Preferenze search utente |
-| PUT | `/api/offerte/preferences` | Java | Salva preferenze |
-| POST | `/api/offerte/search` | Java→Python | Esegue ricerca (long timeout) |
-| GET | `/api/offerte/searches/latest` | Java | Ultima search persistita |
-| GET | `/api/offerte/searches` | Java | Storico search |
-| GET | `/api/offerte/searches/{id}` | Java | Dettaglio search + offers |
-| PUT | `/api/offerte/offers/{id}/applied` | Java | Segna applicata |
-| PUT | `/api/offerte/offers/{id}/dismissed` | Java | Escludi offerta |
-| POST | `/api/offerte/offers/{id}/track` | Java | Crea/aggiorna candidatura da offerta |
-| POST | `/api/offerte/analyze-url` | Java→Python | Analisi annuncio URL |
-| GET | `/api/offerte/page-embed` | Java→Python | HTML embed annuncio |
-| POST | `/api/offerte/analyze-url/track` | Java→Python | Track da URL analizzato |
-| GET | `/api/offerte/companies` | Java | Lista companies monitorate |
-| GET | `/api/offerte/companies/{id}` | Java | Dettaglio company |
-| POST | `/api/offerte/companies` | Java | Crea company |
-| PUT | `/api/offerte/companies/{id}` | Java | Aggiorna company |
-| DELETE | `/api/offerte/companies/{id}` | Java | Elimina company |
-| POST | `/api/offerte/companies/{id}/scan` | Java→Python | Scan careers page |
-| POST | `/api/offerte/companies/scan-all-recent` | Java→Python | Scan batch recenti |
-| POST | `/api/offerte/companies/scan-all-search` | Java→Python | Scan batch by title |
-| POST | `/api/offerte/companies/discover-url` | Java→Python | Discover da URL |
-| POST | `/api/offerte/companies/discover-name` | Java→Python | Discover da nome |
-| POST | `/api/offerte/companies/auto-discover` | Java→Python | Auto discovery LLM |
+| GET | `/api/jobs/search/default` | Java→Python | Prompt default |
+| POST | `/api/jobs/search/parse` | Java→Python | Parse prompt LLM |
+| PUT | `/api/jobs/llm/controls` | Python | Toggle operazioni LLM |
+| GET | `/api/jobs/llm/stats` | Python | Usage/budget stats |
+| PUT | `/api/jobs/llm/budget` | Python | Budget mensile |
+| GET | `/api/jobs/preferences` | Java | Preferenze search utente |
+| PUT | `/api/jobs/preferences` | Java | Salva preferenze |
+| POST | `/api/jobs/search` | Java→Python | Esegue ricerca (long timeout) |
+| GET | `/api/jobs/searches/latest` | Java | Ultima search persistita |
+| GET | `/api/jobs/searches` | Java | Storico search |
+| GET | `/api/jobs/searches/{id}` | Java | Dettaglio search + job postings |
+| PUT | `/api/jobs/offers/{id}/applied` | Java | Segna applicata |
+| PUT | `/api/jobs/offers/{id}/dismissed` | Java | Escludi job |
+| POST | `/api/jobs/offers/{id}/track` | Java | Crea/aggiorna candidatura da job |
+| POST | `/api/jobs/analyze-url` | Java→Python | Analisi annuncio URL |
+| GET | `/api/jobs/page-embed` | Java→Python | HTML embed annuncio |
+| POST | `/api/jobs/analyze-url/track` | Java→Python | Track da URL analizzato |
+| GET | `/api/jobs/companies` | Java | Lista companies monitorate |
+| GET | `/api/jobs/companies/{id}` | Java | Dettaglio company |
+| POST | `/api/jobs/companies` | Java | Crea company |
+| PUT | `/api/jobs/companies/{id}` | Java | Aggiorna company |
+| DELETE | `/api/jobs/companies/{id}` | Java | Elimina company |
+| POST | `/api/jobs/companies/{id}/scan` | Java→Python | Scan careers page |
+| POST | `/api/jobs/companies/scan-all-recent` | Java→Python | Scan batch recenti |
+| POST | `/api/jobs/companies/scan-all-search` | Java→Python | Scan batch by title |
+| POST | `/api/jobs/companies/discover-url` | Java→Python | Discover da URL |
+| POST | `/api/jobs/companies/discover-name` | Java→Python | Discover da nome |
+| POST | `/api/jobs/companies/auto-discover` | Java→Python | Auto discovery LLM |
 
 ---
 
@@ -141,11 +141,11 @@ Legenda owner futuro:
 |-----------|-------------|--------|
 | Auth | `authFetch` | `/api/auth` |
 | Applications | `authFetch` | `/api/applications`, `/api/stats`, `/api/tasks` |
-| Offerte | `offerteFetch` | `/api/offerte` |
+| Jobs | `jobsFetch` | `/api/jobs` |
 | Vector | `authFetch` | `/api/vector` |
 | Billing | `authFetch` | `/api/billing` |
 | Data backup | `fetch` | `/api/data` |
-| Extension | `fetch` | `/api/applications`, `/api/apply`, `/api/offerte` |
+| Extension | `fetch` | `/api/applications`, `/api/apply`, `/api/jobs` |
 
 Timeout lunghi definiti in `frontend/src/auth/http.ts` per search, analyze-url, vector, company scan.
 

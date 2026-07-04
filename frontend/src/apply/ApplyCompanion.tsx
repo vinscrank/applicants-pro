@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../auth/AuthContext'
 import { profileToAutofillPayload } from '../auth/types'
 import {
@@ -18,6 +19,7 @@ interface CopyField {
 }
 
 export function ApplyCompanion() {
+  const { t } = useTranslation()
   const { profile, loading } = useAuth()
   const [status, setStatus] = useState<{ kind: 'ok' | 'err' | 'info'; text: string } | null>(null)
   const [autofillLoading, setAutofillLoading] = useState(false)
@@ -43,8 +45,8 @@ export function ApplyCompanion() {
     setStatus({
       kind: 'info',
       text: extensionReady
-        ? 'Form aperto. Vai su quella tab, attendi il caricamento, poi usa Compila con AI.'
-        : 'Form aperto. Copia i campi da questa finestra e incollali nel form.',
+        ? t('applyCompanion.formOpenedExtension')
+        : t('applyCompanion.formOpenedManual'),
     })
   }
 
@@ -75,16 +77,16 @@ export function ApplyCompanion() {
   const copy = async (value: string, label: string) => {
     try {
       await navigator.clipboard.writeText(value)
-      setStatus({ kind: 'ok', text: `${label} copiato` })
+      setStatus({ kind: 'ok', text: t('applyCompanion.copied', { label }) })
     } catch {
-      setStatus({ kind: 'err', text: 'Copia non riuscita' })
+      setStatus({ kind: 'err', text: t('applyCompanion.copyFailed') })
     }
   }
 
   const autofill = async () => {
     if (!profile) return
     setAutofillLoading(true)
-    setStatus({ kind: 'info', text: 'AI in analisi del form ATS...' })
+    setStatus({ kind: 'info', text: t('applyCompanion.aiAnalyzing') })
     const result = await requestAutofill(profileToAutofillPayload(profile))
     setAutofillLoading(false)
     if (result.step) setStepInfo(result.step)
@@ -100,11 +102,11 @@ export function ApplyCompanion() {
     try {
       await finalizeCompanionApplication()
       setCompleted(true)
-      setStatus({ kind: 'ok', text: 'Candidatura registrata come inviata nel tracker.' })
+      setStatus({ kind: 'ok', text: t('applyCompanion.recorded') })
     } catch (e) {
       setStatus({
         kind: 'err',
-        text: e instanceof Error ? e.message : 'Registrazione non riuscita',
+        text: e instanceof Error ? e.message : t('applyCompanion.recordFailed'),
       })
     } finally {
       setFinalizeLoading(false)
@@ -119,32 +121,32 @@ export function ApplyCompanion() {
     } catch (e) {
       setStatus({
         kind: 'err',
-        text: e instanceof Error ? e.message : 'Impossibile scartare l\'offerta',
+        text: e instanceof Error ? e.message : t('applyCompanion.dismissFailed'),
       })
       setDismissLoading(false)
     }
   }
 
   if (loading) {
-    return <div className="companion-shell"><p>Caricamento profilo...</p></div>
+    return <div className="companion-shell"><p>{t('applyCompanion.loadingProfile')}</p></div>
   }
 
   if (!profile) {
-    return <div className="companion-shell"><p>Accedi per usare il companion.</p></div>
+    return <div className="companion-shell"><p>{t('applyCompanion.loginRequired')}</p></div>
   }
 
   return (
     <div className="companion-shell">
       <header className="companion-header">
-        <h1>Companion candidatura</h1>
-        <p>Finestra affiancata all&apos;app. Continua a navigare Offerte Live nella finestra principale.</p>
+        <h1>{t('applyCompanion.title')}</h1>
+        <p>{t('applyCompanion.sidePanelHint')}</p>
         <p>
           {extensionReady
-            ? 'Form multi-step: 1. Apri form · 2. Compila con AI · 3. Avanti/Next · 4. Ripeti · 5. Invia · 6. Conferma qui'
-            : '1. Apri il form · 2. Copia i campi · 3. Invia · 4. Conferma qui sotto'}
+            ? t('applyCompanion.stepsExtension')
+            : t('applyCompanion.stepsManual')}
         </p>
         {!extensionReady && (
-          <p className="companion-extension-warn">Estensione non attiva: imposta l&apos;Extension ID nel profilo per usare Compila con AI.</p>
+          <p className="companion-extension-warn">{t('applyCompanion.extensionWarn')}</p>
         )}
         {offerLabel && <div className="companion-offer">{offerLabel}</div>}
       </header>
@@ -152,12 +154,12 @@ export function ApplyCompanion() {
       <div className="companion-actions">
         {applyUrl && (
           <button type="button" className="companion-open-form" onClick={openFormTab}>
-            Apri form candidatura
+            {t('applyCompanion.openForm')}
           </button>
         )}
         {extensionReady && (
           <button type="button" className="companion-autofill" onClick={autofill} disabled={autofillLoading}>
-            {autofillLoading ? 'Compilazione AI...' : 'Compila con AI (tab form)'}
+            {autofillLoading ? t('applyCompanion.autofillLoading') : t('applyCompanion.autofill')}
           </button>
         )}
         <button
@@ -166,7 +168,11 @@ export function ApplyCompanion() {
           onClick={markCompleted}
           disabled={finalizeLoading || completed || dismissLoading}
         >
-          {completed ? 'Candidatura registrata' : finalizeLoading ? 'Registrazione...' : 'Ho completato la candidatura'}
+          {completed
+            ? t('applyCompanion.completed')
+            : finalizeLoading
+              ? t('applyCompanion.completeLoading')
+              : t('applyCompanion.complete')}
         </button>
         {canDismiss && (
           <button
@@ -175,22 +181,25 @@ export function ApplyCompanion() {
             onClick={dismissOffer}
             disabled={dismissLoading || finalizeLoading || completed}
           >
-            {dismissLoading ? 'Scarto in corso...' : 'Scarta offerta'}
+            {dismissLoading ? t('applyCompanion.dismissLoading') : t('applyCompanion.dismiss')}
           </button>
         )}
       </div>
 
       {stepInfo && (
         <div className="companion-step card">
-          <strong>Step corrente</strong>
+          <strong>{t('applyCompanion.currentStep')}</strong>
           <p>
-            Obbligatori compilati: {stepInfo.requiredFilled}/{stepInfo.requiredTotal}
-            {stepInfo.hasNext ? ' · Clicca Avanti nel form e ricompila' : ''}
-            {stepInfo.hasSubmit ? ' · Pronto per invio (controlla prima di submit)' : ''}
+            {t('applyCompanion.requiredFilled', {
+              filled: stepInfo.requiredFilled,
+              total: stepInfo.requiredTotal,
+            })}
+            {stepInfo.hasNext ? t('applyCompanion.clickNext') : ''}
+            {stepInfo.hasSubmit ? t('applyCompanion.readySubmit') : ''}
           </p>
           {stepInfo.requiredMissing.length > 0 && (
             <p className="companion-step-missing">
-              Da completare: {stepInfo.requiredMissing.join(', ')}
+              {t('applyCompanion.missingFields', { fields: stepInfo.requiredMissing.join(', ') })}
             </p>
           )}
         </div>
@@ -202,7 +211,7 @@ export function ApplyCompanion() {
             <div className="companion-field-top">
               <label>{field.label}</label>
               <button type="button" className="companion-copy" onClick={() => copy(field.value, field.label)}>
-                Copia
+                {t('applyCompanion.copy')}
               </button>
             </div>
             <div className="companion-value">{field.value}</div>

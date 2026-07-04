@@ -2,13 +2,13 @@ package com.interview.discover;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.interview.domain.JobSearchOffer;
-import com.interview.domain.OfferteAppliedOffer;
-import com.interview.domain.OfferteAppliedOfferId;
-import com.interview.domain.OfferteDismissedOffer;
-import com.interview.domain.OfferteDismissedOfferId;
+import com.interview.domain.JobAppliedOffer;
+import com.interview.domain.JobAppliedOfferId;
+import com.interview.domain.JobDismissedOffer;
+import com.interview.domain.JobDismissedOfferId;
 import com.interview.repository.JobSearchOfferRepository;
-import com.interview.repository.OfferteAppliedOfferRepository;
-import com.interview.repository.OfferteDismissedOfferRepository;
+import com.interview.repository.JobAppliedOfferRepository;
+import com.interview.repository.JobDismissedOfferRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,14 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class OfferStateService {
 
-    private final OfferteAppliedOfferRepository appliedRepository;
-    private final OfferteDismissedOfferRepository dismissedRepository;
+    private final JobAppliedOfferRepository appliedRepository;
+    private final JobDismissedOfferRepository dismissedRepository;
     private final JobSearchOfferRepository jobSearchOfferRepository;
     private final ObjectMapper objectMapper;
 
     public OfferStateService(
-            OfferteAppliedOfferRepository appliedRepository,
-            OfferteDismissedOfferRepository dismissedRepository,
+            JobAppliedOfferRepository appliedRepository,
+            JobDismissedOfferRepository dismissedRepository,
             JobSearchOfferRepository jobSearchOfferRepository,
             ObjectMapper objectMapper) {
         this.appliedRepository = appliedRepository;
@@ -36,9 +36,9 @@ public class OfferStateService {
 
     @Transactional
     public ObjectNode setApplied(Integer userId, String offerId, boolean applied) {
-        OfferteAppliedOfferId id = new OfferteAppliedOfferId(userId, offerId);
+        JobAppliedOfferId id = new JobAppliedOfferId(userId, offerId);
         if (applied) {
-            OfferteAppliedOffer row = appliedRepository.findById(id).orElseGet(OfferteAppliedOffer::new);
+            JobAppliedOffer row = appliedRepository.findById(id).orElseGet(JobAppliedOffer::new);
             row.setUserId(userId);
             row.setOfferId(offerId);
             row.setAppliedAt(LocalDateTime.now());
@@ -81,8 +81,8 @@ public class OfferStateService {
 
         if (dismissed) {
             deleteDismissedByMatchKeys(userId, urlNorm, companyNorm, roleNorm, offerId);
-            OfferteDismissedOfferId id = new OfferteDismissedOfferId(userId, offerId);
-            OfferteDismissedOffer row = dismissedRepository.findById(id).orElseGet(OfferteDismissedOffer::new);
+            JobDismissedOfferId id = new JobDismissedOfferId(userId, offerId);
+            JobDismissedOffer row = dismissedRepository.findById(id).orElseGet(JobDismissedOffer::new);
             row.setUserId(userId);
             row.setOfferId(offerId);
             row.setDismissedAt(LocalDateTime.now());
@@ -106,8 +106,8 @@ public class OfferStateService {
             String companyNorm,
             String roleNorm,
             String keepOfferId) {
-        List<OfferteDismissedOffer> rows = dismissedRepository.findByUserId(userId);
-        for (OfferteDismissedOffer row : rows) {
+        List<JobDismissedOffer> rows = dismissedRepository.findByUserId(userId);
+        for (JobDismissedOffer row : rows) {
             if (keepOfferId.equals(row.getOfferId())) {
                 continue;
             }

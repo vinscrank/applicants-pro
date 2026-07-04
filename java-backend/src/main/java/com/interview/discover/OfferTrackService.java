@@ -32,7 +32,7 @@ public class OfferTrackService {
             Map.entry("upwork", "job_board"));
 
     private static final Set<String> VALID_SOURCES = Set.of(
-            "manual", "quick_add", "offerte_live", "careers", "extension");
+            "manual", "quick_add", "live_jobs", "careers", "extension");
 
     private static final Set<String> VALID_REMOTE = Set.of("remote", "hybrid", "onsite", "unknown");
 
@@ -83,7 +83,7 @@ public class OfferTrackService {
                             applyUrl.isBlank() ? null : applyUrl,
                             location,
                             method,
-                            "offerte_live",
+                            "live_jobs",
                             offerId,
                             notes));
             application = applicationService.getForUser(userId, application.getId());
@@ -98,7 +98,7 @@ public class OfferTrackService {
                             location,
                             "unknown",
                             method,
-                            "offerte_live",
+                            "live_jobs",
                             offerId,
                             notes));
             created = true;
@@ -238,7 +238,7 @@ public class OfferTrackService {
     }
 
     private static String offerNotes(String source, String offerId) {
-        return "Offerte Live · " + (source.isBlank() ? "ATS" : source) + " · offer:" + offerId;
+        return "Live Jobs · " + (source.isBlank() ? "ATS" : source) + " · offer:" + offerId;
     }
 
     private static String applicationMethodFromSource(String source) {

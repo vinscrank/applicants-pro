@@ -2,10 +2,10 @@ import { publicExtensionId } from '@/lib/env'
 import { apiUrl, getAccessToken } from '../auth/http'
 import type { UserProfile } from '../auth/types'
 import { profileToAutofillPayload } from '../auth/types'
-import { offerteFetch } from '../offerte/api'
-import { markOfferteListRestore, markOfferteDismissRestore } from '../offerte/offerteListSession'
-import { publishOfferApplied } from '../offerte/offerteSyncChannel'
-import { getApplications, updateApplication } from '@/lib/applications-apollo'
+import { jobsFetch } from '../jobs/api'
+import { markJobsListRestore, markJobsDismissRestore } from '../jobs/jobsListSession'
+import { publishOfferApplied } from '../jobs/jobsSyncChannel'
+import { fetchApplications, updateApplication } from '@/lib/applications-client'
 
 const EXTENSION_ID_KEY = 'candidature_extension_id'
 const COMPANION_OFFER_KEY = 'companion_offer'
@@ -227,7 +227,7 @@ export async function finalizeCompanionApplication(): Promise<void> {
   }
 
   if (ctx.offerId && ctx.company && ctx.role && ctx.applyUrl) {
-    const trackRes = await offerteFetch<{ application_id: number }>(`/api/offerte/offers/${ctx.offerId}/track`, {
+    const trackRes = await jobsFetch<{ application_id: number }>(`/api/jobs/offers/${ctx.offerId}/track`, {
       method: 'POST',
       body: JSON.stringify({
         company: ctx.company,
@@ -247,13 +247,13 @@ export async function finalizeCompanionApplication(): Promise<void> {
       appliedAt: new Date().toISOString(),
     })
     localStorage.setItem(COMPANION_COMPLETED_KEY, '1')
-    if (ctx.offerId) markOfferteListRestore(ctx.offerId)
+    if (ctx.offerId) markJobsListRestore(ctx.offerId)
     returnToParentAfterCompanion()
     return
   }
 
   if (ctx.applyUrl) {
-    const apps = await getApplications({ exclude_rejected: false })
+    const apps = await fetchApplications({ exclude_rejected: false })
     const match = apps.find((a) => (a.job_url || '').trim() === ctx.applyUrl!.trim())
     if (match) {
       await updateApplication(match.id, {
@@ -274,7 +274,7 @@ export async function dismissCompanionOffer(): Promise<void> {
   if (!ctx?.offerId) {
     throw new Error('Offerta non collegata')
   }
-  await offerteFetch(`/api/offerte/offers/${encodeURIComponent(ctx.offerId)}/dismissed`, {
+  await jobsFetch(`/api/jobs/offers/${encodeURIComponent(ctx.offerId)}/dismissed`, {
     method: 'PUT',
     body: JSON.stringify({
       dismissed: true,
@@ -284,6 +284,6 @@ export async function dismissCompanionOffer(): Promise<void> {
     }),
   })
   localStorage.removeItem(COMPANION_COMPLETED_KEY)
-  markOfferteDismissRestore(ctx.offerId)
+  markJobsDismissRestore(ctx.offerId)
   returnToParentAfterCompanion()
 }

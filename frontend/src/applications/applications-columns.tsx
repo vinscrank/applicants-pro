@@ -6,7 +6,7 @@ import { formatDateTime } from '@/api'
 import { getStatusOptions } from '@/constants'
 import { priorityLabel, sourceLabel } from '@/i18n/labels'
 import { navigate } from '@/router'
-import { navigateToOfferteLive } from '@/pipeline/pipelineBridge'
+import { navigateToJobs } from '@/pipeline/pipelineBridge'
 import { ApplicationStatusBadge } from './ApplicationStatusBadge'
 import { mapDbStatusToUi } from './status'
 import { Badge } from '@/components/ui/badge'
@@ -124,8 +124,8 @@ export function getApplicationsColumns(t: TFunction): ColumnDef<Application>[] {
       cell: ({ row, table }) => {
         const meta = table.options.meta as ApplicationsTableMeta
         const app = row.original
-        const fromLive = app.application_source === 'offerte_live'
-        const offerId = app.offerte_offer_id
+        const fromLive = app.application_source === 'live_jobs'
+        const offerId = app.linked_offer_id
 
         return (
           <DropdownMenu>
@@ -150,7 +150,7 @@ export function getApplicationsColumns(t: TFunction): ColumnDef<Application>[] {
               {fromLive && offerId && (
                 <DropdownMenuItem
                   onClick={() =>
-                    navigateToOfferteLive({
+                    navigateToJobs({
                       highlightOfferId: offerId,
                       statusFilter: 'applied',
                       trackerApplicationId: app.id,

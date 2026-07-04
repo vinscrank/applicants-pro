@@ -23,7 +23,7 @@ export const applicationSchema = z.object({
     .enum(['company_website', 'linkedin', 'indeed', 'other', 'email', 'recruiter', 'referral', 'job_board'])
     .nullable(),
   application_method_other: z.string().nullable(),
-  application_source: z.enum(['manual', 'quick_add', 'offerte_live', 'careers']),
+  application_source: z.enum(['manual', 'quick_add', 'live_jobs', 'careers']),
   notes: z.string().nullable(),
   location: z.string().nullable(),
   remote_type: z.enum(['remote', 'hybrid', 'onsite', 'unknown']).nullable(),

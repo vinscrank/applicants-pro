@@ -1,9 +1,9 @@
 import type { RemoteType } from '@/types'
 import type { JobUrlAnalysis, LiveOfferMatch } from '@/annuncio/types'
 import type { ApplicationTrackerMatch } from './trackerMatch'
-import { offerteFetch } from '@/offerte/api'
-import { markOfferteDismissRestore } from '@/offerte/offerteListSession'
-import { publishOfferApplied, publishOfferDismissed } from '@/offerte/offerteSyncChannel'
+import { jobsFetch } from '@/jobs/api'
+import { markJobsDismissRestore } from '@/jobs/jobsListSession'
+import { publishOfferApplied, publishOfferDismissed } from '@/jobs/jobsSyncChannel'
 
 export function mapAnalysisRemoteType(value: string): RemoteType {
   if (value === 'remote' || value === 'hybrid' || value === 'onsite') return value
@@ -47,7 +47,7 @@ export interface TrackAnalyzedUrlResponse {
 }
 
 export async function analyzeJobUrl(url: string): Promise<JobUrlAnalysis> {
-  return offerteFetch<JobUrlAnalysis>('/api/offerte/analyze-url', {
+  return jobsFetch<JobUrlAnalysis>('/api/jobs/analyze-url', {
     method: 'POST',
     body: JSON.stringify({ url: url.trim() }),
   })
@@ -57,7 +57,7 @@ export async function trackAnalyzedJobUrl(
   analysis: JobUrlAnalysis,
   options: { allowDuplicate?: boolean; notes?: string } = {},
 ): Promise<TrackAnalyzedUrlResponse> {
-  return offerteFetch<TrackAnalyzedUrlResponse>('/api/offerte/analyze-url/track', {
+  return jobsFetch<TrackAnalyzedUrlResponse>('/api/jobs/analyze-url/track', {
     method: 'POST',
     body: JSON.stringify({
       url: analysis.url,
@@ -95,7 +95,7 @@ export async function dismissAnalyzedJobUrl(
   sourceOfferId: string | null = null,
 ): Promise<void> {
   const offerId = dismissOfferIdForAnalysis(analysis)
-  await offerteFetch(`/api/offerte/offers/${encodeURIComponent(offerId)}/dismissed`, {
+  await jobsFetch(`/api/jobs/offers/${encodeURIComponent(offerId)}/dismissed`, {
     method: 'PUT',
     body: JSON.stringify({
       dismissed: true,
@@ -104,7 +104,7 @@ export async function dismissAnalyzedJobUrl(
       role: analysis.role.trim(),
     }),
   })
-  markOfferteDismissRestore(offerId)
+  markJobsDismissRestore(offerId)
   const liveIds = (analysis.live_offer_matches ?? []).map((match) => match.offer_id)
   const offerIds = [...new Set([sourceOfferId, offerId, ...liveIds].filter(Boolean) as string[])]
   publishOfferDismissed({

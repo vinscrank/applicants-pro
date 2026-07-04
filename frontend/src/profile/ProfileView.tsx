@@ -136,9 +136,7 @@ export function ProfileView({ embedded = false }: { embedded?: boolean } = {}) {
 
   const importDatabase = async (file: File | null) => {
     if (!file) return
-    const confirmed = window.confirm(
-      'Importare questo backup sostituisce tutti i dati nel database locale (candidature, profilo, offerte, impostazioni). Continuare?',
-    )
+    const confirmed = window.confirm(t('profile.dbImportConfirm'))
     if (!confirmed) return
     setImportingDb(true)
     setError(null)
@@ -316,7 +314,7 @@ export function ProfileView({ embedded = false }: { embedded?: boolean } = {}) {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Esporta o importa tutti i dati locali: candidature, profilo, ricerche offerte, scarti e impostazioni. Utile per spostare il progetto su un altro computer.
+              {t('profile.dbBackupDescription')}
             </p>
             <div className="flex flex-wrap gap-2">
               <Button type="button" onClick={exportDatabase} disabled={exportingDb || importingDb}>

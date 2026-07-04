@@ -6,14 +6,14 @@ import { PlatformEmptyState } from '@/layout/PlatformEmptyState'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { offerteFetch } from '@/offerte/api'
-import type { JobOffer, RecentCareersOfferRow, ScanAllRecentResult } from '@/offerte/types'
+import { jobsFetch } from '@/jobs/api'
+import type { JobOffer, RecentCareersOfferRow, ScanAllRecentResult } from '@/jobs/types'
 import { billingApi, type BillingStatus } from '@/billing/api'
 import { DuplicateApplicationModal } from '@/components/DuplicateApplicationModal'
 import type { ApplicationTrackerMatch } from '@/applications/trackerMatch'
 import { navigateToTracker } from '@/pipeline/pipelineBridge'
 import { registerApplyTarget } from '@/apply/extensionBridge'
-import { OfferApplyModal } from '@/offerte/components/OfferApplyModal'
+import { OfferApplyModal } from '@/jobs/components/OfferApplyModal'
 import {
   careersOfferRowKey,
   careersOfferToJobOffer,
@@ -75,7 +75,7 @@ export function RecentCareersView({ embedded = false }: { embedded?: boolean } =
   const [applyModalOffer, setApplyModalOffer] = useState<JobOffer | null>(null)
   const [applyModalLoading, setApplyModalLoading] = useState(false)
 
-  const canUseOfferte = billing?.features.offerte_live === true
+  const canUseLiveJobs = billing?.features.live_jobs === true
 
   useEffect(() => {
     billingApi.status().then(setBilling).catch(() => setBilling(null))
@@ -103,7 +103,7 @@ export function RecentCareersView({ embedded = false }: { embedded?: boolean } =
     setRecentScanning(true)
     setError(null)
     try {
-      const data = await offerteFetch<ScanAllRecentResult>('/api/offerte/companies/scan-all-recent', {
+      const data = await jobsFetch<ScanAllRecentResult>('/api/jobs/companies/scan-all-recent', {
         method: 'POST',
         body: JSON.stringify({ posted_within: '24h' }),
       })
@@ -125,7 +125,7 @@ export function RecentCareersView({ embedded = false }: { embedded?: boolean } =
     setSearchScanning(true)
     setError(null)
     try {
-      const data = await offerteFetch<ScanAllRecentResult>('/api/offerte/companies/scan-all-search', {
+      const data = await jobsFetch<ScanAllRecentResult>('/api/jobs/companies/scan-all-search', {
         method: 'POST',
         body: JSON.stringify({ title_query: keyword }),
       })
@@ -216,7 +216,7 @@ export function RecentCareersView({ embedded = false }: { embedded?: boolean } =
       setDismissedKeys((prev) => new Set(prev).add(key))
       closeApplyModal()
     } catch (e) {
-      setError(e instanceof Error ? e.message : t('offerte.errors.dismissFailed'))
+      setError(e instanceof Error ? e.message : t('jobs.errors.dismissFailed'))
     } finally {
       setApplyModalLoading(false)
     }
@@ -239,8 +239,8 @@ export function RecentCareersView({ embedded = false }: { embedded?: boolean } =
     formatPostedAt,
   }
 
-  if (!canUseOfferte) {
-    const gate = <p className="text-sm text-muted-foreground">{t('careersRecent.offerteRequired')}</p>
+  if (!canUseLiveJobs) {
+    const gate = <p className="text-sm text-muted-foreground">{t('careersRecent.jobsRequired')}</p>
     if (embedded) return gate
     return (
       <PageLayout title={t('careersRecent.title')} description={t('careersRecent.description')}>

@@ -1,4 +1,4 @@
-import type { RecentCareersOfferRow } from '@/offerte/types'
+import type { RecentCareersOfferRow } from '@/jobs/types'
 
 export function filterCareersOffersByRole(
   offers: RecentCareersOfferRow[],

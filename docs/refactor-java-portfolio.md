@@ -24,12 +24,12 @@ Ogni fase = **branch dedicato**, **testabile da sola**, merge solo quando verde.
 | 3 | `refactor/phase-03-health-parallel` | Docker multi-service, profili Spring | Tutto |
 | 4 | `refactor/phase-04-auth-java` | Spring Security, JWT, password | Auth Python ancora attivo (dual) |
 | 5 | `refactor/phase-05-applications-read` | Service layer, GraphQL Query read-only | Write REST Python |
-| 6 | `refactor/phase-06-applications-write` | Mutation GraphQL, @Transactional | Offerte/AI Python |
-| 7 | `refactor/phase-07-apollo-read` | Apollo Client, query applications | Offerte REST |
-| 8 | `refactor/phase-08-auth-apollo` | Login/register via GraphQL + FE | Offerte REST |
+| 6 | `refactor/phase-06-applications-write` | Mutation GraphQL, @Transactional | Jobs/AI Python |
+| 7 | `refactor/phase-07-apollo-read` | Apollo Client, query applications | Jobs REST |
+| 8 | `refactor/phase-08-auth-apollo` | Login/register via GraphQL + FE | Jobs REST |
 | 9 | `refactor/phase-09-python-ai-service` | Estrazione `python-ai/`, contratto HTTP | Scraper/LLM/vector |
 | 10 | `refactor/phase-10-java-orchestrates-search` | RestClient Java → Python, GraphQL search | LLM inside Python |
-| 11 | `refactor/phase-11-apollo-offerte` | FE offerte via GraphQL | Python interno |
+| 11 | `refactor/phase-11-apollo-jobs` | FE jobs via GraphQL | Python interno |
 | 12 | `refactor/phase-12-billing-stats` | Stripe webhooks, stats GraphQL | AI Python |
 | 13 | `refactor/phase-13-extension-gateway` | Extension → Java gateway | AI Python |
 | 14 | `refactor/phase-14-redis-cache` | Redis read cache | AI Python |
@@ -59,14 +59,14 @@ Ogni fase = **branch dedicato**, **testabile da sola**, merge solo quando verde.
 | `users` | `User` | Java |
 | `user_profiles` | `UserProfile` | Java |
 | `applications` | `Application` | Java |
-| `offerte_searches` | `OfferteSearch` | Java (persist) + Python (search logic) |
-| `offerte_offers` | `OfferteOfferRow` | Java (persist) + Python (search logic) |
-| `offerte_applied_offers` | `OfferteAppliedOffer` | Java |
-| `offerte_dismissed_offers` | `OfferteDismissedOffer` | Java |
+| `job_searches` | `JobSearch` | Java (persist) + Python (search logic) |
+| `job_offers` | `JobOfferRow` | Java (persist) + Python (search logic) |
+| `job_applied_offers` | `JobAppliedOffer` | Java |
+| `job_dismissed_offers` | `JobDismissedOffer` | Java |
 | `monitored_companies` | `MonitoredCompany` | Java (CRUD) + Python (scan/discover) |
 | `llm_usage` | `LlmUsageRow` | Python |
 | `llm_settings` | `LlmSettingsRow` | Python (admin) / Java (read budget) |
-| `user_offerte_preferences` | `UserOffertePreferences` | Java |
+| `user_job_preferences` | `UserJobPreferences` | Java |
 | `vector_documents` | `VectorDocument` | Python |
 
 ### Checklist test manuale (Definition of Done Fase 0)
@@ -74,7 +74,7 @@ Ogni fase = **branch dedicato**, **testabile da sola**, merge solo quando verde.
 - [ ] Login / register
 - [ ] Lista candidature (kanban)
 - [ ] Crea / modifica / elimina candidatura
-- [ ] Ricerca offerte con prompt (parse + search)
+- [ ] Ricerca jobs con prompt (parse + search)
 - [ ] Profile fit su annuncio
 - [ ] Profilo + CV upload
 - [ ] Extension: widget visibile su pagina job (smoke)
@@ -249,7 +249,7 @@ curl -X POST http://localhost:8080/graphql \
 
 - Kanban carica da GraphQL Java
 - Creazione candidatura ancora funziona
-- Nessuna regressione offerte
+- Nessuna regressione jobs
 
 ---
 
@@ -289,7 +289,7 @@ docker compose up -d
 curl http://localhost:8001/docs
 ```
 
-Search offerte funziona. Applications via Java.
+Search jobs funziona. Applications via Java.
 
 ---
 
@@ -300,7 +300,7 @@ Search offerte funziona. Applications via Java.
 
 ### Cosa fare
 
-- [ ] Java `OfferteService` → proxy verso Python
+- [ ] Java `JobsService` → proxy verso Python
 - [ ] GraphQL: `parseSearchPrompt`, `runJobSearch`
 - [ ] Auth + billing check in Java prima di chiamare Python
 - [ ] Feature flag `NEXT_PUBLIC_USE_JAVA_SEARCH`
@@ -311,19 +311,19 @@ Search offerte funziona. Applications via Java.
 
 ---
 
-## Fase 11 — Apollo per offerte
+## Fase 11 — Apollo per jobs
 
-**Branch:** `refactor/phase-11-apollo-offerte`  
+**Branch:** `refactor/phase-11-apollo-jobs`  
 **Impara:** Mutation async, cache update, pagination GraphQL
 
 ### Cosa fare
 
-- [ ] Migrare `OfferteView` a Apollo
+- [ ] Migrare `JobsView` a Apollo
 - [ ] Python non esposto pubblicamente (solo rete Docker interna)
 
 ### Definition of Done
 
-- Ricerca offerte via GraphQL Java
+- Ricerca jobs via GraphQL Java
 
 ---
 

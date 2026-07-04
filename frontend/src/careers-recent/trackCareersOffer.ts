@@ -1,6 +1,6 @@
-import type { JobOffer, RecentCareersOfferRow } from '@/offerte/types'
+import type { JobOffer, RecentCareersOfferRow } from '@/jobs/types'
 import type { RemoteType } from '@/types'
-import { offerteFetch } from '@/offerte/api'
+import { jobsFetch } from '@/jobs/api'
 import type { TrackAnalyzedUrlResponse } from '@/applications/jobUrlAnalysis'
 
 function careersDismissOfferId(applyUrl: string): string {
@@ -47,7 +47,7 @@ function remoteTypeFromLocation(location: string | null | undefined): RemoteType
 export async function dismissCareersOffer(offer: RecentCareersOfferRow): Promise<void> {
   const applyUrl = (offer.apply_url || '').trim()
   if (!applyUrl) return
-  await offerteFetch(`/api/offerte/offers/${encodeURIComponent(careersDismissOfferId(applyUrl))}/dismissed`, {
+  await jobsFetch(`/api/jobs/offers/${encodeURIComponent(careersDismissOfferId(applyUrl))}/dismissed`, {
     method: 'PUT',
     body: JSON.stringify({
       dismissed: true,
@@ -68,7 +68,7 @@ export async function trackCareersOffer(
 ): Promise<TrackAnalyzedUrlResponse> {
   const url = (offer.apply_url || '').trim()
   if (!url) throw new Error('missing_apply_url')
-  return offerteFetch<TrackAnalyzedUrlResponse>('/api/offerte/analyze-url/track', {
+  return jobsFetch<TrackAnalyzedUrlResponse>('/api/jobs/analyze-url/track', {
     method: 'POST',
     body: JSON.stringify({
       url,

@@ -6,9 +6,10 @@ import { useAuth } from '@/auth/AuthContext'
 import { RoutePageLoading } from '@/components/shell/RoutePageLoading'
 import { AppShell } from '@/layout/AppShell'
 import { appReplace } from '@/lib/navigation'
-import { OfferteSearchBanner } from '@/offerte/components/OfferteSearchBanner'
+import { JobsSearchBanner } from '@/jobs/components/JobsSearchBanner'
 import { V2MigrationBanner } from '@/layout/V2MigrationBanner'
 import { billingApi, type BillingStatus } from '@/billing/api'
+import { APPLICATIONS_CACHE_FETCH_POLICY } from '@/graphql/applications'
 import { GET_APPLICATIONS } from '@/graphql/queries'
 import {
   defaultAuthedRoute,
@@ -31,7 +32,7 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
   const [billing, setBilling] = useState<BillingStatus | null>(null)
   const { data: applicationsData } = useQuery(GET_APPLICATIONS, {
     skip: !user,
-    fetchPolicy: 'cache-first',
+    fetchPolicy: APPLICATIONS_CACHE_FETCH_POLICY,
   })
   const trackerTotal = applicationsData?.applications?.length ?? 0
 
@@ -90,7 +91,7 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
     >
       <V2MigrationBanner />
       {children}
-      <OfferteSearchBanner />
+      <JobsSearchBanner />
     </AppShell>
   )
 }

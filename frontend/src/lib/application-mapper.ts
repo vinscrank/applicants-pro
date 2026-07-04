@@ -62,7 +62,6 @@ export function gqlToApplication(row: GqlApplication): Application {
     last_applied_at: formatDateTime(row.lastAppliedAt),
     application_source: row.applicationSource as ApplicationSourceType,
     linked_offer_id: row.linkedOfferId,
-    offerte_offer_id: row.linkedOfferId,
     notes: row.notes,
     updated_at: formatDateTime(row.updatedAt) ?? row.updatedAt,
   };

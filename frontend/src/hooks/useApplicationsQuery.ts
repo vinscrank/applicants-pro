@@ -1,22 +1,23 @@
-"use client";
+'use client'
 
-import { useQuery } from "@apollo/client/react";
-import { useEffect, useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { GET_APPLICATIONS, GET_APPLICATION_STATS } from "@/graphql/queries";
+import { useQuery } from '@apollo/client/react'
+import { useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { APPLICATIONS_LIST_FETCH_POLICY } from '@/graphql/applications'
+import { GET_APPLICATIONS, GET_APPLICATION_STATS } from '@/graphql/queries'
 import {
   filterApplicationsList,
   gqlStatsToStats,
   gqlToApplication,
-} from "@/lib/application-mapper";
-import type { Application, Stats } from "@/types";
-import { useQuickAddOptional } from "@/contexts/QuickAddContext";
+} from '@/lib/application-mapper'
+import type { Application, Stats } from '@/types'
+import { useQuickAddOptional } from '@/contexts/QuickAddContext'
 
 export interface UseApplicationsQueryOptions {
-  excludeRejected?: boolean;
-  includeDrafts?: boolean;
-  includeStats?: boolean;
-  enabled?: boolean;
+  excludeRejected?: boolean
+  includeDrafts?: boolean
+  includeStats?: boolean
+  enabled?: boolean
 }
 
 export function useApplicationsQuery(
@@ -27,9 +28,9 @@ export function useApplicationsQuery(
     includeDrafts = false,
     includeStats = false,
     enabled = true,
-  } = options;
-  const { t } = useTranslation();
-  const quickAdd = useQuickAddOptional();
+  } = options
+  const { t } = useTranslation()
+  const quickAdd = useQuickAddOptional()
 
   const {
     data: appsData,
@@ -38,8 +39,8 @@ export function useApplicationsQuery(
     refetch: refetchApps,
   } = useQuery(GET_APPLICATIONS, {
     skip: !enabled,
-    fetchPolicy: "cache-and-network",
-  });
+    fetchPolicy: APPLICATIONS_LIST_FETCH_POLICY,
+  })
 
   const {
     data: statsData,
@@ -47,8 +48,8 @@ export function useApplicationsQuery(
     refetch: refetchStats,
   } = useQuery(GET_APPLICATION_STATS, {
     skip: !enabled || !includeStats,
-    fetchPolicy: "cache-and-network",
-  });
+    fetchPolicy: APPLICATIONS_LIST_FETCH_POLICY,
+  })
 
   useEffect(() => {
     if (!enabled || !quickAdd?.refreshKey) return
@@ -57,21 +58,21 @@ export function useApplicationsQuery(
   }, [enabled, includeStats, quickAdd?.refreshKey, refetchApps, refetchStats])
 
   const applications = useMemo((): Application[] => {
-    const rows = (appsData?.applications ?? []).map(gqlToApplication);
+    const rows = (appsData?.applications ?? []).map(gqlToApplication)
     return filterApplicationsList(rows, {
-      exclude_rejected: !excludeRejected,
+      exclude_rejected: excludeRejected,
       include_drafts: includeDrafts,
-    });
-  }, [appsData, excludeRejected, includeDrafts]);
+    })
+  }, [appsData, excludeRejected, includeDrafts])
 
   const stats = useMemo((): Stats | null => {
-    if (!includeStats || !statsData?.applicationStats) return null;
-    return gqlStatsToStats(statsData.applicationStats);
-  }, [includeStats, statsData]);
+    if (!includeStats || !statsData?.applicationStats) return null
+    return gqlStatsToStats(statsData.applicationStats)
+  }, [includeStats, statsData])
 
   const error = appsError
-    ? appsError.message || t("errors.genericLoad")
-    : null;
+    ? appsError.message || t('errors.genericLoad')
+    : null
 
   return {
     applications,
@@ -79,8 +80,9 @@ export function useApplicationsQuery(
     loading: appsLoading || (includeStats && statsLoading),
     error,
     refetch: async () => {
-      await refetchApps();
-      if (includeStats) await refetchStats();
+      await refetchApps()
+      if (includeStats) await refetchStats()
     },
-  };
+  }
 }
+

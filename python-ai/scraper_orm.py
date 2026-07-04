@@ -6,8 +6,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base
 
 
-class OfferteSearch(Base):
-    __tablename__ = "offerte_searches"
+class JobSearch(Base):
+    __tablename__ = "job_searches"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
@@ -17,14 +17,14 @@ class OfferteSearch(Base):
     maybe_count: Mapped[int] = mapped_column(Integer, nullable=False)
     rejected_count: Mapped[int] = mapped_column(Integer, nullable=False)
     command_json: Mapped[str] = mapped_column(Text, nullable=False)
-    offers: Mapped[list["OfferteOfferRow"]] = relationship(back_populates="search", cascade="all, delete-orphan")
+    offers: Mapped[list["JobOfferRow"]] = relationship(back_populates="search", cascade="all, delete-orphan")
 
 
-class OfferteOfferRow(Base):
-    __tablename__ = "offerte_offers"
+class JobOfferRow(Base):
+    __tablename__ = "job_offers"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    search_id: Mapped[int] = mapped_column(ForeignKey("offerte_searches.id"), index=True)
+    search_id: Mapped[int] = mapped_column(ForeignKey("job_searches.id"), index=True)
     offer_id: Mapped[str] = mapped_column(String(64), nullable=False)
     company: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(String(500), nullable=False)
@@ -40,19 +40,19 @@ class OfferteOfferRow(Base):
     location: Mapped[str | None] = mapped_column(Text)
     origin: Mapped[str] = mapped_column(String(16), nullable=False, default="ats")
     verified_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    search: Mapped["OfferteSearch"] = relationship(back_populates="offers")
+    search: Mapped["JobSearch"] = relationship(back_populates="offers")
 
 
-class OfferteAppliedOffer(Base):
-    __tablename__ = "offerte_applied_offers"
+class JobAppliedOffer(Base):
+    __tablename__ = "job_applied_offers"
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     offer_id: Mapped[str] = mapped_column(String(64), primary_key=True)
     applied_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
 
-class OfferteDismissedOffer(Base):
-    __tablename__ = "offerte_dismissed_offers"
+class JobDismissedOffer(Base):
+    __tablename__ = "job_dismissed_offers"
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     offer_id: Mapped[str] = mapped_column(String(64), primary_key=True)
@@ -102,8 +102,8 @@ class LlmSettingsRow(Base):
     auto_discover_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
 
-class UserOffertePreferences(Base):
-    __tablename__ = "user_offerte_preferences"
+class UserJobPreferences(Base):
+    __tablename__ = "user_job_preferences"
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     preferences_json: Mapped[str] = mapped_column(Text, nullable=False)

@@ -5,7 +5,7 @@ export interface PlanPublic {
   name: string
   price_eur_month: number
   price_eur_year: number
-  offerte_live: boolean
+  live_jobs: boolean
   ai_calls_month: number
   auto_discover: boolean
   companion_autofill: boolean
@@ -21,7 +21,7 @@ export interface BillingStatus {
   subscription_status: string
   subscription_period_end: string | null
   features: {
-    offerte_live: boolean
+    live_jobs: boolean
     ai_calls_month: number
     ai_calls_used: number
     auto_discover: boolean
@@ -31,7 +31,7 @@ export interface BillingStatus {
 }
 
 type JavaBillingFeatures = {
-  offerteLive?: boolean
+  liveJobs?: boolean
   aiCallsMonth?: number
   aiCallsUsed?: number
   autoDiscover?: boolean
@@ -63,7 +63,7 @@ function mapBillingStatus(raw: JavaBillingStatus): BillingStatus {
     subscription_status: raw.subscriptionStatus ?? 'none',
     subscription_period_end: raw.subscriptionPeriodEnd ?? null,
     features: {
-      offerte_live: features?.offerteLive ?? planId !== 'free',
+      live_jobs: features?.liveJobs ?? planId !== 'free',
       ai_calls_month: features?.aiCallsMonth ?? (planId !== 'free' ? 200 : 0),
       ai_calls_used: features?.aiCallsUsed ?? 0,
       auto_discover: features?.autoDiscover ?? (planId === 'owner' || planId === 'business'),
@@ -86,7 +86,7 @@ export const billingApi = {
             name: 'Free',
             price_eur_month: 0,
             price_eur_year: 0,
-            offerte_live: false,
+            live_jobs: false,
             ai_calls_month: 0,
             auto_discover: false,
             companion_autofill: false,

@@ -18,7 +18,7 @@ export type AppRoute =
   | {
       page: 'candidature'
       highlightApplicationId?: number
-      sourceFilter?: 'offerte_live'
+      sourceFilter?: 'live_jobs'
       view?: CandidatureViewMode
       quickFilter?: QuickFilter
     }
@@ -43,7 +43,7 @@ const LEGACY_PAGES = new Set([
   'contacts',
   'analytics',
   'activity',
-  'offerte',
+  'jobs',
   'annuncio',
   'companies',
   'careers-recent',
@@ -74,7 +74,7 @@ export function resolveLegacyRoute(page: string, query: URLSearchParams): AppRou
       return { page: 'discover', tab: 'companies' }
     case 'careers-recent':
       return { page: 'discover', tab: 'careers' }
-    case 'offerte': {
+    case 'jobs': {
       const route: Extract<AppRoute, { page: 'discover' }> = { page: 'discover', tab: 'search' }
       const offerId = query.get('offer')
       if (offerId) route.highlightOfferId = offerId
@@ -202,7 +202,7 @@ function parseRouteCore(page: string, query: URLSearchParams, pathname?: string)
     const route: Extract<AppRoute, { page: 'candidature' }> = { page: 'candidature' }
     const appId = query.get('app')
     if (appId && /^\d+$/.test(appId)) route.highlightApplicationId = Number(appId)
-    if (query.get('source') === 'offerte_live') route.sourceFilter = 'offerte_live'
+    if (query.get('source') === 'live_jobs') route.sourceFilter = 'live_jobs'
     const view = parseCandidatureView(query.get('view'))
     if (view && view !== 'table') route.view = view
     const filter = query.get('filter')
@@ -272,7 +272,7 @@ export function parseRouteFromUrl(pathname: string, searchParams: URLSearchParam
     const route: Extract<AppRoute, { page: 'candidature' }> = { page: 'candidature' }
     const appId = searchParams.get('app')
     if (appId && /^\d+$/.test(appId)) route.highlightApplicationId = Number(appId)
-    if (searchParams.get('source') === 'offerte_live') route.sourceFilter = 'offerte_live'
+    if (searchParams.get('source') === 'live_jobs') route.sourceFilter = 'live_jobs'
     const viewParam = searchParams.get('view')
     if (viewParam === 'pipeline' || viewParam === 'kanban') route.view = 'pipeline'
     else if (viewParam === 'calendar') route.view = 'calendar'
@@ -367,7 +367,7 @@ export function routeToPath(route: AppRoute): string {
     case 'candidature': {
       const params = new URLSearchParams()
       if (route.highlightApplicationId != null) params.set('app', String(route.highlightApplicationId))
-      if (route.sourceFilter === 'offerte_live') params.set('source', 'offerte_live')
+      if (route.sourceFilter === 'live_jobs') params.set('source', 'live_jobs')
       if (route.view === 'pipeline') params.set('view', 'pipeline')
       if (route.view === 'calendar') params.set('view', 'calendar')
       if (route.view === 'table') params.set('view', 'list')
@@ -433,7 +433,7 @@ export function routeToHash(route: AppRoute): string {
     case 'candidature': {
       const params = new URLSearchParams()
       if (route.highlightApplicationId != null) params.set('app', String(route.highlightApplicationId))
-      if (route.sourceFilter === 'offerte_live') params.set('source', 'offerte_live')
+      if (route.sourceFilter === 'live_jobs') params.set('source', 'live_jobs')
       if (route.view === 'pipeline') params.set('view', 'pipeline')
       if (route.view === 'calendar') params.set('view', 'calendar')
       if (route.quickFilter && route.quickFilter !== 'all') params.set('filter', route.quickFilter)

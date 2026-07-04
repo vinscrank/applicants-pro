@@ -6,7 +6,7 @@ import {
   DELETE_APPLICATION,
   UPDATE_APPLICATION,
 } from "@/graphql/mutations";
-import { GET_APPLICATIONS, GET_APPLICATION_STATS } from "@/graphql/queries";
+import { APPLICATIONS_REFETCH } from "@/graphql/applications";
 import {
   formToCreateInput,
   formToUpdateInput,
@@ -14,17 +14,15 @@ import {
 } from "@/lib/application-mapper";
 import type { Application, ApplicationFormData } from "@/types";
 
-const REFETCH = [{ query: GET_APPLICATIONS }, { query: GET_APPLICATION_STATS }];
-
 export function useApplicationMutations() {
   const [createMut, { loading: creating }] = useMutation(CREATE_APPLICATION, {
-    refetchQueries: REFETCH,
+    refetchQueries: [...APPLICATIONS_REFETCH],
   });
   const [updateMut, { loading: updating }] = useMutation(UPDATE_APPLICATION, {
-    refetchQueries: REFETCH,
+    refetchQueries: [...APPLICATIONS_REFETCH],
   });
   const [deleteMut, { loading: deleting }] = useMutation(DELETE_APPLICATION, {
-    refetchQueries: REFETCH,
+    refetchQueries: [...APPLICATIONS_REFETCH],
   });
 
   async function createApplication(

@@ -30,7 +30,7 @@ ApplicationMethodType = Literal[
     "job_board",
 ]
 
-ApplicationSourceType = Literal["manual", "quick_add", "offerte_live", "careers", "extension"]
+ApplicationSourceType = Literal["manual", "quick_add", "live_jobs", "careers", "extension"]
 
 TaskKindType = Literal["follow_up", "interview"]
 TaskScopeType = Literal["today", "week", "overdue"]
@@ -119,7 +119,7 @@ class ApplicationResponse(ApplicationBase):
 
     @computed_field
     @property
-    def offerte_offer_id(self) -> str | None:
+    def linked_offer_id(self) -> str | None:
         if self.linked_offer_id:
             return self.linked_offer_id
         notes = self.notes or ""

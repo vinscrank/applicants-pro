@@ -1,6 +1,6 @@
 import type { Application } from '@/types'
 
-export type SourceFilter = 'all' | 'offerte_live' | 'manual'
+export type SourceFilter = 'all' | 'live_jobs' | 'manual'
 export type QuickFilter = 'all' | 'active' | 'follow_up' | 'interview' | 'offer' | 'archived'
 
 const INTERVIEW_STATUSES = new Set(['phone_screen', 'technical_interview', 'final_interview'])
@@ -51,8 +51,8 @@ export function filterApplications(
 ): Application[] {
   let apps = applications
 
-  if (options.sourceFilter === 'offerte_live') {
-    apps = apps.filter((app) => app.application_source === 'offerte_live')
+  if (options.sourceFilter === 'live_jobs') {
+    apps = apps.filter((app) => app.application_source === 'live_jobs')
   } else if (options.sourceFilter === 'manual') {
     apps = apps.filter((app) => app.application_source === 'manual')
   }

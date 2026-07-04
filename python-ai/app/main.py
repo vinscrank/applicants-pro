@@ -6,7 +6,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from app.routers import health, internal_search, internal_llm, internal_offerte
+from app.routers import health, internal_search, internal_llm, internal_jobs
 from database import SessionLocal
 from scraper import repository as repo
 from scraper.llm.usage_pg import init_llm_settings
@@ -36,7 +36,7 @@ app = FastAPI(
 app.include_router(health.router)
 app.include_router(internal_search.router)
 app.include_router(internal_llm.router)
-app.include_router(internal_offerte.router)
+app.include_router(internal_jobs.router)
 
 
 @app.get("/")

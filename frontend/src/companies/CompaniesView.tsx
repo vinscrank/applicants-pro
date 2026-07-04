@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageLayout } from '@/layout/PageLayout'
 import { CareersCompaniesPanel } from '@/companies/CareersCompaniesPanel'
-import { offerteFetch } from '@/offerte/api'
-import type { Company } from '@/offerte/types'
-import type { LlmStats } from '@/offerte/types/llm'
+import { jobsFetch } from '@/jobs/api'
+import type { Company } from '@/jobs/types'
+import type { LlmStats } from '@/jobs/types/llm'
 import { billingApi, type BillingStatus } from '@/billing/api'
 
 export function CompaniesView({ embedded = false }: { embedded?: boolean } = {}) {
@@ -16,7 +16,7 @@ export function CompaniesView({ embedded = false }: { embedded?: boolean } = {})
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  const canUseOfferte = billing?.features.offerte_live === true
+  const canUseLiveJobs = billing?.features.live_jobs === true
 
   const loadBilling = useCallback(async () => {
     try {
@@ -27,38 +27,38 @@ export function CompaniesView({ embedded = false }: { embedded?: boolean } = {})
   }, [])
 
   const loadLlmStats = useCallback(async () => {
-    if (!canUseOfferte) {
+    if (!canUseLiveJobs) {
       setLlmStats(null)
       return
     }
     try {
-      setLlmStats(await offerteFetch<LlmStats>('/api/offerte/llm/stats'))
+      setLlmStats(await jobsFetch<LlmStats>('/api/jobs/llm/stats'))
     } catch {
       setLlmStats(null)
     }
-  }, [canUseOfferte])
+  }, [canUseLiveJobs])
 
   const loadCompanies = useCallback(async () => {
-    if (!canUseOfferte) {
+    if (!canUseLiveJobs) {
       setCompanies([])
       return
     }
     try {
-      setCompanies(await offerteFetch<Company[]>('/api/offerte/companies?include_inactive=true'))
+      setCompanies(await jobsFetch<Company[]>('/api/jobs/companies?include_inactive=true'))
     } catch {
       setCompanies([])
     }
-  }, [canUseOfferte])
+  }, [canUseLiveJobs])
 
   useEffect(() => {
     loadBilling()
   }, [loadBilling])
 
   useEffect(() => {
-    if (!canUseOfferte) return
+    if (!canUseLiveJobs) return
     loadLlmStats()
     loadCompanies()
-  }, [canUseOfferte, loadLlmStats, loadCompanies])
+  }, [canUseLiveJobs, loadLlmStats, loadCompanies])
 
   const inner = (
     <>
@@ -67,8 +67,8 @@ export function CompaniesView({ embedded = false }: { embedded?: boolean } = {})
           {errorMessage || statusMessage}
         </p>
       )}
-      {!canUseOfferte ? (
-        <p className="text-sm text-muted-foreground">{t('companies.offerteRequired')}</p>
+      {!canUseLiveJobs ? (
+        <p className="text-sm text-muted-foreground">{t('companies.jobsRequired')}</p>
       ) : (
         <CareersCompaniesPanel
           companies={companies}

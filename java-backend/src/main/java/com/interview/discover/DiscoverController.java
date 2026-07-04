@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.interview.auth.AuthService;
 import com.interview.domain.User;
 import com.interview.service.DiscoverSearchService;
-import com.interview.service.PythonOfferteClient;
+import com.interview.service.PythonJobsClient;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/api/offerte")
+@RequestMapping("/api/jobs")
 public class DiscoverController {
 
     private final AuthService authService;
     private final DiscoverSearchService discoverSearchService;
-    private final PythonOfferteClient pythonOfferteClient;
+    private final PythonJobsClient pythonJobsClient;
     private final OfferStateService offerStateService;
     private final OfferTrackService offerTrackService;
     private final MonitoredCompanyService monitoredCompanyService;
@@ -40,14 +40,14 @@ public class DiscoverController {
     public DiscoverController(
             AuthService authService,
             DiscoverSearchService discoverSearchService,
-            PythonOfferteClient pythonOfferteClient,
+            PythonJobsClient pythonJobsClient,
             OfferStateService offerStateService,
             OfferTrackService offerTrackService,
             MonitoredCompanyService monitoredCompanyService,
             JobPageEmbedService jobPageEmbedService) {
         this.authService = authService;
         this.discoverSearchService = discoverSearchService;
-        this.pythonOfferteClient = pythonOfferteClient;
+        this.pythonJobsClient = pythonJobsClient;
         this.offerStateService = offerStateService;
         this.offerTrackService = offerTrackService;
         this.monitoredCompanyService = monitoredCompanyService;
@@ -146,7 +146,7 @@ public class DiscoverController {
 
     @PostMapping("/analyze-url")
     public JsonNode analyzeUrl(@RequestBody JsonNode body) {
-        return pythonOfferteClient.post(currentUser().getId(), "/analyze-url", body);
+        return pythonJobsClient.post(currentUser().getId(), "/analyze-url", body);
     }
 
     @GetMapping(value = "/page-embed", produces = MediaType.TEXT_HTML_VALUE)
@@ -192,33 +192,33 @@ public class DiscoverController {
 
     @PostMapping("/companies/{companyId}/scan")
     public JsonNode scanCompany(@PathVariable Integer companyId, @RequestBody(required = false) JsonNode body) {
-        return pythonOfferteClient.post(
+        return pythonJobsClient.post(
                 currentUser().getId(), "/companies/" + companyId + "/scan", body);
     }
 
     @PostMapping("/companies/scan-all-recent")
     public JsonNode scanAllRecent(@RequestBody(required = false) JsonNode body) {
-        return pythonOfferteClient.post(currentUser().getId(), "/companies/scan-all-recent", body);
+        return pythonJobsClient.post(currentUser().getId(), "/companies/scan-all-recent", body);
     }
 
     @PostMapping("/companies/scan-all-search")
     public JsonNode scanAllSearch(@RequestBody JsonNode body) {
-        return pythonOfferteClient.post(currentUser().getId(), "/companies/scan-all-search", body);
+        return pythonJobsClient.post(currentUser().getId(), "/companies/scan-all-search", body);
     }
 
     @PostMapping("/companies/discover-url")
     public JsonNode discoverCompanyUrl(@RequestBody JsonNode body) {
-        return pythonOfferteClient.post(currentUser().getId(), "/companies/discover-url", body);
+        return pythonJobsClient.post(currentUser().getId(), "/companies/discover-url", body);
     }
 
     @PostMapping("/companies/discover-name")
     public JsonNode discoverCompanyName(@RequestBody JsonNode body) {
-        return pythonOfferteClient.post(currentUser().getId(), "/companies/discover-name", body);
+        return pythonJobsClient.post(currentUser().getId(), "/companies/discover-name", body);
     }
 
     @PostMapping("/companies/auto-discover")
     public JsonNode autoDiscoverCompanies(@RequestBody(required = false) JsonNode body) {
-        return pythonOfferteClient.post(currentUser().getId(), "/companies/auto-discover", body);
+        return pythonJobsClient.post(currentUser().getId(), "/companies/auto-discover", body);
     }
 
     private User currentUser() {

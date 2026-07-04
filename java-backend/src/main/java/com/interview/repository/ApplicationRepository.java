@@ -19,7 +19,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
   @Query("""
           SELECT a FROM Application a
           WHERE a.userId = :userId
-            AND a.applicationSource = 'offerte_live'
+            AND a.applicationSource = 'live_jobs'
             AND a.notes LIKE CONCAT('%offer:', :offerId, '%')
           ORDER BY a.id DESC
           LIMIT 1

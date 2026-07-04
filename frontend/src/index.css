@@ -252,7 +252,7 @@ a:hover {
 }
 
 .candidature-view .topbar,
-.offerte-shell .offerte-app-header {
+.jobs-shell .jobs-app-header {
   margin-top: 0;
 }
 
@@ -868,7 +868,7 @@ a:hover {
   color: var(--text-secondary);
 }
 
-.source-badge.source-offerte_live {
+.source-badge.source-live_jobs {
   background: rgba(0, 113, 227, 0.1);
   color: var(--accent);
 }

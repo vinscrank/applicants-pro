@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import type { RecentCareersOfferRow } from '@/offerte/types'
+import type { RecentCareersOfferRow } from '@/jobs/types'
 import { navigateToTracker } from '@/pipeline/pipelineBridge'
 import { getCareersOffersColumns, type CareersOffersTableMeta } from './careers-offers-columns'
 

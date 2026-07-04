@@ -2,7 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 import type { TFunction } from 'i18next'
 import { ClipboardCheck, ExternalLink, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import type { RecentCareersOfferRow } from '@/offerte/types'
+import type { RecentCareersOfferRow } from '@/jobs/types'
 import { careersOfferRowKey } from '@/careers-recent/trackCareersOffer'
 
 export type CareersOffersTableMeta = {
@@ -62,7 +62,7 @@ export function getCareersOffersColumns(t: TFunction): ColumnDef<RecentCareersOf
             onClick={() => meta.onOpenTracker(applicationId)}
           >
             <ClipboardCheck className="h-3.5 w-3.5" />
-            {t('offerte.actions.tracker')}
+            {t('jobs.actions.tracker')}
           </Button>
         ) : (
           <Button
@@ -77,7 +77,7 @@ export function getCareersOffersColumns(t: TFunction): ColumnDef<RecentCareersOf
             ) : (
               <ClipboardCheck className="h-3.5 w-3.5" />
             )}
-            {t('offerte.actions.markApplied')}
+            {t('jobs.actions.markApplied')}
           </Button>
         )
       },

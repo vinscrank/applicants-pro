@@ -118,13 +118,13 @@ export function BillingView({ embedded = false }: { embedded?: boolean } = {}) {
                   <p
                     className={cn(
                       'mt-2 text-lg font-semibold',
-                      status.features.offerte_live ? 'text-emerald-700' : 'text-muted-foreground',
+                      status.features.live_jobs ? 'text-emerald-700' : 'text-muted-foreground',
                     )}
                   >
-                    {status.features.offerte_live ? t('billing.active') : t('billing.notIncluded')}
+                    {status.features.live_jobs ? t('billing.active') : t('billing.notIncluded')}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {status.features.offerte_live ? t('billing.liveOffersHintActive') : t('billing.liveOffersHintInactive')}
+                    {status.features.live_jobs ? t('billing.liveOffersHintActive') : t('billing.liveOffersHintInactive')}
                   </p>
                 </CardContent>
               </Card>

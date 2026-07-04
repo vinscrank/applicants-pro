@@ -125,7 +125,7 @@
   },
   "source": {
     "manual": "Manual",
-    "offerte_live": "Live Jobs",
+    "live_jobs": "Live Jobs",
     "extension": "Extension"
   },
   "method": {
@@ -199,6 +199,17 @@
     "sourceAll": "All",
     "sourceLive": "Live",
     "sourceManual": "Manual",
+    "trackerSource": {
+      "ariaLabel": "Filter by source",
+      "all": "All",
+      "allHint": "All applications",
+      "liveJobs": "From Live Jobs",
+      "liveJobsHint": "Recorded from batch search",
+      "manual": "Manual and analysis",
+      "manualHint": "Added manually or from job URL analysis"
+    },
+    "formIntroNew": "Add a manual application. If you start from Live Jobs, use Open and Apply: company, role, and link sync automatically.",
+    "formIntroLiveJobs": "Linked to Live Jobs",
     "hideRejected": "Hide rejected",
     "editTitle": "Edit application",
     "count_one": "{{count}} application",
@@ -272,8 +283,13 @@
       "createAnyway": "Create row anyway"
     }
   },
-  "offerte": {
+  "jobs": {
     "title": "Live Jobs",
+    "searchBanner": {
+      "parsing": "Analyzing prompt…",
+      "searching": "Searching jobs…",
+      "backgroundHint": "You can keep using the site while we work in the background."
+    },
     "history": "History",
     "settings": "Settings",
     "tracker": "Tracker",
@@ -329,6 +345,29 @@
     "filterTablePlaceholder": "Filter in table...",
     "filterTableAria": "Filter in table",
     "filterOffersAria": "Filter offers",
+    "resultsBar": {
+      "appliedTitle": "Jobs you already applied to"
+    },
+    "filterExcluded": {
+      "title": "Excluded by filters",
+      "subtitle": "{{count}} jobs hidden by location, origin, date, or prompt relevance. Check if any are still interesting.",
+      "searchLabel": "Search list",
+      "searchPlaceholder": "Company, role, location, origin...",
+      "searchAria": "Search excluded jobs",
+      "close": "Close",
+      "emptySearch": "No jobs match your search. Try other terms or clear the field.",
+      "emptyDefault": "No jobs excluded by current filters."
+    },
+    "searchPref": {
+      "title": "Search preferences",
+      "intro": "Role, location, posting date, and other constraints belong in the prompt. Jobs come from LinkedIn and company career sites (Greenhouse, Lever, Workable, Ashby).",
+      "sortLabel": "Default sort order",
+      "requireActiveApply": "Verify active apply link (informational only, does not hide jobs)",
+      "save": "Save preferences",
+      "saving": "Saving...",
+      "reset": "Reset defaults",
+      "saved": "Preferences saved."
+    },
     "sortOrder": "Sort order",
     "sortOrderResults": "Result sort order",
     "visibleRows_one": "{{count}} visible row",
@@ -533,7 +572,9 @@
     "descriptionWithEmail": "{{email}} · Used for quick applications and autofill",
     "successComplete": "Profile saved and complete. You are ready to apply and use autofill.",
     "successIncomplete": "Profile saved. Complete name, surname, phone, city, and LinkedIn to unlock everything.",
-    "saveExtensionId": "Save extension ID"
+    "saveExtensionId": "Save extension ID",
+    "dbImportConfirm": "Importing this backup replaces all local database data (applications, profile, jobs, settings). Continue?",
+    "dbBackupDescription": "Export or import all local data: applications, profile, job searches, dismissals, and settings. Useful when moving the project to another computer."
   },
   "today": {
     "morning": "Good morning",
@@ -606,7 +647,7 @@
   "companies": {
     "title": "Companies",
     "description": "Manage monitored careers pages: add, prioritize, scan for jobs",
-    "offerteRequired": "Enable Live Jobs to manage monitored careers pages.",
+    "jobsRequired": "Enable Live Jobs to manage monitored careers pages.",
     "careers": {
       "title": "Monitored careers pages ({{count}})",
       "searchPlaceholder": "Filter by name, slug or URL...",
@@ -743,7 +784,7 @@
     "noOffersDescription": "No careers page returned jobs with a date in the last 24 hours.",
     "noFilterMatchTitle": "No matches",
     "noFilterMatchDescription": "No job matches your title or location filters.",
-    "offerteRequired": "Enable Live Jobs to use the careers scan.",
+    "jobsRequired": "Enable Live Jobs to use the careers scan.",
     "errors": {
       "scanFailed": "Scan failed",
       "trackFailed": "Could not save application to tracker",
@@ -803,6 +844,37 @@
     "subtitle": "Visit the job posting in the open tab, then return here to record the outcome.",
     "reopen": "Reopen posting",
     "hint": "You can close this panel and keep browsing the list — it stays open until you record the outcome."
+  },
+  "applyCompanion": {
+    "title": "Application companion",
+    "sidePanelHint": "Side panel alongside the app. Keep browsing Live Jobs in the main window.",
+    "stepsExtension": "Multi-step form: 1. Open form · 2. AI fill · 3. Next · 4. Repeat · 5. Submit · 6. Confirm here",
+    "stepsManual": "1. Open the form · 2. Copy fields · 3. Submit · 4. Confirm below",
+    "extensionWarn": "Extension not active: set the Extension ID in your profile to use AI fill.",
+    "openForm": "Open application form",
+    "autofill": "AI fill (form tab)",
+    "autofillLoading": "AI filling...",
+    "completed": "Application recorded",
+    "complete": "I completed the application",
+    "completeLoading": "Saving...",
+    "dismiss": "Dismiss job",
+    "dismissLoading": "Dismissing...",
+    "loadingProfile": "Loading profile...",
+    "loginRequired": "Sign in to use the companion.",
+    "currentStep": "Current step",
+    "requiredFilled": "Required fields filled: {{filled}}/{{total}}",
+    "clickNext": " · Click Next on the form and fill again",
+    "readySubmit": " · Ready to submit (review before sending)",
+    "missingFields": "Still needed: {{fields}}",
+    "copied": "{{label}} copied",
+    "copyFailed": "Copy failed",
+    "aiAnalyzing": "AI analyzing the ATS form...",
+    "recorded": "Application recorded as submitted in the tracker.",
+    "recordFailed": "Could not save application",
+    "dismissFailed": "Could not dismiss job",
+    "copy": "Copy",
+    "formOpenedExtension": "Form opened. Switch to that tab, wait for it to load, then use AI fill.",
+    "formOpenedManual": "Form opened. Copy fields from this window and paste them into the form."
   },
   "profileFitBadge": {
     "label": "Profile fit {{score}}%"

@@ -23,8 +23,8 @@ Ogni guida completata include:
 | 7 | [Apollo Client — kanban da GraphQL](phase-07-apollo-read.md) | Da fare |
 | 8 | [Auth end-to-end con Apollo](phase-08-auth-apollo.md) | Da fare |
 | 9 | [Estrazione servizio Python AI](phase-09-python-ai-service.md) | Da fare |
-| 10 | [Java orchestrator per ricerca offerte](phase-10-java-orchestrates-search.md) | Da fare |
-| 11 | [Apollo per offerte](phase-11-apollo-offerte.md) | Da fare |
+| 10 | [Java orchestrator per ricerca jobs](phase-10-java-orchestrates-search.md) | Da fare |
+| 11 | [Apollo per jobs](phase-11-apollo-jobs.md) | Da fare |
 | 12 | [Billing, stats, export](phase-12-billing-stats.md) | Da fare |
 | 13 | [Extension Chrome → Java](phase-13-extension-gateway.md) | Da fare |
 | 14 | [Redis cache](phase-14-redis-cache.md) | Da fare |

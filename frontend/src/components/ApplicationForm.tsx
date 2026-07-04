@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { ApplicationFormData } from "../types";
 import {
   STATUS_OPTIONS,
@@ -41,13 +42,14 @@ function hasAdvancedData(data: ApplicationFormData): boolean {
 }
 
 export default function ApplicationForm({ data, onChange, companyNames, isNew = false }: Props) {
+  const { t } = useTranslation();
   const [showAdvanced, setShowAdvanced] = useState(() => !isNew && hasAdvancedData(data));
 
   const set = <K extends keyof ApplicationFormData>(key: K, value: ApplicationFormData[K]) => {
     onChange({ ...data, [key]: value });
   };
 
-  const fromOfferteLive = data.application_source === "offerte_live";
+  const fromLiveJobs = data.application_source === "live_jobs";
 
   const statusHint = useMemo(() => {
     if (
@@ -64,12 +66,12 @@ export default function ApplicationForm({ data, onChange, companyNames, isNew = 
     <>
       {isNew && (
         <p className="form-intro">
-          Aggiungi una candidatura manuale. Se parti da Offerte Live, usa Apri e Candidato: azienda, ruolo e link si sincronizzano da soli.
+          {t('candidature.formIntroNew')}
         </p>
       )}
 
-      {fromOfferteLive && !isNew && (
-        <p className="form-intro form-intro-live">Collegata a Offerte Live</p>
+      {fromLiveJobs && !isNew && (
+        <p className="form-intro form-intro-live">{t('candidature.formIntroLiveJobs')}</p>
       )}
 
       <div className="form-section form-section-essential">

@@ -1,4 +1,4 @@
-import type { JobOffer } from '../offerte/types'
+import type { JobOffer } from '../jobs/types'
 
 const GREENHOUSE_SLUG_OVERRIDES: Record<string, string> = {
   'monday.com': 'mondaydotcom',

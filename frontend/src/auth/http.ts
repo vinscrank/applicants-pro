@@ -27,13 +27,13 @@ export function backendApiBase(): string {
 }
 
 function requestTimeoutMs(path: string, method?: string): number {
-  if (path.includes('/api/offerte/search/parse')) return 60_000
-  if (path.includes('/api/offerte/search') && method === 'POST') return 300_000
-  if (path.includes('/api/offerte/analyze-url')) return 90_000
-  if (path.includes('/api/offerte/page-embed')) return 45_000
-  if (path.includes('/api/offerte/companies/auto-discover')) return 120_000
-  if (path.includes('/api/offerte/companies/scan-all-recent')) return 600_000
-  if (path.includes('/api/offerte/companies/scan-all-search')) return 900_000
+  if (path.includes('/api/jobs/search/parse')) return 60_000
+  if (path.includes('/api/jobs/search') && method === 'POST') return 300_000
+  if (path.includes('/api/jobs/analyze-url')) return 90_000
+  if (path.includes('/api/jobs/page-embed')) return 45_000
+  if (path.includes('/api/jobs/companies/auto-discover')) return 120_000
+  if (path.includes('/api/jobs/companies/scan-all-recent')) return 600_000
+  if (path.includes('/api/jobs/companies/scan-all-search')) return 900_000
   return 30_000
 }
 

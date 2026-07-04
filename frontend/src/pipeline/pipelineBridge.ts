@@ -1,6 +1,6 @@
 import { navigate, type AppRoute } from '../router'
 
-export function parseOfferteOfferId(notes: string | null | undefined): string | null {
+export function parseOfferIdFromNotes(notes: string | null | undefined): string | null {
   if (!notes) return null
   for (const part of notes.split(/\s+/)) {
     if (part.startsWith('offer:')) {
@@ -13,7 +13,7 @@ export function parseOfferteOfferId(notes: string | null | undefined): string | 
 
 export function navigateToTracker(options?: {
   applicationId?: number
-  sourceFilter?: 'offerte_live'
+  sourceFilter?: 'live_jobs'
 }) {
   const route: AppRoute = { page: 'candidature' }
   if (options?.applicationId) route.highlightApplicationId = options.applicationId
@@ -21,7 +21,7 @@ export function navigateToTracker(options?: {
   navigate(route, true)
 }
 
-export function navigateToOfferteLive(options?: {
+export function navigateToJobs(options?: {
   highlightOfferId?: string
   statusFilter?: 'applied'
   trackerApplicationId?: number

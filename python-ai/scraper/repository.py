@@ -49,11 +49,11 @@ def seed_monitored_companies(db: Session) -> None:
 
 
 def get_applied_offer_ids(db: Session, user_id: int, offer_ids: list[str] | None = None) -> set[str]:
-    q = db.query(scraper_orm.OfferteAppliedOffer.offer_id).filter(
-        scraper_orm.OfferteAppliedOffer.user_id == user_id
+    q = db.query(scraper_orm.JobAppliedOffer.offer_id).filter(
+        scraper_orm.JobAppliedOffer.user_id == user_id
     )
     if offer_ids:
-        q = q.filter(scraper_orm.OfferteAppliedOffer.offer_id.in_(offer_ids))
+        q = q.filter(scraper_orm.JobAppliedOffer.offer_id.in_(offer_ids))
     return {r[0] for r in q.all()}
 
 
@@ -64,12 +64,12 @@ def set_offers_applied(db: Session, user_id: int, offer_ids: list[str], applied:
     now = datetime.now(timezone.utc)
     if applied:
         for offer_id in unique_ids:
-            row = db.get(scraper_orm.OfferteAppliedOffer, (user_id, offer_id))
+            row = db.get(scraper_orm.JobAppliedOffer, (user_id, offer_id))
             if row:
                 row.applied_at = now
             else:
                 db.add(
-                    scraper_orm.OfferteAppliedOffer(
+                    scraper_orm.JobAppliedOffer(
                         user_id=user_id,
                         offer_id=offer_id,
                         applied_at=now,
@@ -77,10 +77,10 @@ def set_offers_applied(db: Session, user_id: int, offer_ids: list[str], applied:
                 )
     else:
         (
-            db.query(scraper_orm.OfferteAppliedOffer)
+            db.query(scraper_orm.JobAppliedOffer)
             .filter(
-                scraper_orm.OfferteAppliedOffer.user_id == user_id,
-                scraper_orm.OfferteAppliedOffer.offer_id.in_(unique_ids),
+                scraper_orm.JobAppliedOffer.user_id == user_id,
+                scraper_orm.JobAppliedOffer.offer_id.in_(unique_ids),
             )
             .delete(synchronize_session=False)
         )
@@ -88,11 +88,11 @@ def set_offers_applied(db: Session, user_id: int, offer_ids: list[str], applied:
 
 
 def get_dismissed_offer_ids(db: Session, user_id: int, offer_ids: list[str] | None = None) -> set[str]:
-    q = db.query(scraper_orm.OfferteDismissedOffer.offer_id).filter(
-        scraper_orm.OfferteDismissedOffer.user_id == user_id
+    q = db.query(scraper_orm.JobDismissedOffer.offer_id).filter(
+        scraper_orm.JobDismissedOffer.user_id == user_id
     )
     if offer_ids:
-        q = q.filter(scraper_orm.OfferteDismissedOffer.offer_id.in_(offer_ids))
+        q = q.filter(scraper_orm.JobDismissedOffer.offer_id.in_(offer_ids))
     return {r[0] for r in q.all()}
 
 
@@ -122,9 +122,9 @@ def _is_generic_apply_url(url_norm: str) -> bool:
 
 def dedupe_user_dismissed_offers(db: Session, user_id: int) -> int:
     rows = (
-        db.query(scraper_orm.OfferteDismissedOffer)
-        .filter(scraper_orm.OfferteDismissedOffer.user_id == user_id)
-        .order_by(scraper_orm.OfferteDismissedOffer.dismissed_at.desc())
+        db.query(scraper_orm.JobDismissedOffer)
+        .filter(scraper_orm.JobDismissedOffer.user_id == user_id)
+        .order_by(scraper_orm.JobDismissedOffer.dismissed_at.desc())
         .all()
     )
     kept_urls: set[str] = set()
@@ -160,7 +160,7 @@ def dedupe_user_dismissed_offers(db: Session, user_id: int) -> int:
 def dedupe_all_dismissed_offers(db: Session) -> int:
     user_ids = [
         r[0]
-        for r in db.query(scraper_orm.OfferteDismissedOffer.user_id).distinct().all()
+        for r in db.query(scraper_orm.JobDismissedOffer.user_id).distinct().all()
     ]
     return sum(dedupe_user_dismissed_offers(db, user_id) for user_id in user_ids)
 
@@ -177,8 +177,8 @@ def _dismissed_match_keys(
     user_id: int,
 ) -> tuple[set[str], set[str], set[tuple[str, str]]]:
     rows = (
-        db.query(scraper_orm.OfferteDismissedOffer)
-        .filter(scraper_orm.OfferteDismissedOffer.user_id == user_id)
+        db.query(scraper_orm.JobDismissedOffer)
+        .filter(scraper_orm.JobDismissedOffer.user_id == user_id)
         .all()
     )
     offer_ids: set[str] = set()
@@ -332,10 +332,10 @@ def enrich_offers_applied(
         applied_at_by_offer = {}
         if applied_ids:
             rows = (
-                db.query(scraper_orm.OfferteAppliedOffer.offer_id, scraper_orm.OfferteAppliedOffer.applied_at)
+                db.query(scraper_orm.JobAppliedOffer.offer_id, scraper_orm.JobAppliedOffer.applied_at)
                 .filter(
-                    scraper_orm.OfferteAppliedOffer.user_id == user_id,
-                    scraper_orm.OfferteAppliedOffer.offer_id.in_(applied_ids),
+                    scraper_orm.JobAppliedOffer.user_id == user_id,
+                    scraper_orm.JobAppliedOffer.offer_id.in_(applied_ids),
                 )
                 .all()
             )
@@ -536,8 +536,8 @@ def supplement_pool_with_tracker_applications(
 def _user_search_ids(db: Session, user_id: int) -> list[int]:
     return [
         r[0]
-        for r in db.query(scraper_orm.OfferteSearch.id)
-        .filter(scraper_orm.OfferteSearch.user_id == user_id)
+        for r in db.query(scraper_orm.JobSearch.id)
+        .filter(scraper_orm.JobSearch.user_id == user_id)
         .all()
     ]
 
@@ -558,18 +558,18 @@ def find_matching_live_offers(
         return []
     target_url = _normalize_apply_url(job_url)
     target_path = urlparse(target_url).path.rstrip("/") if target_url else ""
-    base_query = db.query(scraper_orm.OfferteOfferRow).filter(
-        scraper_orm.OfferteOfferRow.search_id.in_(search_ids)
+    base_query = db.query(scraper_orm.JobOfferRow).filter(
+        scraper_orm.JobOfferRow.search_id.in_(search_ids)
     )
-    rows: list[scraper_orm.OfferteOfferRow] = []
+    rows: list[scraper_orm.JobOfferRow] = []
     if target_path and len(target_path) >= 8:
         rows = (
-            base_query.filter(scraper_orm.OfferteOfferRow.apply_url.ilike(f"%{target_path}%"))
-            .order_by(scraper_orm.OfferteOfferRow.id.desc())
+            base_query.filter(scraper_orm.JobOfferRow.apply_url.ilike(f"%{target_path}%"))
+            .order_by(scraper_orm.JobOfferRow.id.desc())
             .all()
         )
     if not rows and company.strip() and role.strip():
-        rows = base_query.order_by(scraper_orm.OfferteOfferRow.id.desc()).limit(2000).all()
+        rows = base_query.order_by(scraper_orm.JobOfferRow.id.desc()).limit(2000).all()
     elif not rows:
         return []
     applied_ids = get_applied_offer_ids(db, user_id)
@@ -618,12 +618,12 @@ def find_matching_live_offers(
 def _find_offer_row_for_dismissed(
     db: Session,
     user_id: int,
-    dismissed_row: scraper_orm.OfferteDismissedOffer,
-) -> scraper_orm.OfferteOfferRow | None:
+    dismissed_row: scraper_orm.JobDismissedOffer,
+) -> scraper_orm.JobOfferRow | None:
     row = (
-        db.query(scraper_orm.OfferteOfferRow)
-        .filter(scraper_orm.OfferteOfferRow.offer_id == dismissed_row.offer_id)
-        .order_by(scraper_orm.OfferteOfferRow.id.desc())
+        db.query(scraper_orm.JobOfferRow)
+        .filter(scraper_orm.JobOfferRow.offer_id == dismissed_row.offer_id)
+        .order_by(scraper_orm.JobOfferRow.id.desc())
         .first()
     )
     if row:
@@ -632,9 +632,9 @@ def _find_offer_row_for_dismissed(
     if not search_ids:
         return None
     rows = (
-        db.query(scraper_orm.OfferteOfferRow)
-        .filter(scraper_orm.OfferteOfferRow.search_id.in_(search_ids))
-        .order_by(scraper_orm.OfferteOfferRow.id.desc())
+        db.query(scraper_orm.JobOfferRow)
+        .filter(scraper_orm.JobOfferRow.search_id.in_(search_ids))
+        .order_by(scraper_orm.JobOfferRow.id.desc())
         .limit(3000)
         .all()
     )
@@ -652,9 +652,9 @@ def _find_offer_row_for_dismissed(
 
 def list_user_dismissed_offers(db: Session, user_id: int) -> list[JobOffer]:
     rows = (
-        db.query(scraper_orm.OfferteDismissedOffer)
-        .filter(scraper_orm.OfferteDismissedOffer.user_id == user_id)
-        .order_by(scraper_orm.OfferteDismissedOffer.dismissed_at.desc())
+        db.query(scraper_orm.JobDismissedOffer)
+        .filter(scraper_orm.JobDismissedOffer.user_id == user_id)
+        .order_by(scraper_orm.JobDismissedOffer.dismissed_at.desc())
         .all()
     )
     offers: list[JobOffer] = []
@@ -698,7 +698,7 @@ def merge_dismissed_into_pool(db: Session, pool: list[JobOffer], user_id: int) -
     return [*pool, *extras]
 
 
-def _row_to_offer(row: scraper_orm.OfferteOfferRow) -> JobOffer:
+def _row_to_offer(row: scraper_orm.JobOfferRow) -> JobOffer:
     origin = getattr(row, "origin", None) or "ats"
     if origin not in ("ats", "linkedin", "indeed", "upwork", "website"):
         origin = "ats"
@@ -827,7 +827,7 @@ def bulk_upsert_companies(db: Session, items: list[dict]) -> tuple[int, int]:
 def get_user_search_preferences(db: Session, user_id: int) -> SearchPreferences:
     from scraper.preferences import DEFAULT_SEARCH_PREFERENCES
 
-    row = db.get(scraper_orm.UserOffertePreferences, user_id)
+    row = db.get(scraper_orm.UserJobPreferences, user_id)
     if not row:
         return DEFAULT_SEARCH_PREFERENCES.model_copy()
     try:

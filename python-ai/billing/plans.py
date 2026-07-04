@@ -12,7 +12,7 @@ class PlanDefinition:
     price_eur_year: float
     stripe_price_month: str
     stripe_price_year: str
-    offerte_live: bool
+    live_jobs: bool
     ai_calls_month: int
     auto_discover: bool
     companion_autofill: bool
@@ -27,7 +27,7 @@ OWNER_PLAN = PlanDefinition(
     price_eur_year=0,
     stripe_price_month="",
     stripe_price_year="",
-    offerte_live=True,
+    live_jobs=True,
     ai_calls_month=1_000_000,
     auto_discover=True,
     companion_autofill=True,
@@ -44,7 +44,7 @@ PLANS: dict[str, PlanDefinition] = {
         price_eur_year=0,
         stripe_price_month="",
         stripe_price_year="",
-        offerte_live=False,
+        live_jobs=False,
         ai_calls_month=0,
         auto_discover=False,
         companion_autofill=False,
@@ -58,7 +58,7 @@ PLANS: dict[str, PlanDefinition] = {
         price_eur_year=149,
         stripe_price_month=STRIPE_PRICE_PRO,
         stripe_price_year=STRIPE_PRICE_PRO_ANNUAL,
-        offerte_live=True,
+        live_jobs=True,
         ai_calls_month=200,
         auto_discover=False,
         companion_autofill=True,
@@ -72,7 +72,7 @@ PLANS: dict[str, PlanDefinition] = {
         price_eur_year=299,
         stripe_price_month=STRIPE_PRICE_BUSINESS,
         stripe_price_year=STRIPE_PRICE_BUSINESS_ANNUAL,
-        offerte_live=True,
+        live_jobs=True,
         ai_calls_month=800,
         auto_discover=True,
         companion_autofill=True,
