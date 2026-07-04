@@ -9,7 +9,7 @@ from scraper.llm.gemini import GeminiError
 from scraper.llm.parser import parse_prompt_llm, normalize_search_command
 from scraper.llm.policies import LlmPolicyError
 from scraper.llm.usage_pg import BudgetExceededError
-from scraper.preferences import merge_command_with_preferences
+from scraper.preferences import merge_command_with_preferences, command_has_posted_constraint, job_passes_posted_constraint
 from scraper.prompt_parser import DEFAULT_COMMAND
 from scraper.schemas import SearchCommand, SearchPreferences, SearchResult
 from scraper.search import run_search
@@ -86,12 +86,17 @@ async def run_job_search(
     if base_pool:
         pool = repo.enrich_offers_applied(db, base_pool, user_id)
         pool = repo.supplement_pool_with_tracker_applications(db, pool, user_id, result.command)
-        result.offer_pool = pool
-        result.offers = [
+        visible = [
             offer
             for offer in pool
-            if offer.historical or repo._offer_visible_for_command(offer, result.command)
+            if (offer.historical or repo._offer_visible_for_command(offer, result.command))
+            and (
+                not command_has_posted_constraint(result.command)
+                or job_passes_posted_constraint(offer.posted_at, result.command)
+            )
         ]
+        result.offer_pool = visible
+        result.offers = visible
     _recount_result(result)
     result.preferences = prefs
     return result

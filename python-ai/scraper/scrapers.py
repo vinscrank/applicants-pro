@@ -205,7 +205,8 @@ async def fetch_all_jobs(companies: list[dict] | None = None) -> list[RawJob]:
         companies = COMPANIES
     ordered = sorted(companies, key=lambda co: (co.get("name") or "").lower())
     limits = httpx.Limits(max_connections=80, max_keepalive_connections=40)
-    async with httpx.AsyncClient(follow_redirects=True, timeout=20, limits=limits) as client:
+    timeout = float(os.getenv("ATS_FETCH_TIMEOUT_SEC", "12"))
+    async with httpx.AsyncClient(follow_redirects=True, timeout=timeout, limits=limits) as client:
         tasks = [_fetch_company_jobs(co, client) for co in ordered]
         results = await asyncio.gather(*tasks, return_exceptions=True)
     all_jobs: list[RawJob] = []

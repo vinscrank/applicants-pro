@@ -122,6 +122,8 @@ def assert_operation_allowed(db: Session, operation: str) -> None:
         raise LlmPolicyError("Analisi prompt disabilitata")
     if operation in ("rag_assistant", "embed_text", "embed_batch", "embed_job", "embed_offer", "embed_job_fit", "embed_rag_query", "embed_similar_query", "embed_offer_batch", "embed_profile", "embed_application", "embed_chunk") and not row.parse_prompt_enabled:
         raise LlmPolicyError("Analisi prompt disabilitata")
+    if operation == "discover_jobs" and not row.parse_prompt_enabled:
+        raise LlmPolicyError("Ricerca offerte con AI disabilitata")
     if operation == "discover_company" and not row.discover_company_enabled:
         raise LlmPolicyError("Discovery aziende con AI disabilitato")
     if operation == "auto_discover" and not row.auto_discover_enabled:

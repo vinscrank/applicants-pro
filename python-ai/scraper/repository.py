@@ -1,5 +1,6 @@
 import json
 import re
+import os
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
@@ -420,13 +421,15 @@ def enrich_offers_applied(
 
 
 def _offer_visible_for_command(offer: JobOffer, command: SearchCommand | None) -> bool:
-    from scraper.prompt_match import offer_matches_prompt as _prompt_match
+    from scraper.prompt_match import offer_matches_prompt as _prompt_match, offer_keyword_relevant
     from scraper.title_match import offer_title_matches_keywords, title_keywords_for_command
 
     if command:
         keywords = title_keywords_for_command(command)
         if keywords and not offer_title_matches_keywords(offer.role, keywords):
             return False
+    if command and offer_keyword_relevant(offer, command):
+        return True
     return _prompt_match(offer, strict=bool((command.prompt_text or "").strip()) if command else False)
 
 
@@ -768,9 +771,15 @@ def list_companies(db: Session, active_only: bool = True) -> list[Company]:
 
 
 def get_companies_for_scrape(db: Session) -> list[dict]:
+    limit = max(1, int(os.getenv("SEARCH_MAX_COMPANIES", "277")))
     rows = (
         db.query(scraper_orm.MonitoredCompany)
         .filter(scraper_orm.MonitoredCompany.active.is_(True))
+        .order_by(
+            scraper_orm.MonitoredCompany.priority.desc(),
+            scraper_orm.MonitoredCompany.name.asc(),
+        )
+        .limit(limit)
         .all()
     )
     return [{"name": r.name, "ats": r.ats, "slug": r.slug, "careers_url": r.careers_url or ""} for r in rows]

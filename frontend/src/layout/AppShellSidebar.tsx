@@ -95,7 +95,7 @@ export function AppShellSidebar({
     <div className="flex h-full min-h-screen flex-col bg-sidebar px-3 py-4 text-sidebar-foreground lg:min-h-0">
       <div className="mb-6 flex items-center gap-2 px-2">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
-          C
+          A
         </div>
         <div className="min-w-0">
           <p className="truncate font-display text-sm font-semibold tracking-tight">

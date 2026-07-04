@@ -74,6 +74,17 @@ def is_configured() -> bool:
     return bool(GEMINI_API_KEY)
 
 
+def _parse_json_from_text(text: str) -> dict:
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = cleaned.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+    start = cleaned.find("{")
+    end = cleaned.rfind("}")
+    if start >= 0 and end > start:
+        cleaned = cleaned[start : end + 1]
+    return json.loads(cleaned)
+
+
 async def generate_json(
     db: Session,
     operation: str,
@@ -107,6 +118,58 @@ async def generate_json(
         "contents": [{"role": "user", "parts": [{"text": user}]}],
         "generationConfig": generation_config,
     }
+    return await _post_gemini_json(
+        db, operation, payload, model, user_id, timeout
+    )
+
+
+async def generate_json_with_google_search(
+    db: Session,
+    operation: str,
+    system: str,
+    user: str,
+    schema: dict,
+    user_id: int | None = None,
+    model: str | None = None,
+    temperature: float = 0.2,
+    max_output_tokens: int | None = None,
+    timeout: float = 60,
+) -> tuple[dict, int, int]:
+    if not GEMINI_API_KEY:
+        raise GeminiError("GEMINI_API_KEY non configurata")
+    assert_operation_allowed(db, operation)
+    assert_budget_available(db, user_id=user_id)
+    if user_id is not None:
+        from .usage_pg import assert_user_ai_quota
+        assert_user_ai_quota(db, user_id)
+
+    schema_hint = (
+        "\n\nRispondi SOLO con JSON valido (nessun markdown) con questa struttura:\n"
+        f"{json.dumps(schema, ensure_ascii=False)}"
+    )
+    generation_config: dict = {"temperature": temperature}
+    if max_output_tokens is not None:
+        generation_config["maxOutputTokens"] = max_output_tokens
+
+    payload = {
+        "systemInstruction": {"parts": [{"text": system + schema_hint}]},
+        "contents": [{"role": "user", "parts": [{"text": user}]}],
+        "tools": [{"google_search": {}}],
+        "generationConfig": generation_config,
+    }
+    return await _post_gemini_json(
+        db, operation, payload, model, user_id, timeout
+    )
+
+
+async def _post_gemini_json(
+    db: Session,
+    operation: str,
+    payload: dict,
+    model: str | None,
+    user_id: int | None,
+    timeout: float,
+) -> tuple[dict, int, int]:
     model_name = (model or GEMINI_MODEL).strip() or GEMINI_MODEL
     url = GEMINI_API_URL.format(model=model_name)
     async with httpx.AsyncClient(timeout=timeout) as client:
@@ -123,10 +186,11 @@ async def generate_json(
     candidates = data.get("candidates") or []
     if not candidates:
         raise GeminiError("Risposta Gemini vuota")
-    text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+    parts = candidates[0].get("content", {}).get("parts") or []
+    text = "".join(str(part.get("text") or "") for part in parts if part.get("text"))
     if not text:
         raise GeminiError("JSON Gemini mancante")
     try:
-        return json.loads(text), input_tokens, output_tokens
+        return _parse_json_from_text(text), input_tokens, output_tokens
     except json.JSONDecodeError as e:
         raise GeminiError(f"JSON non valido: {e}") from e

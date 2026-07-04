@@ -74,6 +74,21 @@ def title_keywords_for_command(command: SearchCommand) -> list[str]:
     return infer_title_keywords(command.prompt_text or "")
 
 
+def role_match_tokens(phrase: str) -> list[str]:
+    return [token for token in re.split(r"[\s/,-]+", phrase.lower()) if len(token) >= 3]
+
+
+def phrase_token_match(hay: str, phrase: str) -> bool:
+    if not hay:
+        return False
+    lowered = hay.lower()
+    needle = phrase.lower().strip()
+    if needle and needle in lowered:
+        return True
+    tokens = role_match_tokens(phrase)
+    return bool(tokens and all(token in lowered for token in tokens))
+
+
 def offer_title_matches_keywords(role: str, keywords: list[str]) -> bool:
     if not keywords:
         return True
@@ -81,12 +96,6 @@ def offer_title_matches_keywords(role: str, keywords: list[str]) -> bool:
     if not hay:
         return False
     for keyword in keywords:
-        needle = keyword.lower().strip()
-        if not needle:
-            continue
-        if needle in hay:
-            return True
-        tokens = [token for token in re.split(r"\s+", needle) if len(token) >= 3]
-        if tokens and all(token in hay for token in tokens):
+        if phrase_token_match(hay, keyword):
             return True
     return False

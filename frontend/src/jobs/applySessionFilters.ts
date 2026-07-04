@@ -27,6 +27,33 @@ function aiRelevanceScore(offer: JobOffer): number {
   return 50
 }
 
+function postedCutoff(command?: SearchCommand): Date | null {
+  if (!command) return null
+  const customDays = command.posted_within_days
+  if (customDays != null && customDays > 0) {
+    const cutoff = new Date()
+    cutoff.setDate(cutoff.getDate() - customDays)
+    return cutoff
+  }
+  const window = command.posted_within
+  if (!window || window === 'any') return null
+  const cutoff = new Date()
+  if (window === '24h') cutoff.setHours(cutoff.getHours() - 24)
+  else if (window === '7d') cutoff.setDate(cutoff.getDate() - 7)
+  else if (window === '30d') cutoff.setDate(cutoff.getDate() - 30)
+  else if (window === '90d') cutoff.setDate(cutoff.getDate() - 90)
+  else return null
+  return cutoff
+}
+
+function matchesPostedWindow(offer: JobOffer, command?: SearchCommand): boolean {
+  const cutoff = postedCutoff(command)
+  if (!cutoff) return true
+  const posted = parsePostedAt(offer.posted_at ?? null)
+  if (!posted) return false
+  return posted >= cutoff
+}
+
 function matchesPromptIntent(offer: JobOffer): boolean {
   return offerMatchesPromptIntent(offer)
 }
@@ -73,7 +100,9 @@ export function applySessionFiltersToOffers(
   prefs: SearchPreferences,
   options?: { command?: SearchCommand },
 ): JobOffer[] {
-  const matched = pool.filter((offer) => matchesPromptIntent(offer))
+  const matched = pool.filter(
+    (offer) => matchesPromptIntent(offer) && matchesPostedWindow(offer, options?.command),
+  )
   return sortOffers(matched, prefs, options?.command)
 }
 

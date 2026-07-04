@@ -40,7 +40,7 @@ export function AuthLayout({ variant, title, subtitle, children, footer }: Props
           <FadeIn>
             <div className="mb-10 inline-flex items-center gap-3">
               <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/10 font-display text-lg font-semibold backdrop-blur-md">
-                C
+                A
               </span>
               <span className="font-display text-xl font-semibold tracking-tight">
                 <ShinyText text={t('common.brandName')} color="rgba(255,255,255,0.95)" shineColor="#ffffff" speed={7} delay={4} />
@@ -93,7 +93,7 @@ export function AuthLayout({ variant, title, subtitle, children, footer }: Props
         <FadeIn className="relative z-10 w-full max-w-[420px]">
           <div className="mb-8 flex items-center gap-3 lg:hidden">
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary font-display text-base font-semibold text-primary-foreground">
-              C
+              A
             </span>
             <span className="font-display text-lg font-semibold">{t('common.brandName')}</span>
           </div>

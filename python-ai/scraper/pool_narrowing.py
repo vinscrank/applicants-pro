@@ -1,11 +1,13 @@
 from .schemas import SearchCommand
 from .scrapers import RawJob
-from .location_match import location_rules_for_command
+from .location_match import location_rules_for_command, job_passes_location_constraint
 from .prompt_terms import prompt_search_terms
 from .preferences import command_has_posted_constraint, job_passes_posted_constraint
+from .title_match import offer_title_matches_keywords, phrase_token_match
+import os
 
-MAX_POOL_FOR_SEARCH = 600
-LINKEDIN_RESERVE = 120
+MAX_POOL_FOR_SEARCH = max(20, int(os.getenv("SEARCH_MAX_POOL", "200")))
+LINKEDIN_RESERVE = max(0, int(os.getenv("SEARCH_LINKEDIN_RESERVE", "60")))
 
 
 def _split_terms(values: list[str]) -> list[str]:
@@ -79,12 +81,27 @@ def _sort_jobs(
     return sorted(jobs, key=lambda job: _job_sort_key(job, role_terms, location_terms))
 
 
+def _passes_role_precheck(job: RawJob, command: SearchCommand) -> bool:
+    roles = [role.strip() for role in command.allowed_roles if role.strip()]
+    if not roles:
+        return True
+    hay = f"{job.role} {(job.description or '')[:600]}".lower()
+    for role in roles:
+        if offer_title_matches_keywords(job.role, [role]):
+            return True
+        if phrase_token_match(hay, role):
+            return True
+    return False
+
+
 def _passes_pool_precheck(
     job: RawJob,
     command: SearchCommand,
     role_terms: list[str],
     location_terms: list[str],
 ) -> bool:
+    if not _passes_role_precheck(job, command):
+        return False
     if command.require_location and location_terms and _job_location_rank(job, location_terms) == 0:
         return False
     if command_has_posted_constraint(command) and not job_passes_posted_constraint(job.posted_at, command):

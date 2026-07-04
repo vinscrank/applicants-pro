@@ -1,6 +1,7 @@
 import asyncio
 import httpx
 import hashlib
+import os
 from datetime import datetime
 
 from sqlalchemy.orm import Session
@@ -11,12 +12,15 @@ from scraper.preferences import (
     merge_command_with_preferences,
     preferences_from_command,
     apply_offer_result_filters,
+    command_has_posted_constraint,
+    job_passes_posted_constraint,
     command_for_portal_search,
 )
 from .filters import (
     classify_offer,
     detect_seniority,
 )
+from .prompt_match import apply_prompt_match_score, offer_keyword_relevant
 from .scrapers import fetch_all_jobs, RawJob
 from .portals import fetch_portal_jobs
 from .prompt_relevance import sort_offers_by_prompt_relevance
@@ -155,9 +159,64 @@ async def run_search(
     user_id: int | None = None,
     preferences: SearchPreferences | None = None,
 ) -> SearchResult:
+    mode = os.getenv("JOB_SEARCH_MODE", "scrape").strip().lower()
+    if mode == "gemini":
+        from .llm.gemini import is_configured
+        if is_configured():
+            return await _run_search_gemini(command, db, user_id, preferences)
+    return await _run_search_scrape(command, companies, db, user_id, preferences)
+
+
+async def _run_search_gemini(
+    command: SearchCommand,
+    db: Session | None,
+    user_id: int | None,
+    preferences: SearchPreferences | None,
+) -> SearchResult:
+    from .llm.parser import normalize_search_command
+    from .llm.job_discover import discover_jobs_with_gemini
+
+    command = normalize_search_command(SearchCommand(prompt_text=(command.prompt_text or "").strip()))
+    base_prefs = preferences or DEFAULT_SEARCH_PREFERENCES
+    prefs = preferences_from_command(command, base_prefs)
+    offers = await discover_jobs_with_gemini(db, command, user_id) if db else []
+    offer_pool = sorted(offers, key=_stable_offer_key)
+    verified = sum(1 for o in offer_pool if o.status == VerificationStatus.VERIFIED)
+    maybe = sum(1 for o in offer_pool if o.status == VerificationStatus.MAYBE)
+    rejected = sum(1 for o in offer_pool if o.status == VerificationStatus.REJECTED)
+    return SearchResult(
+        command=command,
+        preferences=prefs,
+        searched_at=datetime.utcnow(),
+        total_found=len(offer_pool),
+        verified_count=verified,
+        maybe_count=maybe,
+        rejected_count=rejected,
+        offers=list(offer_pool),
+        offer_pool=offer_pool,
+    )
+
+
+async def _run_search_scrape(
+    command: SearchCommand,
+    companies: list[dict] | None,
+    db: Session | None,
+    user_id: int | None,
+    preferences: SearchPreferences | None,
+) -> SearchResult:
     from .llm.parser import normalize_search_command
 
     command = normalize_search_command(command)
+    return await _run_search_scrape_once(command, companies, db, user_id, preferences)
+
+
+async def _run_search_scrape_once(
+    command: SearchCommand,
+    companies: list[dict] | None,
+    db: Session | None,
+    user_id: int | None,
+    preferences: SearchPreferences | None,
+) -> SearchResult:
     base_prefs = preferences or DEFAULT_SEARCH_PREFERENCES
     prefs = preferences_from_command(command, base_prefs)
     command = merge_command_with_preferences(command, prefs)
@@ -185,7 +244,8 @@ async def run_search(
         )
         preliminary.append((job, status, reason, language))
 
-    verified_urls = await _verify_apply_urls(preliminary, command.require_active_apply)
+    verify_apply = os.getenv("SEARCH_VERIFY_APPLY", "0").strip() == "1"
+    verified_urls = await _verify_apply_urls(preliminary, command.require_active_apply and verify_apply)
 
     offers: list[JobOffer] = []
     for job, pre_status, pre_reason, language in preliminary:
@@ -226,7 +286,9 @@ async def run_search(
     offers = apply_offer_result_filters(offers, prefs, command)
     offer_pool = sorted(offers, key=_stable_offer_key)
 
-    await _apply_ai_prompt_match(db, command, offer_pool, user_id)
+    ai_limit = max(0, int(os.getenv("SEARCH_AI_MATCH_LIMIT", "80")))
+    match_pool = offer_pool[:ai_limit] if ai_limit else []
+    await _apply_ai_prompt_match(db, command, match_pool, user_id)
     from .llm.gemini import is_configured
     from .prompt_match import apply_prompt_match_score
 
@@ -234,7 +296,29 @@ async def run_search(
         for offer in offer_pool:
             if not offer.web_dev_fit:
                 apply_prompt_match_score(offer, match=None)
-    offer_pool = [o for o in offer_pool if offer_matches_prompt(o, command)]
+    else:
+        for offer in offer_pool[ai_limit:]:
+            apply_prompt_match_score(offer, match=None)
+    filtered_pool: list[JobOffer] = []
+    seen_ids: set[str] = set()
+    for offer in offer_pool:
+        ai_ok = offer_matches_prompt(offer, command)
+        keyword_ok = offer_keyword_relevant(offer, command)
+        if not ai_ok and not keyword_ok:
+            continue
+        if offer.id in seen_ids:
+            continue
+        seen_ids.add(offer.id)
+        if keyword_ok and not ai_ok:
+            apply_prompt_match_score(offer, match=True, reason=offer.status_reason or "Pertinente al prompt")
+        filtered_pool.append(offer)
+    offer_pool = filtered_pool
+    if command_has_posted_constraint(command):
+        offer_pool = [
+            offer
+            for offer in offer_pool
+            if job_passes_posted_constraint(offer.posted_at, command)
+        ]
     if prefs.sort_by == "relevance":
         offers = sort_offers_by_prompt_relevance(offer_pool, command)
     else:
