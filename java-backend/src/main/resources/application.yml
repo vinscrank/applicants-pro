@@ -8,6 +8,10 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  graphql:
+    schema:
+      printer:
+        enabled: false
 
 server:
   port: 8080
@@ -16,7 +20,18 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+  metrics:
+    tags:
+      application: interview-backend
+
+logging:
+  structured:
+    format:
+      console: ecs
 
 app:
   public-url: ${APP_PUBLIC_URL:http://localhost:3000}

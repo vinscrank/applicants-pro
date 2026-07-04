@@ -1,24 +1,6 @@
 import type { Application, ApplicationFormData, StatusType } from "./types";
 import type { ColorTagId } from "./constants";
 import { normalizeApplicationMethod } from "./constants";
-import { authFetch } from "./auth/http";
-
-export type ApplicationTask = {
-  id: string
-  application_id: number
-  kind: 'follow_up' | 'interview'
-  company_name: string
-  job_title: string
-  due: string
-}
-
-export type TaskScope = 'today' | 'week' | 'overdue'
-
-export const api = {
-  getTasks: async (scope: TaskScope = 'today'): Promise<ApplicationTask[]> => {
-    return authFetch<ApplicationTask[]>(`/api/tasks?scope=${encodeURIComponent(scope)}`)
-  },
-};
 
 export function applicationToForm(app: Application): ApplicationFormData {
   const { application_method, application_method_other } = normalizeApplicationMethod(

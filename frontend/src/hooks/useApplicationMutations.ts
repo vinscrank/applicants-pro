@@ -1,38 +1,36 @@
-"use client";
+'use client'
 
-import { useMutation } from "@apollo/client/react";
+import { useMutation } from '@apollo/client/react'
 import {
   CREATE_APPLICATION,
   DELETE_APPLICATION,
   UPDATE_APPLICATION,
-} from "@/graphql/mutations";
-import { APPLICATIONS_REFETCH } from "@/graphql/applications";
+} from '@/graphql/mutations'
+import { applicationListRefetchQueries } from '@/graphql/policies'
 import {
   formToCreateInput,
   formToUpdateInput,
   gqlToApplication,
-} from "@/lib/application-mapper";
-import type { Application, ApplicationFormData } from "@/types";
+} from '@/lib/application-mapper'
+import type { Application, ApplicationFormData } from '@/types'
 
 export function useApplicationMutations() {
   const [createMut, { loading: creating }] = useMutation(CREATE_APPLICATION, {
-    refetchQueries: [...APPLICATIONS_REFETCH],
-  });
+    refetchQueries: [...applicationListRefetchQueries],
+  })
   const [updateMut, { loading: updating }] = useMutation(UPDATE_APPLICATION, {
-    refetchQueries: [...APPLICATIONS_REFETCH],
-  });
+    refetchQueries: [...applicationListRefetchQueries],
+  })
   const [deleteMut, { loading: deleting }] = useMutation(DELETE_APPLICATION, {
-    refetchQueries: [...APPLICATIONS_REFETCH],
-  });
+    refetchQueries: [...applicationListRefetchQueries],
+  })
 
-  async function createApplication(
-    data: ApplicationFormData,
-  ): Promise<Application> {
+  async function createApplication(data: ApplicationFormData): Promise<Application> {
     const { data: result } = await createMut({
       variables: { input: formToCreateInput(data) },
-    });
-    if (!result?.createApplication) throw new Error("Create failed");
-    return gqlToApplication(result.createApplication);
+    })
+    if (!result?.createApplication) throw new Error('Create failed')
+    return gqlToApplication(result.createApplication)
   }
 
   async function updateApplication(
@@ -41,13 +39,13 @@ export function useApplicationMutations() {
   ): Promise<Application> {
     const { data: result } = await updateMut({
       variables: { input: formToUpdateInput(id, data) },
-    });
-    if (!result?.updateApplication) throw new Error("Update failed");
-    return gqlToApplication(result.updateApplication);
+    })
+    if (!result?.updateApplication) throw new Error('Update failed')
+    return gqlToApplication(result.updateApplication)
   }
 
   async function deleteApplication(id: number): Promise<void> {
-    await deleteMut({ variables: { id: String(id) } });
+    await deleteMut({ variables: { id: String(id) } })
   }
 
   return {
@@ -55,5 +53,5 @@ export function useApplicationMutations() {
     updateApplication,
     deleteApplication,
     loading: creating || updating || deleting,
-  };
+  }
 }

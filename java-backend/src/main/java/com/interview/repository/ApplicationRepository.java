@@ -1,6 +1,8 @@
 package com.interview.repository;
 
 import com.interview.domain.Application;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,6 +11,23 @@ import java.util.Optional;
 
 public interface ApplicationRepository extends JpaRepository<Application, Integer> {
   List<Application> findByUserIdOrderByCreatedAtDesc(Integer userId);
+
+  Page<Application> findByUserIdOrderByCreatedAtDesc(Integer userId, Pageable pageable);
+
+  long countByUserId(Integer userId);
+
+  @Query(
+      value = """
+          SELECT * FROM applications
+          WHERE user_id = :userId
+          ORDER BY created_at DESC, id DESC
+          LIMIT :limit OFFSET :offset
+          """,
+      nativeQuery = true)
+  List<Application> findPageByUserId(
+      @Param("userId") Integer userId,
+      @Param("limit") int limit,
+      @Param("offset") int offset);
 
   Optional<Application> findByIdAndUserId(Integer id, Integer userId);
 

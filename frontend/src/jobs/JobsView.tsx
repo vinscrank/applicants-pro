@@ -23,7 +23,7 @@ import { matchesOfferListSearch } from './offerListSearch'
 import { PlatformPageHeader } from '../layout/PlatformPageHeader'
 import { navigateToTracker, openAnnuncioAnalyzeInNewTab } from '../pipeline/pipelineBridge'
 import type { Application } from '../types'
-import { fetchApplication, fetchApplications } from '@/lib/applications-client'
+import { queryApplication, queryApplicationsFiltered } from '@/graphql/applications'
 import { subscribeOfferDismissed, subscribeOfferApplied, offerMatchesDismissSync, offerMatchesAppliedSync, publishOfferApplied, publishOfferDismissed, type OfferDismissSyncPayload, type OfferAppliedSyncPayload } from './jobsSyncChannel'
 import { DuplicateApplicationModal } from '../components/DuplicateApplicationModal'
 import type { ApplicationTrackerMatch } from '../applications/trackerMatch'
@@ -507,7 +507,7 @@ export default function JobsView({ embedded = false }: { embedded?: boolean } = 
     }
 
     if (route.trackerApplicationId) {
-      fetchApplication(route.trackerApplicationId)
+      queryApplication(route.trackerApplicationId)
         .then(resolveFromApplication)
         .catch(() => {
           if (!cancelled) setArchivedLiveOffer(null)
@@ -518,7 +518,7 @@ export default function JobsView({ embedded = false }: { embedded?: boolean } = 
       }
     }
 
-    fetchApplications({ exclude_rejected: false })
+    queryApplicationsFiltered({ exclude_rejected: false })
       .then((apps) => {
         const app = apps.find((a) => a.linked_offer_id === offerId)
         if (app) resolveFromApplication(app)

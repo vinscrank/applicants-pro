@@ -76,14 +76,29 @@ export type GqlApplication = {
   updatedAt: string;
 };
 
-export type GetApplicationsQuery = {
-  applications: GqlApplication[];
+export type ApplicationPageQuery = {
+  applicationsPage: {
+    items: GqlApplication[];
+    totalCount: number;
+    limit: number;
+    offset: number;
+    hasNextPage: boolean;
+  };
 };
 
-export const GET_APPLICATIONS: TypedDocumentNode<GetApplicationsQuery> = gql`
-  query GetApplications {
-    applications {
-      ...ApplicationFields
+export const GET_APPLICATIONS_PAGE: TypedDocumentNode<
+  ApplicationPageQuery,
+  { input?: { limit?: number; offset?: number } }
+> = gql`
+  query GetApplicationsPage($input: ApplicationPageInput) {
+    applicationsPage(input: $input) {
+      items {
+        ...ApplicationFields
+      }
+      totalCount
+      limit
+      offset
+      hasNextPage
     }
   }
   ${APPLICATION_FIELDS}
@@ -136,6 +151,37 @@ export const GET_APPLICATION_STATS: TypedDocumentNode<ApplicationStatsQuery> = g
         status
         count
       }
+    }
+  }
+`;
+
+export type GqlApplicationTask = {
+  id: string;
+  applicationId: string;
+  kind: string;
+  companyName: string;
+  jobTitle: string;
+  due: string;
+};
+
+export type GqlTaskScope = 'TODAY' | 'WEEK' | 'OVERDUE';
+
+export type ApplicationTasksQuery = {
+  applicationTasks: GqlApplicationTask[];
+};
+
+export const GET_APPLICATION_TASKS: TypedDocumentNode<
+  ApplicationTasksQuery,
+  { scope: GqlTaskScope }
+> = gql`
+  query GetApplicationTasks($scope: ApplicationTaskScope!) {
+    applicationTasks(scope: $scope) {
+      id
+      applicationId
+      kind
+      companyName
+      jobTitle
+      due
     }
   }
 `;

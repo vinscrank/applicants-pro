@@ -3,16 +3,21 @@ package com.interview.graphql;
 import com.interview.auth.AuthService;
 import com.interview.auth.dto.UserResponse;
 import com.interview.domain.Application;
+import com.interview.graphql.dto.ApplicationPageInput;
+import com.interview.graphql.dto.ApplicationPageResponse;
 import com.interview.service.ApplicationService;
 import com.interview.service.dto.ApplicationStatsResponse;
+import com.interview.service.dto.ApplicationTaskResponse;
 import java.util.List;
+import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.server.ResponseStatusException;
 
-@org.springframework.stereotype.Controller
+@Controller
 public class QueryController {
 
   private final AuthService authService;
@@ -35,7 +40,13 @@ public class QueryController {
   }
 
   @QueryMapping
-  public Application application(@org.springframework.graphql.data.method.annotation.Argument Integer id) {
+  public ApplicationPageResponse applicationsPage(@Argument ApplicationPageInput input) {
+    Integer userId = authService.getUserByEmail(currentUserEmail()).getId();
+    return applicationService.listPageForUser(userId, input);
+  }
+
+  @QueryMapping
+  public Application application(@Argument Integer id) {
     Integer userId = authService.getUserByEmail(currentUserEmail()).getId();
     return applicationService.getForUser(userId, id);
   }
@@ -44,6 +55,24 @@ public class QueryController {
   public ApplicationStatsResponse applicationStats() {
     Integer userId = authService.getUserByEmail(currentUserEmail()).getId();
     return applicationService.statsForUser(userId);
+  }
+
+  @QueryMapping
+  public List<ApplicationTaskResponse> applicationTasks(@Argument String scope) {
+    Integer userId = authService.getUserByEmail(currentUserEmail()).getId();
+    return applicationService.tasksForUser(userId, mapTaskScope(scope));
+  }
+
+  private static String mapTaskScope(String scope) {
+    if (scope == null) {
+      throw new IllegalArgumentException("scope is required");
+    }
+    return switch (scope) {
+      case "TODAY" -> "today";
+      case "WEEK" -> "week";
+      case "OVERDUE" -> "overdue";
+      default -> throw new IllegalArgumentException("Invalid task scope: " + scope);
+    };
   }
 
   private String currentUserEmail() {

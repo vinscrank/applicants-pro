@@ -3,8 +3,11 @@
 import { useQuery } from '@apollo/client/react'
 import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { APPLICATIONS_LIST_FETCH_POLICY } from '@/graphql/applications'
-import { GET_APPLICATIONS, GET_APPLICATION_STATS } from '@/graphql/queries'
+import {
+  APPLICATIONS_PAGE_INPUT,
+  watchFetchPolicy,
+} from '@/graphql/policies'
+import { GET_APPLICATIONS_PAGE, GET_APPLICATION_STATS } from '@/graphql/queries'
 import {
   filterApplicationsList,
   gqlStatsToStats,
@@ -37,9 +40,10 @@ export function useApplicationsQuery(
     loading: appsLoading,
     error: appsError,
     refetch: refetchApps,
-  } = useQuery(GET_APPLICATIONS, {
+  } = useQuery(GET_APPLICATIONS_PAGE, {
     skip: !enabled,
-    fetchPolicy: APPLICATIONS_LIST_FETCH_POLICY,
+    variables: { input: APPLICATIONS_PAGE_INPUT },
+    fetchPolicy: watchFetchPolicy.list,
   })
 
   const {
@@ -48,7 +52,7 @@ export function useApplicationsQuery(
     refetch: refetchStats,
   } = useQuery(GET_APPLICATION_STATS, {
     skip: !enabled || !includeStats,
-    fetchPolicy: APPLICATIONS_LIST_FETCH_POLICY,
+    fetchPolicy: watchFetchPolicy.list,
   })
 
   useEffect(() => {
@@ -58,7 +62,7 @@ export function useApplicationsQuery(
   }, [enabled, includeStats, quickAdd?.refreshKey, refetchApps, refetchStats])
 
   const applications = useMemo((): Application[] => {
-    const rows = (appsData?.applications ?? []).map(gqlToApplication)
+    const rows = (appsData?.applicationsPage?.items ?? []).map(gqlToApplication)
     return filterApplicationsList(rows, {
       exclude_rejected: excludeRejected,
       include_drafts: includeDrafts,
@@ -70,19 +74,15 @@ export function useApplicationsQuery(
     return gqlStatsToStats(statsData.applicationStats)
   }, [includeStats, statsData])
 
-  const error = appsError
-    ? appsError.message || t('errors.genericLoad')
-    : null
-
   return {
     applications,
     stats,
+    pageInfo: appsData?.applicationsPage ?? null,
     loading: appsLoading || (includeStats && statsLoading),
-    error,
+    error: appsError ? appsError.message || t('errors.genericLoad') : null,
     refetch: async () => {
       await refetchApps()
       if (includeStats) await refetchStats()
     },
   }
 }
-

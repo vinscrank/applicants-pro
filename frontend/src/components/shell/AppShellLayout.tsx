@@ -9,8 +9,8 @@ import { appReplace } from '@/lib/navigation'
 import { JobsSearchBanner } from '@/jobs/components/JobsSearchBanner'
 import { V2MigrationBanner } from '@/layout/V2MigrationBanner'
 import { billingApi, type BillingStatus } from '@/billing/api'
-import { APPLICATIONS_CACHE_FETCH_POLICY } from '@/graphql/applications'
-import { GET_APPLICATIONS } from '@/graphql/queries'
+import { watchFetchPolicy } from '@/graphql/policies'
+import { GET_APPLICATION_STATS } from '@/graphql/queries'
 import {
   defaultAuthedRoute,
   isAuthRoute,
@@ -30,11 +30,11 @@ export function AppShellLayout({ children }: AppShellLayoutProps) {
   const route = useAppRoute()
   useLegacyRouteRedirect()
   const [billing, setBilling] = useState<BillingStatus | null>(null)
-  const { data: applicationsData } = useQuery(GET_APPLICATIONS, {
+  const { data: statsData } = useQuery(GET_APPLICATION_STATS, {
     skip: !user,
-    fetchPolicy: APPLICATIONS_CACHE_FETCH_POLICY,
+    fetchPolicy: watchFetchPolicy.detail,
   })
-  const trackerTotal = applicationsData?.applications?.length ?? 0
+  const trackerTotal = statsData?.applicationStats?.total ?? 0
 
   useEffect(() => {
     if (!user) {

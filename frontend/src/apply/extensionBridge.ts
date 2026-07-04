@@ -5,7 +5,11 @@ import { profileToAutofillPayload } from '../auth/types'
 import { jobsFetch } from '../jobs/api'
 import { markJobsListRestore, markJobsDismissRestore } from '../jobs/jobsListSession'
 import { publishOfferApplied } from '../jobs/jobsSyncChannel'
-import { fetchApplications, updateApplication } from '@/lib/applications-client'
+import {
+  queryApplication,
+  queryApplicationsFiltered,
+  mutateUpdateApplication,
+} from '@/graphql/applications'
 
 const EXTENSION_ID_KEY = 'candidature_extension_id'
 const COMPANION_OFFER_KEY = 'companion_offer'
@@ -253,10 +257,10 @@ export async function finalizeCompanionApplication(): Promise<void> {
   }
 
   if (ctx.applyUrl) {
-    const apps = await fetchApplications({ exclude_rejected: false })
+    const apps = await queryApplicationsFiltered({ exclude_rejected: false })
     const match = apps.find((a) => (a.job_url || '').trim() === ctx.applyUrl!.trim())
     if (match) {
-      await updateApplication(match.id, {
+      await mutateUpdateApplication(match.id, {
         status: 'applied',
         last_applied_at: new Date().toISOString(),
       })

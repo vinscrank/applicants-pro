@@ -31,6 +31,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                .requestMatchers("/actuator/info", "/actuator/metrics", "/actuator/prometheus").permitAll()
                         .requestMatchers("/api/v2/auth/register", "/api/v2/auth/login")
                         .permitAll()
                         .requestMatchers("/api/v2/auth/forgot-password", "/api/v2/auth/reset-password")

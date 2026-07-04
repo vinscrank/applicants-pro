@@ -59,8 +59,9 @@ export function ProgressCharts({ byStatus, byMethod, funnel, weeklyActivity, tot
     [byMethod],
   )
 
+  const safeFunnel = funnel ?? []
   const maxStatusCount = statusData[0]?.count ?? 1
-  const maxFunnelCount = funnel[0]?.count ?? 1
+  const maxFunnelCount = safeFunnel[0]?.count ?? 1
 
   const activityChartConfig = useMemo(
     () => ({
@@ -110,7 +111,7 @@ export function ProgressCharts({ byStatus, byMethod, funnel, weeklyActivity, tot
             </div>
           </div>
           <div className="progress-funnel-stack">
-            {funnel.map((step) => (
+            {safeFunnel.map((step) => (
               <div key={step.key} className="progress-funnel-row">
                 <div className="progress-funnel-label-wrap">
                   <p className="progress-funnel-label">{step.label}</p>

@@ -1,9 +1,15 @@
+"""
+Authenticated account.
+"""
 type User {
   id: ID!
   email: String!
   active: Boolean!
 }
 
+"""
+Job application tracked by the user.
+"""
 type Application {
   id: ID!
   companyName: String!
@@ -41,11 +47,58 @@ type Application {
   updatedAt: String!
 }
 
+"""
+Offset-based page of applications.
+"""
+type ApplicationPage {
+  items: [Application!]!
+  totalCount: Int!
+  limit: Int!
+  offset: Int!
+  hasNextPage: Boolean!
+}
+
+input ApplicationPageInput {
+  """Page size (default 100, max 500)."""
+  limit: Int
+  """Number of records to skip (default 0)."""
+  offset: Int
+}
+
+"""
+Follow-up or interview reminder linked to an application.
+"""
+type ApplicationTask {
+  id: ID!
+  applicationId: ID!
+  kind: String!
+  companyName: String!
+  jobTitle: String!
+  due: String!
+}
+
+enum ApplicationTaskScope {
+  TODAY
+  WEEK
+  OVERDUE
+}
+
 type Query {
+  """Current authenticated user."""
   me: User
+  """
+  All applications for the current user.
+  Prefer applicationsPage for paginated access.
+  """
   applications: [Application!]!
+  """Paginated applications for the current user."""
+  applicationsPage(input: ApplicationPageInput): ApplicationPage!
+  """Single application by id (scoped to current user)."""
   application(id: ID!): Application
+  """Aggregated counters for dashboard and analytics."""
   applicationStats: ApplicationStats!
+  """Follow-up and interview tasks for Today view."""
+  applicationTasks(scope: ApplicationTaskScope!): [ApplicationTask!]!
 }
 
 input CreateApplicationInput {

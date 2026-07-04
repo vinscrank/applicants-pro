@@ -1,6 +1,8 @@
 package com.interview.service;
 
 import com.interview.domain.Application;
+import com.interview.graphql.dto.ApplicationPageInput;
+import com.interview.graphql.dto.ApplicationPageResponse;
 import com.interview.graphql.dto.CreateApplicationInput;
 import com.interview.graphql.dto.UpdateApplicationInput;
 import com.interview.repository.ApplicationRepository;
@@ -17,6 +19,9 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class ApplicationService {
 
+  private static final int MAX_PAGE_SIZE = 500;
+  private static final int DEFAULT_PAGE_SIZE = 100;
+
   private final ApplicationRepository applicationRepository;
 
   public ApplicationService(ApplicationRepository applicationRepository) {
@@ -25,6 +30,31 @@ public class ApplicationService {
 
   public List<Application> listForUser(Integer userId) {
     return applicationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+  }
+
+  public ApplicationPageResponse listPageForUser(Integer userId, ApplicationPageInput input) {
+    int limit = input != null && input.limit() != null ? input.limit() : DEFAULT_PAGE_SIZE;
+    int offset = input != null && input.offset() != null ? input.offset() : 0;
+    if (limit < 1) {
+      throw new IllegalArgumentException("limit must be at least 1");
+    }
+    if (limit > MAX_PAGE_SIZE) {
+      throw new IllegalArgumentException("limit cannot exceed " + MAX_PAGE_SIZE);
+    }
+    if (offset < 0) {
+      throw new IllegalArgumentException("offset cannot be negative");
+    }
+
+    long totalCount = applicationRepository.countByUserId(userId);
+    List<Application> items = applicationRepository.findPageByUserId(userId, limit, offset);
+    boolean hasNextPage = (long) offset + items.size() < totalCount;
+
+    return new ApplicationPageResponse(
+        items,
+        (int) totalCount,
+        limit,
+        offset,
+        hasNextPage);
   }
 
   public Application getForUser(Integer userId, Integer id) {
