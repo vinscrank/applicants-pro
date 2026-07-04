@@ -1,4 +1,4 @@
-import i18n from './index'
+import i18n from './client'
 import type {
   ApplicationMethodType,
   ApplicationSourceType,

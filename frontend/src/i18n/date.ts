@@ -1,4 +1,4 @@
-import i18n from './index'
+import i18n from './client'
 
 export function appDateLocale(): string {
   return i18n.language === 'it' ? 'it-IT' : 'en-US'

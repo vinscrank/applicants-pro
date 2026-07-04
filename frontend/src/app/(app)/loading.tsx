@@ -1,5 +1,5 @@
-import { RoutePageLoading } from '@/components/shell/RoutePageLoading'
+import { StaticRouteLoading } from '@/components/shell/StaticRouteLoading'
 
 export default function AppRouteLoading() {
-  return <RoutePageLoading />
+  return <StaticRouteLoading />
 }

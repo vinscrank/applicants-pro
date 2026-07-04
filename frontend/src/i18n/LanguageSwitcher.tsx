@@ -6,7 +6,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
-import { setAppLocale, type AppLocale } from './index'
+import { setAppLocale, type AppLocale } from './client'
 import './language-switcher.css'
 
 const LOCALE_OPTIONS: { locale: AppLocale; flag: string; labelKey: string }[] = [

@@ -5,6 +5,7 @@ import '@/app/globals.css'
 import '@/layout/platform-ui.css'
 import { AppProviders } from '@/providers/AppProviders'
 import { HashRedirect } from '@/components/shell/HashRedirect'
+import { getRequestLocale } from '@/i18n/request-locale'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -24,11 +25,13 @@ export const metadata: Metadata = {
   description: 'Tracker candidature e ricerca lavoro intelligente',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getRequestLocale()
+
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${poppins.variable}`}>
+    <html lang={locale} suppressHydrationWarning className={`${inter.variable} ${poppins.variable}`}>
       <body>
-        <AppProviders>
+        <AppProviders locale={locale}>
           <HashRedirect />
           {children}
         </AppProviders>

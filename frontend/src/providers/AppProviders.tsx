@@ -1,28 +1,31 @@
 'use client'
 
-import { I18nextProvider } from 'react-i18next'
-import i18n from '@/i18n'
 import { AuthProvider } from '@/auth/AuthContext'
 import { QuickAddProvider } from '@/contexts/QuickAddContext'
 import { NavigationProvider } from '@/providers/NavigationProvider'
-import { I18nHtmlLangSync } from '@/providers/I18nHtmlLangSync'
+import { I18nProvider } from '@/providers/I18nProvider'
 import { Toaster } from '@/components/ui/sonner'
 import ApolloWrapper from '@/components/ApolloWrapper'
+import type { AppLocale } from '@/i18n/locale'
 
-export function AppProviders({ children }: { children: React.ReactNode }) {
+interface AppProvidersProps {
+  children: React.ReactNode
+  locale: AppLocale
+}
+
+export function AppProviders({ children, locale }: AppProvidersProps) {
   return (
-    <ApolloWrapper>
-      <I18nextProvider i18n={i18n}>
+    <I18nProvider locale={locale}>
+      <ApolloWrapper>
         <AuthProvider>
           <NavigationProvider>
             <QuickAddProvider>
-              <I18nHtmlLangSync />
               {children}
               <Toaster richColors closeButton position="top-right" />
             </QuickAddProvider>
           </NavigationProvider>
         </AuthProvider>
-      </I18nextProvider>
-    </ApolloWrapper>
+      </ApolloWrapper>
+    </I18nProvider>
   )
 }

@@ -37,7 +37,11 @@ export function ProfileView({ embedded = false }: { embedded?: boolean } = {}) {
   const { t } = useTranslation()
   const { profile, setProfile, user } = useAuth()
   const [form, setForm] = useState<ProfileFormData>(EMPTY_PROFILE_FORM)
-  const [extensionId, setExtensionId] = useState(localStorage.getItem(EXTENSION_ID_KEY) || '')
+  const [extensionId, setExtensionId] = useState('')
+
+  useEffect(() => {
+    setExtensionId(localStorage.getItem(EXTENSION_ID_KEY) || '')
+  }, [])
   const [saving, setSaving] = useState(false)
   const [exportingDb, setExportingDb] = useState(false)
   const [importingDb, setImportingDb] = useState(false)

@@ -75,6 +75,7 @@ export function filterApplications(
 export const HIDE_REJECTED_KEY = 'hideRejected'
 
 export function readHideRejectedPreference(): boolean {
+  if (typeof window === 'undefined') return true
   const stored = localStorage.getItem(HIDE_REJECTED_KEY)
   return stored === null ? true : stored === 'true'
 }

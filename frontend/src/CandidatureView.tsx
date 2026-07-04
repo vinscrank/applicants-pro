@@ -57,7 +57,11 @@ export default function CandidatureView() {
   const [formData, setFormData] = useState<ApplicationFormData>(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
   const [updatingStatusId, setUpdatingStatusId] = useState<number | null>(null)
-  const [hideRejected, setHideRejected] = useState(readHideRejectedPreference)
+  const [hideRejected, setHideRejected] = useState(true)
+
+  useEffect(() => {
+    setHideRejected(readHideRejectedPreference())
+  }, [])
   const [highlightApplicationId, setHighlightApplicationId] = useState<number | null>(null)
   const [showFilters, setShowFilters] = useState(false)
 
