@@ -12,6 +12,8 @@ Documento unico e riproducibile per migrare il database su Neon, testare in loca
 
 **Tu esegui tutto manualmente** — nessuno step è automatico.
 
+> **Uso quotidiano (già in produzione):** vedi [README.md](../../README.md) — avvio locale, tabella deploy per Java/Python/Frontend.
+
 ---
 
 ## Architettura finale

@@ -1,10 +1,24 @@
 # Deploy in produzione — indice
 
-**Documento principale:** **[GUIDA-COMPLETA.md](./GUIDA-COMPLETA.md)**
+**Documento principale (setup iniziale):** **[GUIDA-COMPLETA.md](./GUIDA-COMPLETA.md)**
 
-**Errori visti nel primo deploy:** **[ERRORI-DEPLOY-REALI.md](./ERRORI-DEPLOY-REALI.md)** (404 Vercel, rxjs, exec format error, env vars GCP, ecc.)
+**Uso quotidiano (locale + cosa deployare):** **[README.md](../../README.md)** — sezione *Sviluppo locale* e *Produzione — cosa lanciare*
 
-**Redeploy veloce backend:** `./scripts/deploy-java-prod.sh` | `./scripts/deploy-python-prod.sh`
+**Errori visti nel primo deploy:** **[ERRORI-DEPLOY-REALI.md](./ERRORI-DEPLOY-REALI.md)**
+
+---
+
+## Cheat sheet — cosa lanciare
+
+| Modifica | Comando |
+|----------|---------|
+| Frontend | `git push origin main` → Vercel automatico |
+| Java | `./scripts/deploy-java-prod.sh` |
+| Python | `./scripts/deploy-python-prod.sh` |
+| Java + Python | `./scripts/deploy-backend-prod.sh` |
+| Env `NEXT_PUBLIC_*` su Vercel | Dashboard → Redeploy manuale |
+
+Locale: `docker compose up -d` + `cd frontend && npm run dev` (`.env.local` → `:8080`)
 
 ---
 
@@ -78,8 +92,9 @@ cd frontend && npm run dev    # .env.local → localhost:8080
 
 | File | Ambiente |
 |------|----------|
-| `frontend/.env.local` | Solo dev locale (`:8080`) |
-| Vercel dashboard env | Produzione (URL Cloud Run) |
+| `frontend/.env.local` | Dev locale (`localhost:8080`) |
+| `frontend/.env` | Riferimento prod (copia su Vercel dashboard) |
+| Vercel dashboard env | Produzione runtime |
 | `deploy-notes.txt` | Appunti locali (non git) |
 | `.env` (root) | `GEMINI_API_KEY` locale + deploy Python |
 | `frontend/vercel.json` | Config framework Vercel |
