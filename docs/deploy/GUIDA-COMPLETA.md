@@ -711,12 +711,36 @@ Poi **rebuild e redeploy Java** (step 3.6–3.9).
 ```bash
 gcloud run services update interview-java \
   --region=europe-west1 \
-  --set-env-vars="APP_PUBLIC_URL=https://tuo-progetto.vercel.app"
+  --update-env-vars="APP_PUBLIC_URL=https://tuo-progetto.vercel.app"
 ```
+
+**Mai** `--set-env-vars` con una sola chiave (cancella Neon/JWT).
 
 ---
 
-### 5.4 Verifica produzione — **OBBLIGATORIO**
+### 5.4 Dipendenza rxjs — **OBBLIGATORIO**
+
+Apollo Client 4 → aggiungi `rxjs` in `frontend/package.json`. Senza, build Vercel fallisce:
+
+`Module not found: Can't resolve 'rxjs'`
+
+---
+
+### 5.5 Errore 404 Vercel — **SE SERVE**
+
+Schermata bianca:
+
+```
+404: NOT_FOUND
+Code: NOT_FOUND
+ID: dub1::...
+```
+
+→ Deploy non Ready, Root Directory ≠ `frontend`, o URL sbagliato. Vedi [ERRORI-DEPLOY-REALI.md](./ERRORI-DEPLOY-REALI.md).
+
+---
+
+### 5.6 Verifica produzione — **OBBLIGATORIO**
 
 - [ ] Login su Vercel URL
 - [ ] Candidature da Neon
@@ -738,6 +762,25 @@ gcloud run services update interview-java \
 | CV upload su GCS | OPZIONALE |
 | Secret Manager GCP al posto di env plain | OPZIONALE |
 | Dominio custom Vercel | OPZIONALE |
+
+---
+
+# Sviluppo locale vs produzione
+
+Dopo il deploy cloud, in **locale** continui con Docker (non Neon):
+
+```bash
+docker compose up -d
+```
+
+| | Locale | Produzione |
+|--|--------|------------|
+| Frontend | `npm run dev`, `.env.local` → `:8080` | Vercel |
+| Java | Docker `:8080` | Cloud Run |
+| Python | Docker `:8001` | Cloud Run |
+| DB | Postgres Docker `:5435` | Neon |
+
+Modifiche DB locale **non** sincronizzano Neon (e viceversa) senza export/import script.
 
 ---
 
@@ -829,8 +872,13 @@ git push origin main   # Vercel auto-deploy se collegato
 | Import già fatto | manifest neon-import esiste | Salta re-import |
 | CORS su Vercel | CorsConfig | Fase 5.1 + redeploy Java |
 | Search timeout cloud | Cloud Run timeout | Python `--timeout=900` |
-| `exec format error` Cloud Run | Immagine ARM su Mac | `docker build --platform linux/amd64` |
-| Container failed port 8080 | Crash avvio o ARM | Log GCP + rebuild amd64 |
+| `exec format error` Cloud Run | Immagine ARM su registry | `--platform linux/amd64` + push + verifica pull |
+| `404 NOT_FOUND` Vercel (dub1::) | Build fallita / root sbagliata | Root `frontend`, fix rxjs, deploy Ready |
+| `Can't resolve rxjs` | Peer dep Apollo 4 | `npm install rxjs` in frontend |
+| `DataSource url not specified` | `--set-env-vars` una chiave | Redeploy tutte env o `--update-env-vars` |
+| Backend unreachable locale | `.env.local` su 8081, Docker off | `.env.local` → 8080, `docker compose up -d` |
+
+**Dettaglio errori:** [ERRORI-DEPLOY-REALI.md](./ERRORI-DEPLOY-REALI.md)
 
 ---
 

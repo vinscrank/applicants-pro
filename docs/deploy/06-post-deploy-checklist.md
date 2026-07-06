@@ -85,32 +85,49 @@ psql "$NEON_DIRECT_URL" -c "SELECT COUNT(*) FROM applications;"
 
 ## Workflow di aggiornamento (da ora in poi)
 
-### Cambi codice Java
+### Cambi codice Java (es. CORS)
 
 ```bash
-cd /Users/vincenzo/Desktop/websites/interview
-docker build -t "$IMAGE_JAVA" ./java-backend
-docker push "$IMAGE_JAVA"
-gcloud run deploy interview-java --image="$IMAGE_JAVA" --region="$GCP_REGION"
+./scripts/deploy-java-prod.sh
 ```
+
+Mantiene env vars Cloud Run esistenti.
 
 ### Cambi codice Python
 
 ```bash
-docker build -t "$IMAGE_PYTHON" ./python-ai
-docker push "$IMAGE_PYTHON"
-gcloud run deploy interview-python --image="$IMAGE_PYTHON" --region="$GCP_REGION"
+./scripts/deploy-python-prod.sh
 ```
 
 ### Cambi frontend
 
 ```bash
-git add frontend/
-git commit -m "..."
 git push origin main
 ```
 
-Vercel redeploy automatico (se collegato a `main`).
+Vercel redeploy automatico. Verifica build **Ready** (rxjs, Root Directory `frontend`).
+
+### Cambi solo env GCP
+
+```bash
+gcloud run services update interview-java \
+  --region=europe-west1 \
+  --update-env-vars="APP_PUBLIC_URL=https://tuo-progetto.vercel.app"
+```
+
+**Mai** `--set-env-vars` con una sola chiave — vedi [ERRORI-DEPLOY-REALI.md](./ERRORI-DEPLOY-REALI.md).
+
+### Torni a sviluppare in locale
+
+```bash
+docker compose up -d
+```
+
+`.env.local` → `localhost:8080`. DB = Postgres Docker, non Neon.
+
+---
+
+## Workflow manuale (alternativa)
 
 ### Cambi schema DB
 
@@ -181,13 +198,10 @@ Sostituisci `REVISION_NAME` con la revisione stabile precedente.
 
 | Doc | Contenuto |
 |-----|-----------|
-| [README deploy](./README.md) | Indice fasi |
-| [01-neon-migrate](./01-neon-migrate.md) | DB locale → Neon |
-| [02-neon-locale-test](./02-neon-locale-test.md) | Test locale con Neon |
-| [03-gcp-cloud-run-java](./03-gcp-cloud-run-java.md) | Deploy Java |
-| [04-gcp-cloud-run-python](./04-gcp-cloud-run-python.md) | Deploy Python |
-| [05-vercel-frontend](./05-vercel-frontend.md) | Deploy Vercel |
-| [../db-migrate-local-to-neon.md](../db-migrate-local-to-neon.md) | Reference script DB |
+| [README deploy](./README.md) | Indice + URL prod + script |
+| [GUIDA-COMPLETA](./GUIDA-COMPLETA.md) | Procedura end-to-end |
+| [ERRORI-DEPLOY-REALI](./ERRORI-DEPLOY-REALI.md) | 404 Vercel, rxjs, exec format, env GCP |
+| [05-vercel-frontend](./05-vercel-frontend.md) | Vercel dettagliato |
 
 ---
 

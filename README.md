@@ -29,5 +29,6 @@ Frontend dev locale: `cd frontend && npm run dev`
 - [GraphQL API](docs/graphql-schema.md)
 - [Migrazione DB locale → Neon](docs/db-migrate-local-to-neon.md)
 - [Deploy in produzione — guida completa](docs/deploy/GUIDA-COMPLETA.md)
-- [Deploy — indice fasi](docs/deploy/README.md)
+- [Errori deploy reali (404 Vercel, rxjs, GCP)](docs/deploy/ERRORI-DEPLOY-REALI.md)
+- [Deploy — indice](docs/deploy/README.md)
 - [Apollo frontend](frontend/src/graphql/README.md)

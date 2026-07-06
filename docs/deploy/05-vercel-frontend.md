@@ -2,169 +2,208 @@
 
 **Obiettivo:** pubblicare Next.js su Vercel collegato al backend Java su Cloud Run.
 
-**Tempo stimato:** 20–30 minuti.
+**Prerequisiti:** Fase 3 e 4 ok. Java e Python rispondono UP su Cloud Run.
 
-**Prerequisiti:** Fase 3 e 4 ok, `JAVA_CLOUD_RUN_URL` funzionante.
+**URL produzione esempio (deploy reale):**
+
+| Servizio | URL |
+|----------|-----|
+| Java | `https://interview-java-932950348509.europe-west1.run.app` |
+| Python | `https://interview-python-932950348509.europe-west1.run.app` |
 
 ---
 
-## Step 5.1 — Modifica CORS in Java (obbligatorio)
+## Step 5.1 — CORS Java — **OBBLIGATORIO**
 
-Oggi Java accetta richieste browser **solo da localhost** (`CorsConfig.java`).
+File: `java-backend/src/main/java/com/interview/config/CorsConfig.java`
 
-Prima del deploy Vercel devi aggiungere il dominio Vercel. Apri:
-
-`java-backend/src/main/java/com/interview/config/CorsConfig.java`
-
-Nella lista `setAllowedOriginPatterns`, aggiungi i pattern del tuo dominio:
+Deve includere:
 
 ```java
 config.setAllowedOriginPatterns(List.of(
     "http://localhost:*",
     "http://127.0.0.1:*",
-    "https://*.vercel.app",
-    "https://tuodominio.com"
-));
+    "https://*.vercel.app"));
 ```
 
-**Cosa fa CORS:** il browser blocca richieste da `vercel.app` verso `run.app` se Java non autorizza l’origine.
+**Perché:** il browser su `*.vercel.app` chiama Java su `*.run.app` — senza CORS vedi errori in F12.
 
-Dopo la modifica: **rebuild e redeploy Java** (fase 3, step 3.10).
+**Redeploy Java dopo modifica CORS:**
 
----
-
-## Step 5.2 — Collega repo a Vercel
-
-1. Vai su [vercel.com/new](https://vercel.com/new)
-2. Importa il repository GitHub `applicants-pro` (o il tuo fork)
-3. **Root Directory:** imposta `frontend` (monorepo — Vercel deve buildare solo Next.js)
-4. Framework Preset: **Next.js** (auto-detect)
-
-Non cliccare Deploy ancora — configura env prima.
+```bash
+./scripts/deploy-java-prod.sh
+```
 
 ---
 
-## Step 5.3 — Variabili d’ambiente su Vercel
+## Step 5.2 — Progetto Vercel — **OBBLIGATORIO**
 
-In **Settings → Environment Variables** del progetto Vercel:
+1. [vercel.com/new](https://vercel.com/new) → import repo GitHub
+2. **Root Directory:** `frontend` — **OBBLIGATORIO**
 
-| Nome | Valore | Ambiente |
-|------|--------|----------|
-| `NEXT_PUBLIC_BACKEND_URL` | `https://interview-java-xxxxx-ew.a.run.app` | Production, Preview |
-| `NEXT_PUBLIC_GRAPHQL_URL` | `https://interview-java-xxxxx-ew.a.run.app/graphql` | Production, Preview |
+Il repo è un monorepo: `package.json` sta solo in `frontend/`, non nella root.
 
-**Cosa fa `NEXT_PUBLIC_*`:**
-- Prefisso `NEXT_PUBLIC_` = esposto al browser (vedi `frontend/src/lib/env.ts`)
-- Il frontend chiama Java su quella URL per API REST e GraphQL
+| Root Directory | Risultato |
+|----------------|-----------|
+| `frontend` | Corretto |
+| vuota / root repo | Build fallisce o **404 NOT_FOUND** in browser |
 
-**Non serve** esporre Python al frontend — passa sempre da Java.
+3. Framework: **Next.js** (auto-detect)
+4. File `frontend/vercel.json` presente nel repo (framework nextjs)
 
-Opzionali:
+---
+
+## Step 5.3 — Env variables Vercel — **OBBLIGATORIO**
+
+**Settings → Environment Variables** (Production + Preview):
 
 | Nome | Valore |
 |------|--------|
-| `NEXT_PUBLIC_USE_JAVA_SEARCH` | `true` (default) |
-| `NEXT_PUBLIC_EXTENSION_ID` | ID extension Chrome se la usi |
+| `NEXT_PUBLIC_BACKEND_URL` | `https://interview-java-932950348509.europe-west1.run.app` |
+| `NEXT_PUBLIC_JAVA_API_URL` | stesso URL Java |
+| `NEXT_PUBLIC_GRAPHQL_URL` | `https://interview-java-932950348509.europe-west1.run.app/graphql` |
+
+**Non** committare queste URL in `.env.local` — `.env.local` resta per dev (`localhost:8080`).
 
 ---
 
-## Step 5.4 — Aggiorna Java con URL Vercel reale
+## Step 5.4 — Dipendenza `rxjs` — **OBBLIGATORIO**
 
-Dopo il primo deploy Vercel avrai un URL tipo `https://interview-xxx.vercel.app`.
+**Errore build Vercel visto in deploy reale:**
 
-Aggiorna Java per redirect Stripe e link email:
-
-```bash
-export VERCEL_URL='https://interview-xxx.vercel.app'
-
-gcloud run services update interview-java \
-  --region="$GCP_REGION" \
-  --set-env-vars="APP_PUBLIC_URL=${VERCEL_URL}"
+```
+Module not found: Can't resolve 'rxjs'
+> import { map, shareReplay } from "rxjs";
+    ./node_modules/@apollo/client/...
 ```
 
-Se usi Stripe, aggiorna anche in GCP (o Secret Manager):
-- `APP_STRIPE_SUCCESS_URL`
-- `APP_STRIPE_CANCEL_URL`
-- webhook endpoint → `https://interview-java-xxxxx.run.app/api/stripe/webhook` (path esatto da verificare nel codice)
+**Causa:** Apollo Client 4 richiede `rxjs` come peer dependency. In locale può funzionare per caso; su Vercel il build fallisce.
+
+**Fix:** in `frontend/package.json` deve esserci:
+
+```json
+"rxjs": "^7.8.2"
+```
+
+Verifica locale:
+
+```bash
+cd frontend && npm run build
+```
+
+Poi commit + push → Vercel rebuild.
 
 ---
 
-## Step 5.5 — Deploy
+## Step 5.5 — Deploy — **OBBLIGATORIO**
 
-Clicca **Deploy** su Vercel (o push su branch `main` se auto-deploy attivo).
+Push su `main` (se auto-deploy) o **Deploy** da dashboard.
 
-**Cosa fa Vercel:**
-1. `npm install` in `frontend/`
-2. `npm run build` (Next.js production build)
-3. Deploy su CDN globale
-
-**Build locale di prova** (opzionale, sul tuo Mac):
+**Build locale di prova prima del push:**
 
 ```bash
 cd frontend
-export NEXT_PUBLIC_BACKEND_URL='https://interview-java-xxxxx.run.app'
+export NEXT_PUBLIC_BACKEND_URL='https://interview-java-932950348509.europe-west1.run.app'
 npm run build
 ```
 
-Se build locale ok, Vercel dovrebbe andare liscio.
-
 ---
 
-## Step 5.6 — Verifica in produzione
+## Step 5.6 — Errore 404 Vercel — **SE SERVE**
 
-Apri l’URL Vercel e controlla:
-
-| Test | Esito atteso |
-|------|--------------|
-| Pagina login carica | ok |
-| Login utente migrato | ok |
-| Applications list | dati da Neon |
-| Discover | Java → Python ok |
-| Console browser (F12) | nessun errore CORS |
-
-**Errore CORS tipico:**
+**Sintomo in browser (schermata bianca Vercel):**
 
 ```
-Access to fetch at 'https://interview-java...run.app/...' from origin 'https://xxx.vercel.app' has been blocked by CORS
+404: NOT_FOUND
+Code: NOT_FOUND
+ID: dub1::44kj6-1783335241981-ae188b1c24e0
 ```
 
-→ Ripeti step 5.1 e redeploy Java.
+**Cosa significa:** pagina di **Vercel**, non della tua app. Nessun deploy valido su quell’URL.
 
-**Errore 401/403:** normale su endpoint protetti senza login.
+| Causa | Fix |
+|-------|-----|
+| Build fallita (es. `rxjs`) | Fix build → push → attendi deploy **Ready** |
+| Root Directory non è `frontend` | Settings → General → Root Directory = `frontend` |
+| URL vecchio / preview fallita | Usa URL del deploy **Ready** (verde) |
+| Env mancanti | Step 5.3 |
 
----
+**Checklist:**
 
-## Step 5.7 — Dominio custom (opzionale)
-
-1. Vercel → Project → Settings → Domains
-2. Aggiungi `app.tuodominio.com`
-3. Configura DNS (CNAME verso Vercel)
-4. Aggiungi `https://app.tuodominio.com` in `CorsConfig.java`
-5. Redeploy Java
-6. Aggiorna `APP_PUBLIC_URL` su Cloud Run
-
----
-
-## Step 5.8 — Checkpoint ✅
-
-- [ ] Vercel deploy verde
-- [ ] `NEXT_PUBLIC_BACKEND_URL` punta a Java Cloud Run
-- [ ] CORS aggiornato e Java redeployato
-- [ ] Login e navigazione ok in produzione
-- [ ] `VERCEL_URL` salvata in `deploy-notes.txt`
-
-**Prossimo passo:** [06-post-deploy-checklist.md](./06-post-deploy-checklist.md)
+1. Vercel → **Deployments** → ultimo = **Ready** (verde)?
+2. Root Directory = `frontend`?
+3. Apri URL produzione del deploy Ready, es. `https://tuo-progetto.vercel.app`
+4. Prova `/login` — deve mostrare la pagina login, non 404 Vercel
 
 ---
 
-## Preview deployments
+## Step 5.7 — Aggiorna Java con URL Vercel — **OBBLIGATORIO**
 
-Ogni PR su Vercel genera un URL preview (`xxx-git-branch.vercel.app`).
+Dopo deploy Vercel avrai es. `https://interview-xxx.vercel.app`.
 
-Aggiungi in CORS:
+**Usa `--update-env-vars`, NON `--set-env-vars`:**
 
-```java
-"https://*.vercel.app"
+```bash
+gcloud run services update interview-java \
+  --region=europe-west1 \
+  --update-env-vars="APP_PUBLIC_URL=https://tuo-progetto.vercel.app"
 ```
 
-Così funzionano anche le preview senza redeploy per ogni branch.
+---
+
+## Step 5.8 — Verifica produzione — **OBBLIGATORIO**
+
+| Test | Atteso |
+|------|--------|
+| `/` o `/login` | Pagina app, non 404 Vercel |
+| Login utente Neon | ok |
+| Candidature | dati da Neon |
+| F12 Console | nessun errore CORS |
+
+**Errore CORS:**
+
+```
+blocked by CORS policy ... vercel.app ... run.app
+```
+
+→ Redeploy Java con CORS `https://*.vercel.app` (step 5.1).
+
+---
+
+## Step 5.9 — Checkpoint
+
+- [ ] Build Vercel **Ready**
+- [ ] `rxjs` in package.json
+- [ ] Root Directory = `frontend`
+- [ ] Env `NEXT_PUBLIC_*` su Vercel
+- [ ] Java redeployato con CORS
+- [ ] `APP_PUBLIC_URL` aggiornato con `--update-env-vars`
+- [ ] Login ok in produzione
+
+**Prossimo:** [06-post-deploy-checklist.md](./06-post-deploy-checklist.md)
+
+---
+
+## Sviluppo locale dopo deploy prod
+
+Prod e locale sono **separati**:
+
+| | Locale dev | Produzione |
+|--|------------|------------|
+| Frontend | `npm run dev` + `.env.local` → `:8080` | Vercel |
+| Java/Python | `docker compose up -d` | Cloud Run |
+| DB | Postgres Docker `:5435` | Neon |
+
+Riavvio stack locale:
+
+```bash
+docker compose up -d
+```
+
+`.env.local`:
+
+```
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8080
+NEXT_PUBLIC_JAVA_API_URL=http://localhost:8080
+NEXT_PUBLIC_GRAPHQL_URL=http://localhost:8080/graphql
+```
