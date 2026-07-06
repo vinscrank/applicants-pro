@@ -1,6 +1,7 @@
 .DS_Store
 .env
 .env.*
+deploy-notes.txt
 
 node_modules/
 dist/
