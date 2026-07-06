@@ -743,6 +743,48 @@ gcloud run services update interview-java \
 
 # Redeploy rapido (dopo la prima volta)
 
+### Modifica solo Java (es. CORS) — **1 comando**
+
+```bash
+./scripts/deploy-java-prod.sh
+```
+
+Fa: build amd64 → push → `gcloud run deploy` ( **mantiene le env vars già su Cloud Run** ).
+
+### Modifica solo Python — **1 comando**
+
+```bash
+./scripts/deploy-python-prod.sh
+```
+
+### Modifica entrambi
+
+```bash
+./scripts/deploy-backend-prod.sh
+```
+
+### Frontend (Next.js)
+
+Push su `main` → Vercel redeploy automatico (se repo collegato).
+
+```bash
+git push origin main
+```
+
+### Cambiare solo una env var (senza rebuild)
+
+```bash
+gcloud run services update interview-java \
+  --region=europe-west1 \
+  --update-env-vars="APP_PUBLIC_URL=https://tuo-progetto.vercel.app"
+```
+
+**Mai** `--set-env-vars` con una sola chiave — cancella tutte le altre.
+
+---
+
+# Redeploy manuale (dettaglio)
+
 ### Java
 
 ```bash
