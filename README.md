@@ -27,4 +27,7 @@ Frontend dev locale: `cd frontend && npm run dev`
 
 - [Piano refactor (16 fasi)](docs/refactor-java-portfolio.md)
 - [GraphQL API](docs/graphql-schema.md)
+- [Migrazione DB locale → Neon](docs/db-migrate-local-to-neon.md)
+- [Deploy in produzione — guida completa](docs/deploy/GUIDA-COMPLETA.md)
+- [Deploy — indice fasi](docs/deploy/README.md)
 - [Apollo frontend](frontend/src/graphql/README.md)
